@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { navGroups } from "../../routes";
 import { GlobalSearch } from "./GlobalSearch";
-import { BrandMark } from "../branding/BrandMark";
 
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") ?? "light");
@@ -22,14 +21,9 @@ export function AppShell() {
       {sidebarOpen && <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />}
       <aside className={`sidebar${sidebarOpen ? " open" : ""}`}>
         <div className="brand-block">
-          <div className="brand-row">
-            <BrandMark size={34} />
-            <div className="brand-wordmark">
-              <div className="brand-name">The Rameshwaram Café</div>
-              <div className="brand-sub">Aikyam · Brookefield</div>
-            </div>
-          </div>
+          <img className="brand-logo-img" src="/branding/brand-lockup.png" alt="The Rameshwaram Café" />
           <div className="brand-title">Master Tracking</div>
+          <div className="brand-sub">Aikyam · Brookefield</div>
         </div>
         {navGroups.map((group) => (
           <div className="nav-group" key={group.label}>

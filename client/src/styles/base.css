@@ -220,9 +220,5 @@ tr.clickable:hover td { background: rgba(182, 95, 58, 0.045); }
 .status-dot.crit { background: var(--critical); }
 .status-dot.notconn { background: var(--not-connected); }
 
-/* subtle kolam-inspired divider */
-.kolam-divider { height: 10px; margin: 4px 0 14px; opacity: 0.5; background-repeat: round; background-size: 20px 10px; background-image:
-  radial-gradient(circle at 5px 5px, var(--gold) 1.1px, transparent 1.6px); }
-
 .empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px 20px; color: var(--ink-2); }
-.empty-state .kolam-mark { width: 46px; height: 46px; margin-bottom: 12px; opacity: 0.7; }
+.empty-state .kolam-mark { width: 44px; height: 44px; margin-bottom: 12px; opacity: 0.32; }

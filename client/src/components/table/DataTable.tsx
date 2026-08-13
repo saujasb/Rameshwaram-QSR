@@ -57,7 +57,7 @@ export function DataTable<T extends { id: string }>({
   if (rows.length === 0) {
     return (
       <div className="empty-state">
-        <div className="kolam-divider" style={{ width: 120 }} />
+        <img className="kolam-mark" src="/branding/emblem.png" alt="" aria-hidden />
         <p style={{ color: "var(--muted)", fontSize: 13.5, margin: 0 }}>{emptyMessage}</p>
       </div>
     );
