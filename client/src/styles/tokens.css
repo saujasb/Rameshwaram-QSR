@@ -1,0 +1,49 @@
+:root {
+  --brand: #7a1f2b;
+  --brand-2: #a8324a;
+  --gold: #b8860b;
+  --page: #f6f2ea;
+  --card: #ffffff;
+  --ink: #1a1512;
+  --ink-2: #5c534c;
+  --muted: #8a8078;
+  --line: #e7e0d4;
+  --line-2: #efe9dd;
+  --s1: #2a78d6;
+  --s2: #eb6834;
+  --s3: #1baf7a;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --grid: #e7e0d4;
+  --axis: #c9c0b2;
+  --surface-1: #ffffff;
+  --not-connected: #b3aca3;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --brand: #e0899a;
+  --brand-2: #e0899a;
+  --gold: #e0b34d;
+  --page: #0f0d0c;
+  --card: #1b1817;
+  --ink: #f7f3ec;
+  --ink-2: #c3bcb2;
+  --muted: #8a8078;
+  --line: #2c2825;
+  --line-2: #242120;
+  --s1: #3987e5;
+  --s2: #d95926;
+  --s3: #199e70;
+  --good: #0ca30c;
+  --warning: #fab219;
+  --serious: #ec835a;
+  --critical: #d03b3b;
+  --grid: #2c2825;
+  --axis: #3a3532;
+  --surface-1: #1b1817;
+  --not-connected: #5c534c;
+  color-scheme: dark;
+}

@@ -1,0 +1,15 @@
+{
+  "name": "rameshwaram-qsr-dashboard",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,magenta \"npm:dev --workspace=server\" \"npm:dev --workspace=client\"",
+    "seed": "npm run seed --workspace=server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}

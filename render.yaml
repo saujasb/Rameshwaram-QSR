@@ -1,0 +1,28 @@
+# Render Blueprint for the Express + SQLite backend.
+#
+# IMPORTANT — persistence caveat:
+# Render's free web-service plan has an EPHEMERAL filesystem: it resets on every
+# deploy and after the service spins down from inactivity. That would silently
+# wipe the SQLite database, defeating the whole point of local persistence.
+# A persistent disk (the `disk:` block below) requires at least the "starter"
+# paid plan. If you want real persistence on Render, use `starter` or higher.
+# If you'd rather stay free, Fly.io offers a real persistent volume on its free
+# allowance instead — ask if you want that variant.
+services:
+  - type: web
+    name: rameshwaram-qsr-server
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm run start --workspace=server
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATA_DIR
+        value: /var/data
+      - key: CLIENT_ORIGIN
+        sync: false
+    disk:
+      name: qsr-data
+      mountPath: /var/data
+      sizeGB: 1
