@@ -1,49 +1,67 @@
 :root {
-  --brand: #7a1f2b;
-  --brand-2: #a8324a;
-  --gold: #b8860b;
-  --page: #f6f2ea;
-  --card: #ffffff;
-  --ink: #1a1512;
-  --ink-2: #5c534c;
-  --muted: #8a8078;
-  --line: #e7e0d4;
-  --line-2: #efe9dd;
-  --s1: #2a78d6;
-  --s2: #eb6834;
-  --s3: #1baf7a;
-  --good: #0ca30c;
-  --warning: #fab219;
-  --serious: #ec835a;
-  --critical: #d03b3b;
-  --grid: #e7e0d4;
-  --axis: #c9c0b2;
-  --surface-1: #ffffff;
-  --not-connected: #b3aca3;
+  /* Rameshwaram Café — Master Tracking Command Centre design tokens */
+  --brand: #b65f3a;       /* Terracotta */
+  --brand-2: #d9953d;     /* Burnt Saffron */
+  --gold: #c8a45d;        /* Brass Gold */
+  --charcoal: #171717;    /* Deep Charcoal */
+
+  --page: #f7f3ec;        /* Warm Ivory */
+  --card: #fffdf8;        /* Soft Cream */
+  --surface-1: #fffdf8;
+
+  --ink: #24211e;         /* Primary text */
+  --ink-2: #756b61;       /* Secondary text */
+  --muted: #9a8f84;
+
+  --line: rgba(36, 33, 30, 0.08);
+  --line-2: rgba(36, 33, 30, 0.13);
+
+  /* chart series: primary / secondary / highlight */
+  --s1: #b65f3a;
+  --s2: #d9953d;
+  --s3: #c8a45d;
+
+  --good: #3f6b50;        /* Success */
+  --warning: #c4862c;     /* Warning */
+  --serious: #b3592e;     /* between warning and critical */
+  --critical: #a94736;    /* Critical */
+  --not-connected: #ab9f92;
+
+  --grid: rgba(36, 33, 30, 0.08);
+  --axis: rgba(36, 33, 30, 0.2);
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
   color-scheme: light;
 }
 
 :root[data-theme="dark"] {
-  --brand: #e0899a;
-  --brand-2: #e0899a;
-  --gold: #e0b34d;
-  --page: #0f0d0c;
-  --card: #1b1817;
+  --page: #17140f;
+  --card: #221d17;
+  --surface-1: #221d17;
+
   --ink: #f7f3ec;
-  --ink-2: #c3bcb2;
-  --muted: #8a8078;
-  --line: #2c2825;
-  --line-2: #242120;
-  --s1: #3987e5;
-  --s2: #d95926;
-  --s3: #199e70;
-  --good: #0ca30c;
-  --warning: #fab219;
-  --serious: #ec835a;
-  --critical: #d03b3b;
-  --grid: #2c2825;
-  --axis: #3a3532;
-  --surface-1: #1b1817;
-  --not-connected: #5c534c;
+  --ink-2: #c9bfb3;
+  --muted: #948879;
+
+  --brand: #cb7649;
+  --brand-2: #e3a24d;
+  --gold: #d4b876;
+
+  --line: rgba(247, 243, 236, 0.1);
+  --line-2: rgba(247, 243, 236, 0.15);
+
+  --s1: #cb7649;
+  --s2: #e3a24d;
+  --s3: #d4b876;
+
+  --good: #4f8a64;
+  --warning: #d99a3e;
+  --serious: #c96b3e;
+  --critical: #c25a48;
+  --not-connected: #948879;
+
+  --grid: rgba(247, 243, 236, 0.08);
+  --axis: rgba(247, 243, 236, 0.22);
+
   color-scheme: dark;
 }

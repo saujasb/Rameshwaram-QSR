@@ -17,4 +17,6 @@ export interface ColumnConfig<T> {
   label: string;
   numeric?: boolean;
   render?: (record: T) => import("react").ReactNode;
+  sortable?: boolean;
+  sortValue?: (record: T) => string | number | null | undefined;
 }

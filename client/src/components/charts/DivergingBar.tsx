@@ -42,13 +42,22 @@ export function DivergingBar({
         const x1 = x(d.value);
         const rx = Math.min(x0, x1);
         const rw = Math.max(1, Math.abs(x1 - x0));
+        const crowded = !over && x1 - padL < 64;
+        const labelX = over ? x1 + 6 : crowded ? x1 + 6 : x1 - 6;
+        const labelAnchor = over || crowded ? "start" : "end";
         return (
           <g key={d.name}>
             <rect x={rx} y={y} width={rw} height={bh} rx={4} fill={over ? (d.positiveColor ?? positiveColor) : (d.negativeColor ?? negativeColor)}>
               <title>{d.tooltip ?? `${d.name}: ${valueFormatter(d.value)}`}</title>
             </rect>
             <text x={padL - 10} y={y + bh / 2 + 4} textAnchor="end" className="bar-label">{d.name}</text>
-            <text x={over ? x1 + 6 : x1 - 6} y={y + bh / 2 + 4} textAnchor={over ? "start" : "end"} className="val-label">
+            <text
+              x={labelX}
+              y={y + bh / 2 + 4}
+              textAnchor={labelAnchor}
+              className="val-label"
+              fill={crowded ? "#fffdf8" : undefined}
+            >
               {valueFormatter(d.value)}
             </text>
           </g>
