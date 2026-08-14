@@ -1,6 +1,7 @@
 import { DashboardPage } from "./modules/dashboard/DashboardPage";
 import { ActionCenterPage } from "./modules/dashboard/ActionCenterPage";
 import { SalesAnalyticsPage } from "./modules/sales-analytics/SalesAnalyticsPage";
+import { SalesImportPage } from "./modules/sales-analytics/SalesImportPage";
 import { VegIndentPage } from "./modules/sales-analytics/VegIndentPage";
 import { KpiScorecardPage } from "./modules/sales-analytics/KpiScorecardPage";
 import { OrdersPage } from "./modules/orders/OrdersPage";
@@ -43,6 +44,7 @@ export const navGroups: NavGroup[] = [
     label: "Sales & Orders",
     items: [
       { path: "/sales-analytics", label: "Sales & Revenue", element: <SalesAnalyticsPage />, icon: "₹" },
+      { path: "/sales-import", label: "Sales Data Import", element: <SalesImportPage />, icon: "⇧" },
       { path: "/veg-indent", label: "Vegetable Indent", element: <VegIndentPage />, icon: "🥕" },
       { path: "/kpi-scorecard", label: "KPI Scorecard", element: <KpiScorecardPage />, icon: "◎" },
       { path: "/orders", label: "Orders", element: <OrdersPage />, icon: "▤" },

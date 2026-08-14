@@ -1,8 +1,12 @@
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { DivergingBar } from "../../components/charts/DivergingBar";
 import { HBarChart } from "../../components/charts/HBarChart";
 import { Donut } from "../../components/charts/Donut";
 import { useAnalyticsSnapshot, usePrioritizedActions } from "../../lib/api/analytics";
+import { useSalesSummary } from "../../lib/api/sales";
+import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
+import { SALES_CHANNEL_LABELS } from "@shared/sales";
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "var(--critical)",
@@ -10,6 +14,164 @@ const SEVERITY_COLOR: Record<string, string> = {
   warning: "var(--warning)",
   info: "var(--brand)",
 };
+
+const CHANNEL_COLOR: Record<string, string> = {
+  petpooja_pos: "var(--s2)",
+  kiosk: "var(--s1)",
+  petpooja_online: "var(--s3)",
+};
+
+type RangePreset = "today" | "yesterday" | "week" | "month" | "all" | "custom";
+
+function computeRange(preset: RangePreset, customFrom: string, customTo: string): { from?: string; to?: string } {
+  const today = getCurrentBusinessDate();
+  if (preset === "today") return { from: today, to: today };
+  if (preset === "yesterday") {
+    const y = shiftDateKey(today, -1);
+    return { from: y, to: y };
+  }
+  if (preset === "week") return { from: shiftDateKey(today, -6), to: today };
+  if (preset === "month") return { from: shiftDateKey(today, -29), to: today };
+  if (preset === "all") return {};
+  return { from: customFrom || undefined, to: customTo || undefined };
+}
+
+function LiveSalesSection() {
+  const today = getCurrentBusinessDate();
+  const [preset, setPreset] = useState<RangePreset>("today");
+  const [customFrom, setCustomFrom] = useState(today);
+  const [customTo, setCustomTo] = useState(today);
+  const range = useMemo(() => computeRange(preset, customFrom, customTo), [preset, customFrom, customTo]);
+  const { data: sales } = useSalesSummary(range.from, range.to);
+
+  const rangeLabel =
+    sales?.businessDateFrom && sales.businessDateFrom === sales.businessDateTo
+      ? sales.businessDateFrom
+      : sales?.businessDateFrom
+        ? `${sales.businessDateFrom} – ${sales.businessDateTo}`
+        : "";
+
+  return (
+    <>
+      <h2 style={{ fontSize: 15, margin: "0 0 10px", color: "var(--ink-2)" }}>Live sales — from imported reports</h2>
+      <div className="filters-bar">
+        <select value={preset} onChange={(e) => setPreset(e.target.value as RangePreset)}>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="week">Last 7 days</option>
+          <option value="month">Last 30 days</option>
+          <option value="all">All time</option>
+          <option value="custom">Custom range</option>
+        </select>
+        {preset === "custom" && (
+          <>
+            <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} />
+            <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
+          </>
+        )}
+        <Link to="/sales-import" className="btn small">Import a report →</Link>
+      </div>
+
+      {!sales || sales.totalAmount === 0 ? (
+        <div className="banner-not-connected" style={{ marginBottom: 18 }}>
+          No sales data imported for this range yet. <Link to="/sales-import">Upload a sales PDF</Link> to populate
+          Total Sales, Sales by Channel, Top Items, Category performance and the Sales Trend below — nothing here is
+          invented.
+        </div>
+      ) : (
+        <>
+          <div className="kpis" style={{ marginBottom: 18 }}>
+            <div className="kpi good">
+              <div className="lab">Total Sales</div>
+              <div className="val">₹{sales.totalAmount.toLocaleString()}</div>
+              <div className="note">{sales.totalQuantity.toLocaleString()} items · {rangeLabel}</div>
+            </div>
+            {sales.byChannel.map((c) => (
+              <div className="kpi good" key={c.channel}>
+                <div className="lab">{SALES_CHANNEL_LABELS[c.channel]}</div>
+                <div className="val">₹{c.amount.toLocaleString()}</div>
+                <div className="note">{c.quantity.toLocaleString()} items</div>
+              </div>
+            ))}
+            <div className={`kpi ${sales.hasHourlyData ? "good" : "notconn"}`}>
+              <div className="lab">Hourly breakdown</div>
+              <div className="val" style={sales.hasHourlyData ? undefined : { fontSize: 14.5 }}>
+                {sales.hasHourlyData ? "Available" : "Not available"}
+              </div>
+              <div className="note">{sales.hasHourlyData ? "per-order timestamps found" : "these reports have no per-order time data"}</div>
+            </div>
+          </div>
+
+          <div className="grid2">
+            <div className="card" style={{ marginBottom: 0 }}>
+              <h3>Sales by channel</h3>
+              <p className="h3sub">{rangeLabel}</p>
+              <div className="legend">
+                {sales.byChannel.map((c) => (
+                  <span key={c.channel}>
+                    <span className="sw" style={{ background: CHANNEL_COLOR[c.channel] ?? "var(--brand)" }} />
+                    {SALES_CHANNEL_LABELS[c.channel]}
+                  </span>
+                ))}
+              </div>
+              <Donut
+                data={sales.byChannel.map((c) => ({
+                  name: SALES_CHANNEL_LABELS[c.channel],
+                  value: c.amount,
+                  color: CHANNEL_COLOR[c.channel] ?? "var(--brand)",
+                }))}
+                centerLabel={`₹${sales.totalAmount.toLocaleString()}`}
+                centerSub="total sales"
+              />
+            </div>
+            <div className="card" style={{ marginBottom: 0 }}>
+              <h3>Top items</h3>
+              <p className="h3sub">By revenue, {rangeLabel}</p>
+              <HBarChart
+                data={sales.topItems.map((t) => ({ name: t.itemName, value: t.amount }))}
+                defaultColor="var(--brand)"
+                valueFormatter={(v) => `₹${v.toLocaleString()}`}
+              />
+            </div>
+          </div>
+
+          <div className="card" style={{ marginTop: 18 }}>
+            <h3>Category performance</h3>
+            <p className="h3sub">Revenue by menu category, {rangeLabel}</p>
+            <div className="table-scroll">
+              <table>
+                <thead>
+                  <tr><th>Category</th><th className="num">Qty</th><th className="num">Revenue</th></tr>
+                </thead>
+                <tbody>
+                  {sales.byCategory.map((c) => (
+                    <tr key={c.category}>
+                      <td>{c.category}</td>
+                      <td className="num">{c.quantity.toLocaleString()}</td>
+                      <td className="num">₹{c.amount.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {sales.dailyTrend.length > 1 && (
+            <div className="card">
+              <h3>Sales trend</h3>
+              <p className="h3sub">By business date</p>
+              <HBarChart
+                data={sales.dailyTrend.map((d) => ({ name: d.businessDate, value: d.amount }))}
+                defaultColor="var(--s2)"
+                valueFormatter={(v) => `₹${v.toLocaleString()}`}
+              />
+            </div>
+          )}
+        </>
+      )}
+    </>
+  );
+}
 
 export function SalesAnalyticsPage() {
   const { data: snap, isLoading } = useAnalyticsSnapshot();
@@ -23,12 +185,16 @@ export function SalesAnalyticsPage() {
         <div>
           <h1>Sales & Revenue</h1>
           <p className="page-desc">
-            Read-only analytics from the last reported trading day — <b>{snap.reportDate}</b>. There is no live POS feed
-            yet, so there is no "today", "vs yesterday" or "target achievement" figure to show; those tiles are on the
-            Dashboard as "not connected" rather than invented.
+            Live sales below come from PDF reports you've imported (Kiosk, PetPooja counter, PetPooja Online). Further
+            down, a read-only one-day operations snapshot from <b>{snap.reportDate}</b> covers production/wastage
+            variance — a separate, one-time report, not the live feed.
           </p>
         </div>
       </div>
+
+      <LiveSalesSection />
+
+      <h2 style={{ fontSize: 15, margin: "26px 0 10px", color: "var(--ink-2)" }}>One-day operations snapshot — {snap.reportDate}</h2>
 
       <div className="kpis" style={{ marginBottom: 18 }}>
         <div className="kpi good"><div className="lab">Items Sold</div><div className="val">{snap.itemsSold.toLocaleString()}</div><div className="note">across 3 channels</div></div>

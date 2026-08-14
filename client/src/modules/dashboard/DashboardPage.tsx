@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAnalyticsSnapshot } from "../../lib/api/analytics";
 import { useActionCenter } from "../../lib/api/actionCenter";
+import { useSalesSummary } from "../../lib/api/sales";
 import { wastageHooks } from "../../lib/api/wastage";
 import { taskHooks } from "../../lib/api/tasks";
 import { inventoryHooks } from "../../lib/api/inventory";
@@ -12,6 +13,7 @@ import { attendanceHooks } from "../../lib/api/staff";
 import { maintenanceHooks } from "../../lib/api/maintenance";
 import { complaintHooks } from "../../lib/api/complaints";
 import { computeInventoryStatus } from "@shared/inventoryStatus";
+import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 
 function KpiTile({
   label,
@@ -41,10 +43,16 @@ function GroupHeading({ children }: { children: ReactNode }) {
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const today = new Date().toISOString().slice(0, 10);
+  // Business day (05:00 -> 03:00 next calendar day), not the raw calendar date --
+  // e.g. at 14 Aug 01:30 AM "today" is still the 13 Aug trading day.
+  const today = getCurrentBusinessDate();
+  const yesterday = shiftDateKey(today, -1);
 
   const { data: snap } = useAnalyticsSnapshot();
   const { data: actionItems } = useActionCenter();
+  const { data: todaySales } = useSalesSummary(today, today);
+  const { data: yesterdaySales } = useSalesSummary(yesterday, yesterday);
+  const { data: allSales } = useSalesSummary();
   const { data: wastage } = wastageHooks.useList();
   const { data: tasks } = taskHooks.useList();
   const { data: inventory } = inventoryHooks.useList();
@@ -91,9 +99,46 @@ export function DashboardPage() {
 
       <GroupHeading>Sales</GroupHeading>
       <div className="kpis">
-        <KpiTile label="Today's Sales" value="Not connected" note="No live POS feed" tone="notconn" />
+        <KpiTile
+          label="Today's Sales"
+          value={todaySales && todaySales.totalAmount > 0 ? `₹${todaySales.totalAmount.toLocaleString()}` : "₹0"}
+          note={
+            todaySales && todaySales.totalAmount > 0
+              ? `${todaySales.totalQuantity.toLocaleString()} items · business day ${today}`
+              : `No PDF imported yet for business day ${today} (05:00–03:00)`
+          }
+          tone={todaySales && todaySales.totalAmount > 0 ? "good" : "notconn"}
+          onClick={() => navigate("/sales-import")}
+        />
+        <KpiTile
+          label="Sales vs Yesterday"
+          value={
+            todaySales && todaySales.totalAmount > 0 && yesterdaySales && yesterdaySales.totalAmount > 0
+              ? `${todaySales.totalAmount >= yesterdaySales.totalAmount ? "+" : ""}${Math.round(((todaySales.totalAmount - yesterdaySales.totalAmount) / yesterdaySales.totalAmount) * 1000) / 10}%`
+              : "—"
+          }
+          note={
+            todaySales && todaySales.totalAmount > 0 && yesterdaySales && yesterdaySales.totalAmount > 0
+              ? `₹${todaySales.totalAmount.toLocaleString()} vs ₹${yesterdaySales.totalAmount.toLocaleString()}`
+              : "Need both business days imported to compare"
+          }
+          tone={
+            todaySales && todaySales.totalAmount > 0 && yesterdaySales && yesterdaySales.totalAmount > 0
+              ? todaySales.totalAmount >= yesterdaySales.totalAmount
+                ? "good"
+                : "warn"
+              : "notconn"
+          }
+          onClick={() => navigate("/sales-analytics")}
+        />
         <KpiTile label="Sales Target / Achievement %" value="Not connected" note="No target feed set" tone="notconn" />
-        <KpiTile label="Sales vs Yesterday / Last Week" value="Not connected" note="Only one historic day on file" tone="notconn" />
+        <KpiTile
+          label="Total Sales Imported"
+          value={allSales && allSales.totalAmount > 0 ? `₹${allSales.totalAmount.toLocaleString()}` : "—"}
+          note={allSales && allSales.businessDateFrom ? `${allSales.businessDateFrom} → ${allSales.businessDateTo}` : "No sales PDFs imported yet"}
+          tone={allSales && allSales.totalAmount > 0 ? "good" : "notconn"}
+          onClick={() => navigate("/sales-import")}
+        />
         <KpiTile
           label="Last Reported Day's Sales"
           value={snap ? snap.itemsSold.toLocaleString() : "—"}

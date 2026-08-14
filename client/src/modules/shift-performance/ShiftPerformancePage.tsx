@@ -3,6 +3,7 @@ import { attendanceHooks } from "../../lib/api/staff";
 import { wastageHooks } from "../../lib/api/wastage";
 import { taskHooks } from "../../lib/api/tasks";
 import { orderHooks } from "../../lib/api/orders";
+import { getCurrentBusinessDate } from "@shared/businessDate";
 import type { Shift } from "@shared/entities";
 
 const SHIFTS: { key: Shift; label: string }[] = [
@@ -17,7 +18,9 @@ export function ShiftPerformancePage() {
   const { data: tasks } = taskHooks.useList();
   const { data: orders } = orderHooks.useList();
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Business day (05:00 -> 03:00 next calendar day), not the raw calendar date --
+  // a 1am shift log still belongs to the trading day that started the previous morning.
+  const today = getCurrentBusinessDate();
 
   const rows = useMemo(() => {
     return SHIFTS.map((s) => {

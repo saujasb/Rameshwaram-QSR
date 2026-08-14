@@ -12,6 +12,7 @@ import { staffRouter } from "./entities/staff/routes.js";
 import { attendanceRouter } from "./entities/attendance/routes.js";
 import { expenseRouter } from "./entities/expenses/routes.js";
 import { orderRouter } from "./entities/orders/routes.js";
+import { salesRouter } from "./entities/sales/routes.js";
 import { analyticsRouter } from "./entities/analytics/routes.js";
 import { actionCenterRouter } from "./shared/actionCenter.js";
 
@@ -33,6 +34,7 @@ app.use("/api/staff", staffRouter);
 app.use("/api/attendance", attendanceRouter);
 app.use("/api/expenses", expenseRouter);
 app.use("/api/orders", orderRouter);
+app.use("/api/sales", salesRouter);
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/action-center", actionCenterRouter);
 
