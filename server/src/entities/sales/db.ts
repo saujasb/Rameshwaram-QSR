@@ -49,4 +49,14 @@ export function ensureSalesTables(): void {
   db.exec(`CREATE INDEX IF NOT EXISTS idx_sales_line_items_business_date ON sales_line_items(businessDate)`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_sales_line_items_import_batch ON sales_line_items(importBatchId)`);
   db.exec(`CREATE INDEX IF NOT EXISTS idx_sales_import_batches_business_date ON sales_import_batches(businessDate)`);
+
+  // Single-row settings table -- currently just the daily sales target, kept
+  // generic (key/value) so future dashboard settings don't need a new table.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS sales_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updatedAt TEXT NOT NULL
+    )
+  `);
 }

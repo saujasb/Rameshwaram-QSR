@@ -47,3 +47,15 @@ export function getBusinessDayBounds(businessDate: string): { start: string; end
 export function isWithinBusinessDay(timestamp: Date | string, businessDate: string): boolean {
   return getBusinessDate(timestamp) === businessDate;
 }
+
+/** "13 Aug 2026" -- for headers and cards that show the active business date. */
+export function formatBusinessDateLong(dateKey: string): string {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+/** "13 Aug" -- for compact chart axes and markers. */
+export function formatBusinessDateShort(dateKey: string): string {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
+}

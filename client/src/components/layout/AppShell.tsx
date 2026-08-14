@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { navGroups } from "../../routes";
 import { GlobalSearch } from "./GlobalSearch";
+import { getCurrentBusinessDate, formatBusinessDateLong } from "@shared/businessDate";
+import { useHealthCheck } from "../../lib/api/system";
+import { useLatestImportBatch } from "../../lib/api/sales";
 
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") ?? "light");
@@ -10,6 +13,41 @@ function useTheme() {
     localStorage.setItem("theme", theme);
   }, [theme]);
   return { theme, toggle: () => setTheme((t) => (t === "dark" ? "light" : "dark")) };
+}
+
+function useLiveBusinessDate() {
+  const [date, setDate] = useState(() => getCurrentBusinessDate());
+  useEffect(() => {
+    const id = setInterval(() => setDate(getCurrentBusinessDate()), 60000);
+    return () => clearInterval(id);
+  }, []);
+  return date;
+}
+
+function OpsStatusStrip() {
+  const businessDate = useLiveBusinessDate();
+  const { data: health, isLoading: healthLoading, isError: healthError } = useHealthCheck();
+  const { data: latestBatch } = useLatestImportBatch();
+  const isLive = !healthLoading && !healthError && Boolean(health?.ok);
+  const liveTone = healthLoading ? "notconn" : isLive ? "good" : "crit";
+
+  return (
+    <div className="ops-status">
+      <span className="ops-status-item">
+        <span className="ops-status-label">Business Date</span> {formatBusinessDateLong(businessDate)}
+      </span>
+      <span className="ops-status-sep" aria-hidden>·</span>
+      <span className={`ops-status-item ops-live ${liveTone}`}>
+        <span className={`status-dot ${liveTone}`} />
+        {healthLoading ? "Connecting…" : isLive ? "Live" : "Offline"}
+      </span>
+      <span className="ops-status-sep" aria-hidden>·</span>
+      <span className="ops-status-item">
+        <span className="ops-status-label">Last sales sync</span>{" "}
+        {latestBatch ? new Date(latestBatch.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "never"}
+      </span>
+    </div>
+  );
 }
 
 export function AppShell() {
@@ -46,6 +84,7 @@ export function AppShell() {
       <div className="main-col">
         <div className="topbar">
           <button className="hamburger" onClick={() => setSidebarOpen(true)} aria-label="Open navigation">☰</button>
+          <OpsStatusStrip />
           <GlobalSearch />
           <button className="theme-toggle" onClick={toggle}>◐ {theme === "dark" ? "Dark" : "Light"}</button>
         </div>

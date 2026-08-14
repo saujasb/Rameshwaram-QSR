@@ -41,12 +41,17 @@ export const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: "Sales & Orders",
+    label: "Sales",
     items: [
       { path: "/sales-analytics", label: "Sales & Revenue", element: <SalesAnalyticsPage />, icon: "₹" },
       { path: "/sales-import", label: "Sales Data Import", element: <SalesImportPage />, icon: "⇧" },
-      { path: "/veg-indent", label: "Vegetable Indent", element: <VegIndentPage />, icon: "🥕" },
       { path: "/kpi-scorecard", label: "KPI Scorecard", element: <KpiScorecardPage />, icon: "◎" },
+      { path: "/veg-indent", label: "Vegetable Indent", element: <VegIndentPage />, icon: "🥕" },
+    ],
+  },
+  {
+    label: "Orders",
+    items: [
       { path: "/orders", label: "Orders", element: <OrdersPage />, icon: "▤" },
       { path: "/kitchen", label: "Kitchen", element: <KitchenPage />, icon: "▲" },
       { path: "/delivery", label: "Delivery", element: <DeliveryPage />, icon: "→" },

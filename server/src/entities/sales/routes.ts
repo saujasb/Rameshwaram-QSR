@@ -1,7 +1,15 @@
 import { Router } from "express";
 import multer from "multer";
 import { runSalesImport } from "./importPipeline.js";
-import { getSalesSummary, listImportBatches, getImportBatch, deleteImportBatch, listLineItems } from "./repository.js";
+import {
+  getSalesSummary,
+  listImportBatches,
+  getImportBatch,
+  deleteImportBatch,
+  listLineItems,
+  getDailyTarget,
+  setDailyTarget,
+} from "./repository.js";
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
@@ -69,4 +77,17 @@ salesRouter.get("/line-items", (req, res) => {
   const from = typeof req.query.from === "string" ? req.query.from : undefined;
   const to = typeof req.query.to === "string" ? req.query.to : undefined;
   res.json(listLineItems({ from, to }));
+});
+
+salesRouter.get("/target", (_req, res) => {
+  res.json(getDailyTarget());
+});
+
+salesRouter.put("/target", (req, res) => {
+  const amount = req.body?.amount;
+  if (typeof amount !== "number" || !Number.isFinite(amount) || amount < 0) {
+    res.status(400).json({ error: "amount must be a non-negative number." });
+    return;
+  }
+  res.json(setDailyTarget(amount));
 });

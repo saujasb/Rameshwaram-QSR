@@ -1,9 +1,24 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { DragEvent, FormEvent } from "react";
 import { getCurrentBusinessDate } from "@shared/businessDate";
 import { SALES_CHANNEL_LABELS } from "@shared/sales";
 import type { SalesImportBatch, ImportValidationStatus } from "@shared/sales";
 import { useImportBatches, useImportSalesPdf, useDeleteImportBatch, type ImportError } from "../../lib/api/sales";
+
+const IMPORT_STEPS = ["Reading PDF", "Extracting transactions", "Validating data", "Calculating business dates", "Checking duplicates", "Updating dashboard"];
+
+function useStagedProgress(active: boolean, stepCount: number, stepDurationMs = 850): number {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (!active) {
+      setStep(0);
+      return;
+    }
+    const id = setInterval(() => setStep((s) => Math.min(s + 1, stepCount - 1)), stepDurationMs);
+    return () => clearInterval(id);
+  }, [active, stepCount, stepDurationMs]);
+  return step;
+}
 
 function validationTone(status: ImportValidationStatus): "good" | "warn" | "crit" {
   if (status === "passed") return "good";
@@ -64,14 +79,24 @@ function ImportResultCard({ batch }: { batch: SalesImportBatch }) {
 export function SalesImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [businessDate, setBusinessDate] = useState(getCurrentBusinessDate());
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const importMutation = useImportSalesPdf();
   const { data: batches } = useImportBatches();
   const deleteMutation = useDeleteImportBatch();
+  const progressStep = useStagedProgress(importMutation.isPending, IMPORT_STEPS.length);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!file) return;
     importMutation.mutate({ file, businessDate });
+  }
+
+  function handleDrop(e: DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    setIsDragging(false);
+    const dropped = e.dataTransfer.files?.[0];
+    if (dropped) setFile(dropped);
   }
 
   const error = importMutation.error as ImportError | null;
@@ -90,14 +115,57 @@ export function SalesImportPage() {
       </div>
 
       <div className="card">
-        <h3>Upload a report</h3>
+        <h3>Import Sales Data</h3>
         <p className="h3sub">PDF only, one business day per file.</p>
         <form onSubmit={handleSubmit}>
-          <div className="form-grid">
-            <div className="field">
-              <label>Sales report PDF</label>
-              <input type="file" accept="application/pdf,.pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-            </div>
+          <div
+            className={`dropzone${isDragging ? " dragging" : ""}${file ? " has-file" : ""}`}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setIsDragging(true);
+            }}
+            onDragLeave={() => setIsDragging(false)}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            role="button"
+            tabIndex={0}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="application/pdf,.pdf"
+              style={{ display: "none" }}
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+            {file ? (
+              <>
+                <div className="dropzone-icon">📄</div>
+                <div className="dropzone-title">{file.name}</div>
+                <div className="dropzone-sub">{(file.size / 1024).toFixed(0)} KB · click or drop to replace</div>
+              </>
+            ) : (
+              <>
+                <div className="dropzone-icon">⇧</div>
+                <div className="dropzone-title">Drag &amp; drop your sales PDF here</div>
+                <div className="dropzone-sub">or</div>
+                <button
+                  type="button"
+                  className="btn primary small"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                >
+                  Browse Files
+                </button>
+                <div className="dropzone-sub" style={{ marginTop: 8 }}>
+                  Supported format: PDF
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="form-grid" style={{ marginTop: 14 }}>
             <div className="field">
               <label>Business date</label>
               <input type="date" value={businessDate} onChange={(e) => setBusinessDate(e.target.value)} />
@@ -108,12 +176,26 @@ export function SalesImportPage() {
             own date — if it doesn't match what's set here, the import is rejected rather than silently relabeled.
           </p>
           <div className="btn-row">
-            <button type="submit" className={`btn primary${importMutation.isPending ? " loading" : ""}`} disabled={!file || importMutation.isPending}>
+            <button type="submit" className="btn primary" disabled={!file || importMutation.isPending}>
               Import
             </button>
           </div>
         </form>
       </div>
+
+      {importMutation.isPending && (
+        <div className="card">
+          <h3>Processing…</h3>
+          <div className="progress-steps">
+            {IMPORT_STEPS.map((label, i) => (
+              <div key={label} className={`progress-step${i < progressStep ? " done" : i === progressStep ? " active" : ""}`}>
+                <span className="progress-step-dot" />
+                {label}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="card" style={{ borderLeft: "3px solid var(--critical)" }}>

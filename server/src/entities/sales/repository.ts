@@ -270,3 +270,22 @@ export function listLineItems(filter: SalesFilter): SalesLineItem[] {
   const rows = db.prepare(`SELECT * FROM sales_line_items ${clause} ORDER BY businessDate DESC, amount DESC`).all(...params);
   return rows as SalesLineItem[];
 }
+
+const DAILY_TARGET_KEY = "daily_target";
+
+export function getDailyTarget(): { amount: number | null; updatedAt: string | null } {
+  const row = db.prepare(`SELECT value, updatedAt FROM sales_settings WHERE key = ?`).get(DAILY_TARGET_KEY) as
+    | { value: string; updatedAt: string }
+    | undefined;
+  if (!row) return { amount: null, updatedAt: null };
+  return { amount: Number(row.value), updatedAt: row.updatedAt };
+}
+
+export function setDailyTarget(amount: number): { amount: number; updatedAt: string } {
+  const now = new Date().toISOString();
+  db.prepare(
+    `INSERT INTO sales_settings (key, value, updatedAt) VALUES (?, ?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value, updatedAt = excluded.updatedAt`
+  ).run(DAILY_TARGET_KEY, String(amount), now);
+  return { amount, updatedAt: now };
+}

@@ -3,10 +3,14 @@ import { Link } from "react-router-dom";
 import { DivergingBar } from "../../components/charts/DivergingBar";
 import { HBarChart } from "../../components/charts/HBarChart";
 import { Donut } from "../../components/charts/Donut";
+import { SalesTrendChart } from "../../components/charts/SalesTrendChart";
+import { DataFreshnessBadge } from "../../components/DataFreshnessBadge";
 import { useAnalyticsSnapshot, usePrioritizedActions } from "../../lib/api/analytics";
-import { useSalesSummary } from "../../lib/api/sales";
+import { useSalesSummary, useLatestImportBatch } from "../../lib/api/sales";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
+import { formatInrCompact } from "../../lib/format";
 import { SALES_CHANNEL_LABELS } from "@shared/sales";
+import { useSalesTargetWithEditor } from "../dashboard/SalesTargetEditor";
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "var(--critical)",
@@ -38,11 +42,16 @@ function computeRange(preset: RangePreset, customFrom: string, customTo: string)
 
 function LiveSalesSection() {
   const today = getCurrentBusinessDate();
+  const yesterday = shiftDateKey(today, -1);
+  const lastWeek = shiftDateKey(today, -7);
   const [preset, setPreset] = useState<RangePreset>("today");
   const [customFrom, setCustomFrom] = useState(today);
   const [customTo, setCustomTo] = useState(today);
   const range = useMemo(() => computeRange(preset, customFrom, customTo), [preset, customFrom, customTo]);
   const { data: sales } = useSalesSummary(range.from, range.to);
+  const { data: todaySales } = useSalesSummary(today, today);
+  const { target, openEditor, editor } = useSalesTargetWithEditor();
+  const targetPct = target?.amount ? ((todaySales?.totalAmount ?? 0) / target.amount) * 100 : null;
 
   const rangeLabel =
     sales?.businessDateFrom && sales.businessDateFrom === sales.businessDateTo
@@ -83,16 +92,21 @@ function LiveSalesSection() {
           <div className="kpis" style={{ marginBottom: 18 }}>
             <div className="kpi good">
               <div className="lab">Total Sales</div>
-              <div className="val">₹{sales.totalAmount.toLocaleString()}</div>
+              <div className="val">{formatInrCompact(sales.totalAmount)}</div>
               <div className="note">{sales.totalQuantity.toLocaleString()} items · {rangeLabel}</div>
             </div>
             {sales.byChannel.map((c) => (
               <div className="kpi good" key={c.channel}>
                 <div className="lab">{SALES_CHANNEL_LABELS[c.channel]}</div>
-                <div className="val">₹{c.amount.toLocaleString()}</div>
+                <div className="val">{formatInrCompact(c.amount)}</div>
                 <div className="note">{c.quantity.toLocaleString()} items</div>
               </div>
             ))}
+            <button className={`kpi ${targetPct == null ? "notconn" : targetPct >= 100 ? "good" : targetPct >= 85 ? "warn" : "crit"}`} onClick={openEditor}>
+              <div className="lab">Target Achievement</div>
+              <div className="val">{targetPct != null ? `${Math.round(targetPct)}%` : "Set a target"}</div>
+              <div className="note">{target?.amount ? `today vs ₹${target.amount.toLocaleString()} · click to edit` : "click to set a daily target"}</div>
+            </button>
             <div className={`kpi ${sales.hasHourlyData ? "good" : "notconn"}`}>
               <div className="lab">Hourly breakdown</div>
               <div className="val" style={sales.hasHourlyData ? undefined : { fontSize: 14.5 }}>
@@ -101,6 +115,7 @@ function LiveSalesSection() {
               <div className="note">{sales.hasHourlyData ? "per-order timestamps found" : "these reports have no per-order time data"}</div>
             </div>
           </div>
+          {editor}
 
           <div className="grid2">
             <div className="card" style={{ marginBottom: 0 }}>
@@ -156,17 +171,19 @@ function LiveSalesSection() {
             </div>
           </div>
 
-          {sales.dailyTrend.length > 1 && (
-            <div className="card">
-              <h3>Sales trend</h3>
-              <p className="h3sub">By business date</p>
-              <HBarChart
-                data={sales.dailyTrend.map((d) => ({ name: d.businessDate, value: d.amount }))}
-                defaultColor="var(--s2)"
-                valueFormatter={(v) => `₹${v.toLocaleString()}`}
-              />
-            </div>
-          )}
+          <div className="card">
+            <h3>Sales trend</h3>
+            <p className="h3sub">By business date · target shown as dashed line</p>
+            <SalesTrendChart
+              data={sales.dailyTrend}
+              target={target?.amount}
+              markers={[
+                { businessDate: today, label: "Today", color: "var(--brand)" },
+                { businessDate: yesterday, label: "Yesterday", color: "var(--s2)" },
+                { businessDate: lastWeek, label: "Last week", color: "var(--s3)" },
+              ]}
+            />
+          </div>
         </>
       )}
     </>
@@ -176,6 +193,7 @@ function LiveSalesSection() {
 export function SalesAnalyticsPage() {
   const { data: snap, isLoading } = useAnalyticsSnapshot();
   const { data: actions } = usePrioritizedActions();
+  const { data: latestBatch } = useLatestImportBatch();
 
   if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
 
@@ -190,6 +208,7 @@ export function SalesAnalyticsPage() {
             variance — a separate, one-time report, not the live feed.
           </p>
         </div>
+        <DataFreshnessBadge lastSyncedAt={latestBatch?.createdAt ?? null} />
       </div>
 
       <LiveSalesSection />

@@ -222,3 +222,69 @@ tr.clickable:hover td { background: rgba(182, 95, 58, 0.045); }
 
 .empty-state { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 40px 20px; color: var(--ink-2); }
 .empty-state .kolam-mark { width: 44px; height: 44px; margin-bottom: 12px; opacity: 0.32; }
+
+/* Ops status strip -- global header (business date / live / last sync) */
+.ops-status { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--ink-2); white-space: nowrap; flex-shrink: 0; }
+.ops-status-item { display: inline-flex; align-items: center; gap: 5px; }
+.ops-status-label { text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.4px; color: var(--muted); font-weight: 650; }
+.ops-status-sep { color: var(--line-2); }
+.ops-live.good { color: var(--good); font-weight: 650; }
+.ops-live.crit { color: var(--critical); font-weight: 650; }
+.ops-live.notconn { color: var(--muted); font-weight: 650; }
+@media (max-width: 1320px) { .ops-status { display: none; } }
+
+/* Data freshness badge */
+.freshness { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.freshness.good { color: var(--good); }
+.freshness.warn { color: var(--warning); }
+.freshness.notconn { color: var(--muted); }
+
+/* Business-day hero card */
+.hero-bizday-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; }
+.hero-bizday-head .lab { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--ink-2); font-weight: 650; }
+.hero-bizday-date { font-size: 21px; font-weight: 750; letter-spacing: -0.01em; }
+.biz-timeline-caption { text-align: center; font-size: 12.5px; color: var(--ink-2); margin-top: 2px; }
+.biz-timeline-caption b { color: var(--ink); }
+
+/* Today at a Glance */
+.glance-grid { display: flex; flex-direction: column; margin-top: 6px; }
+.glance-row { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
+.glance-row:last-child { border-bottom: none; }
+.glance-row > span:first-child { color: var(--ink-2); font-weight: 550; }
+.glance-row b { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+.glance-row .muted-text, .glance-row .trend-up, .glance-row .trend-down { text-align: right; min-width: 90px; font-size: 12.5px; font-weight: 650; }
+.glance-row .muted-text { color: var(--muted); font-weight: 550; }
+.glance-row .trend-up { color: var(--good); }
+.glance-row .trend-down { color: var(--critical); }
+
+/* Sales PDF dropzone */
+.dropzone {
+  border: 2px dashed var(--line-2);
+  border-radius: 14px;
+  padding: 36px 20px;
+  text-align: center;
+  cursor: pointer;
+  background: var(--page);
+}
+.dropzone:hover, .dropzone:focus-visible { border-color: var(--brand); background: rgba(182, 95, 58, 0.04); outline: none; }
+.dropzone.dragging { border-color: var(--brand); background: rgba(182, 95, 58, 0.07); }
+.dropzone.has-file { border-style: solid; border-color: var(--good); background: rgba(63, 107, 80, 0.05); }
+.dropzone-icon { font-size: 30px; margin-bottom: 8px; opacity: 0.75; }
+.dropzone-title { font-size: 14.5px; font-weight: 650; color: var(--ink); margin-bottom: 4px; word-break: break-word; }
+.dropzone-sub { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+
+/* Staged import progress */
+.progress-steps { display: flex; flex-direction: column; margin-top: 8px; }
+.progress-step { display: flex; align-items: center; gap: 10px; padding: 9px 0; font-size: 13.5px; color: var(--muted); border-bottom: 1px solid var(--line); }
+.progress-step:last-child { border-bottom: none; }
+.progress-step-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); flex-shrink: 0; transition: background 200ms var(--ease); }
+.progress-step.active { color: var(--ink); font-weight: 650; }
+.progress-step.active .progress-step-dot { background: var(--brand); box-shadow: 0 0 0 4px rgba(182, 95, 58, 0.15); animation: progress-pulse 1s ease-in-out infinite; }
+.progress-step.done { color: var(--ink-2); }
+.progress-step.done .progress-step-dot { background: var(--good); }
+@keyframes progress-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+@media (max-width: 520px) {
+  .glance-row { grid-template-columns: 1fr auto; row-gap: 2px; }
+  .glance-row .muted-text, .glance-row .trend-up, .glance-row .trend-down { grid-column: 1 / -1; text-align: left; min-width: 0; }
+}

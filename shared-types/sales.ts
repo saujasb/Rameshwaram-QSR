@@ -85,6 +85,11 @@ export interface SalesDailyTotal {
   amount: number;
 }
 
+export interface SalesTargetSetting {
+  amount: number | null;
+  updatedAt: string | null;
+}
+
 export interface SalesSummary {
   businessDateFrom: string | null;
   businessDateTo: string | null;

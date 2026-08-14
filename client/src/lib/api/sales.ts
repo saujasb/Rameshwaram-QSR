@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiGet, apiDelete } from "./client";
-import type { SalesSummary, SalesImportBatch } from "@shared/sales";
+import { apiGet, apiPut, apiDelete } from "./client";
+import type { SalesSummary, SalesImportBatch, SalesTargetSetting } from "@shared/sales";
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
@@ -23,6 +23,15 @@ export function useImportBatches() {
   return useQuery({
     queryKey: ["sales-import-batches"],
     queryFn: () => apiGet<SalesImportBatch[]>("/sales/import-batches"),
+  });
+}
+
+/** Same query/cache as useImportBatches -- just reads the most recent batch, for freshness badges. */
+export function useLatestImportBatch() {
+  return useQuery({
+    queryKey: ["sales-import-batches"],
+    queryFn: () => apiGet<SalesImportBatch[]>("/sales/import-batches"),
+    select: (batches) => batches[0] ?? null,
   });
 }
 
@@ -50,6 +59,21 @@ export function useImportSalesPdf() {
       qc.invalidateQueries({ queryKey: ["sales-summary"] });
       qc.invalidateQueries({ queryKey: ["sales-import-batches"] });
     },
+  });
+}
+
+export function useSalesTarget() {
+  return useQuery({
+    queryKey: ["sales-target"],
+    queryFn: () => apiGet<SalesTargetSetting>("/sales/target"),
+  });
+}
+
+export function useSetSalesTarget() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (amount: number) => apiPut<SalesTargetSetting>("/sales/target", { amount }),
+    onSuccess: (data) => qc.setQueryData(["sales-target"], data),
   });
 }
 
