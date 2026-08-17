@@ -31,6 +31,13 @@ export type RameshIntent =
   | "variance_explain"
   | "anomaly_explain"
   | "trend"
+  | "executive_analysis"
+  | "root_cause"
+  | "efficiency"
+  | "shift_performance"
+  | "outlet_performance"
+  | "product_performance"
+  | "reconciliation"
   | "data_coverage"
   | "help"
   | "off_topic"
@@ -66,6 +73,29 @@ export interface RameshCalculationStep {
   result: string;
 }
 
+/**
+ * One ranked finding inside an analytical answer. Every field is filled from
+ * computed aggregates -- the numbers live in `magnitude` and `evidence`, never
+ * only in prose.
+ */
+export interface RameshInsightLine {
+  rank: number;
+  severity: "high" | "medium" | "low" | "info";
+  category: string;
+  /** WHAT happened, with the number in it. */
+  headline: string;
+  /** HOW MUCH -- quantified magnitude. */
+  magnitude: string;
+  /** WHEN / WHERE / WHICH PRODUCT. */
+  scope: string;
+  /** Measurable business impact. */
+  impact: string;
+  /** Only what the data supports; may state what to verify instead. */
+  action: string;
+  evidence: AnomalyEvidence[];
+  drilldownQuery: Record<string, string> | null;
+}
+
 export interface RameshAnswer {
   intent: RameshIntent;
   /** Direct answer. Never contains a number that isn't in `calculation`/`dataUsed`. */
@@ -73,6 +103,8 @@ export interface RameshAnswer {
   dataUsed: RameshDataUsed | null;
   calculation: RameshCalculationStep[];
   conclusion: string;
+  /** Ranked findings for analytical/executive questions. Empty for simple lookups. */
+  insights: RameshInsightLine[];
   evidence: AnomalyEvidence[];
   /** Query params for the "View records" drill-down into the Data Explorer. */
   drilldownQuery: Record<string, string> | null;

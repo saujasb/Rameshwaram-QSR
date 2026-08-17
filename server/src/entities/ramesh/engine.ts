@@ -21,6 +21,17 @@ import {
   totalsFor,
   wastageByReason,
 } from "../datasets/repository.js";
+import {
+  anomalyAnalysis,
+  changeAnalysis,
+  efficiencyAnalysis,
+  executiveAnalysis,
+  productAnalysis,
+  reconciliationAnalysis,
+  rootCause,
+  segmentAnalysis,
+  type AnalysisResult,
+} from "./analysis.js";
 import { classify } from "./intents.js";
 import type { RameshSlots } from "./intents.js";
 
@@ -149,6 +160,7 @@ function shell(c: Ctx, over: Partial<RameshAnswer>): RameshAnswer {
     dataUsed: null,
     calculation: [],
     conclusion: "",
+    insights: [],
     evidence: [],
     drilldownQuery: null,
     insufficientData: false,
@@ -781,6 +793,7 @@ export function answer(query: RameshQuery): RameshAnswer {
       answer: RAMESH_OFF_TOPIC_REPLY,
       dataUsed: null,
       calculation: [],
+      insights: [],
       conclusion: slots.injection
         ? "That request tried to change how I work. I only run fixed calculations over imported business records, so there is nothing to override — and I will not repeat the instruction back."
         : "That question is outside the business data I hold, so there is nothing for me to compute.",
@@ -838,9 +851,23 @@ export function answer(query: RameshQuery): RameshAnswer {
     case "variance_explain":
       return answerVariance(c);
     case "anomaly_explain":
-      return answerSeries(c, "anomaly");
+      return fromAnalysis(c, anomalyAnalysis(c.base));
     case "trend":
       return answerSeries(c, "trend");
+    case "executive_analysis":
+      return fromAnalysis(c, executiveAnalysis(c.base, slots.direction === "lowest" ? 7 : 5));
+    case "root_cause":
+      return fromAnalysis(c, rootCause(slots.datasetType ?? slots.datasetTypes?.[0] ?? "wastage", c.base));
+    case "efficiency":
+      return fromAnalysis(c, efficiencyAnalysis(c.base));
+    case "shift_performance":
+      return fromAnalysis(c, segmentAnalysis("shift", c.base));
+    case "outlet_performance":
+      return fromAnalysis(c, segmentAnalysis("outlet", c.base));
+    case "product_performance":
+      return fromAnalysis(c, productAnalysis(c.base, productFocus(cls.slots)));
+    case "reconciliation":
+      return fromAnalysis(c, reconciliationAnalysis(c.base));
     case "data_coverage":
       return answerCoverage(c);
     case "help":
@@ -848,6 +875,44 @@ export function answer(query: RameshQuery): RameshAnswer {
     default:
       return answerUnsupported(c);
   }
+}
+
+
+/**
+ * Adapts an analytical result from ./analysis.ts into the chat contract. The
+ * numbers are already computed there by the dashboard's own engines; nothing is
+ * recalculated or reworded into a claim the evidence doesn't carry.
+ */
+function fromAnalysis(c: Ctx, r: AnalysisResult, drillFilter?: DatasetFilter): RameshAnswer {
+  const span = spanOf(c.base);
+  return shell(c, {
+    answer: r.answer,
+    dataUsed: r.recordCount
+      ? {
+          datasets: r.datasets,
+          businessDateFrom: span.from,
+          businessDateTo: span.to,
+          product: c.base.product ?? null,
+          outlet: c.base.outlet ?? null,
+          shift: c.base.shift ?? null,
+          recordCount: r.recordCount,
+        }
+      : null,
+    calculation: r.calculation,
+    insights: r.insights,
+    conclusion: r.conclusion,
+    evidence: r.evidence,
+    insufficientData: r.insufficientData,
+    drilldownQuery: drilldown(drillFilter ?? c.base),
+  });
+}
+
+
+/** Which product ranking the question is really after. */
+function productFocus(slots: RameshSlots): "overproduced" | "wastage" | "revenue" {
+  if (slots.datasetType === "production" || slots.datasetTypes?.includes("production")) return "overproduced";
+  if (slots.datasetType === "wastage" || slots.datasetTypes?.includes("wastage")) return "wastage";
+  return "revenue";
 }
 
 /** Starter questions for the empty chat state, derived from what is actually loaded. */

@@ -69,6 +69,32 @@ function AnswerBody({ answer }: { answer: RameshAnswer }) {
         </div>
       )}
 
+      {answer.insights.length > 0 && (
+        <div className="ramesh-section">
+          <div className="ramesh-section-label">Insights ({answer.insights.length})</div>
+          <div className="ramesh-insights">
+            {answer.insights.map((ins) => {
+              const drill = drilldownPath(ins.drilldownQuery);
+              return (
+                <div className={`ramesh-insight sev-${ins.severity}`} key={`${ins.rank}-${ins.headline}`}>
+                  <div className="ramesh-insight-head">
+                    <span className="ramesh-insight-rank">{ins.rank}</span>
+                    <b>{ins.headline}</b>
+                  </div>
+                  <div className="ramesh-insight-grid">
+                    <span className="k">How much</span><span>{ins.magnitude}</span>
+                    {ins.scope && <><span className="k">When / where</span><span>{ins.scope}</span></>}
+                    {ins.impact && <><span className="k">Impact</span><span>{ins.impact}</span></>}
+                    {ins.action && <><span className="k">Action</span><span>{ins.action}</span></>}
+                  </div>
+                  {drill && <Link className="ramesh-insight-drill" to={drill}>View records →</Link>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {answer.conclusion && (
         <div className="ramesh-section">
           <div className="ramesh-section-label">Conclusion</div>

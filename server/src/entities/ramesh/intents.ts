@@ -87,7 +87,19 @@ const OFF_TOPIC_PATTERNS: RegExp[] = [
 
 /** Anything in here means the question is plausibly about this business. */
 const BUSINESS_SIGNAL =
-  /\b(sales?|sold|sell|selling|revenue|turnover|billing|production|produced|producing|wastage|wasted|waste|spoil\w*|product|products|item|items|menu|dish|outlet|branch|shift|business\s*day|peak\s*hour|record|records|dataset|datasets|import\w*|variance|reconcil\w*|trend|anomal\w*|quantity|qty|amount|rupees?|revenue|coverage|₹)\b/i;
+  /\b(sales?|sold|sell|selling|revenue|turnover|billing|production|produced|producing|overproduc\w*|underproduc\w*|wastage|wasted|waste|spoil\w*|product|products|item|items|menu|dish|outlet|branch|shift|business\s*day|peak\s*hour|record|records|dataset|datasets|import\w*|variance|reconcil\w*|trend|anomal\w*|quantity|qty|amount|rupees?|coverage|efficien\w*|sell[-\s]?through|insight\w*|analys\w*|analyz\w*|performance|problem\w*|issue\w*|dashboard|business|today|yesterday|kpi|metric\w*|₹)\b/i;
+
+/** Composite/analytical asks: "analyse today", "biggest problems", "top insights". */
+const EXECUTIVE_RE =
+  /\b(analys\w*|analyz\w*|overview|summar\w*|biggest\s+problem\w*|main\s+(problem|issue)\w*|key\s+(issue|finding|problem)\w*|top\s+\d*\s*insight\w*|give\s+me\s+insight\w*|what\s+insight\w*|find\s+insight\w*|pay\s+attention|should\s+i\s+know|what\s+do\s+you\s+see|everything|entire\s+business|complete\s+analysis|full\s+analysis|health\s+check)\b/i;
+
+const EFFICIENCY_RE = /\b(efficien\w*|losing\s+efficiency|least\s+efficient|most\s+efficient|inefficien\w*|sell[-\s]?through)\b/i;
+const SHIFT_PERF_RE = /\bshift\b/i;
+const OUTLET_PERF_RE = /\b(outlet|branch|store|location)\b/i;
+const OVERPRODUCED_RE = /\b(overproduc\w*|over[-\s]produc\w*|produc\w*\s+too\s+much|underproduc\w*|under[-\s]produc\w*)\b/i;
+const RECONCILE_RE = /\breconcil\w*|expected\s+balance|unaccounted\b/i;
+const CHANGED_RE = /\b(what\s+changed|changed?\s+(compared|versus|vs)|difference\s+(from|vs|versus)|compared\s+(with|to)\s+yesterday)\b/i;
+const CONTRIBUTING_RE = /\bcontribut\w*\b/i;
 
 // ----------------------------------------------------------- vocabulary ----
 
@@ -362,6 +374,33 @@ export function classify(question: string, opts: ClassifyOptions = {}): RameshCl
 function pickIntent(q: string, slots: RameshSlots, types: DatasetType[], wantsCompare: boolean): RameshIntent {
   if (HELP_RE.test(q) && !TOTAL_RE.test(q)) return "help";
   if (COVERAGE_RE.test(q)) return "data_coverage";
+
+  // --- analytical intents. These are checked before the narrow single-metric
+  // fallbacks, otherwise "analyse today's sales" degrades to a bare total. ---
+  if (CHANGED_RE.test(q)) return "trend";
+  if (RECONCILE_RE.test(q)) return "reconciliation";
+  if (OVERPRODUCED_RE.test(q)) {
+    // "overproduced" names the comparison, not a dataset word, so tag production
+    // explicitly -- otherwise the handler falls back to ranking by revenue.
+    if (!slots.datasetType) slots.datasetType = "production";
+    return "product_performance";
+  }
+
+  // "why ..." about a specific metric is a root-cause walk, not a total.
+  if (slots.wantsWhy && types.length > 0) return "root_cause";
+
+  if (EFFICIENCY_RE.test(q) && !TOTAL_RE.test(q)) return "efficiency";
+  if (SHIFT_PERF_RE.test(q) && (slots.direction || /\bperform\w*|\bworst|\bbest|\bcompare\b/i.test(q))) return "shift_performance";
+  if (OUTLET_PERF_RE.test(q) && (slots.direction || /\bperform\w*|\bworst|\bbest|\bcompare\b/i.test(q))) return "outlet_performance";
+
+  // A bare "what anomalies do you see" is a listing, not an explanation.
+  if (/\banomal\w*|\boutlier|\bunusual|\babnormal/i.test(q) && !slots.wantsWhy) return "anomaly_explain";
+
+  if (CONTRIBUTING_RE.test(q) && types.length > 0) return "product_performance";
+
+  // Executive last among the analytical group: it is the broadest match, so a
+  // more specific analytical reading always wins first.
+  if (EXECUTIVE_RE.test(q)) return "executive_analysis";
 
   if (PEAK_HOUR_RE.test(q) && HOUR_RE.test(q)) return "peak_hour";
 

@@ -442,6 +442,58 @@ export function productPerformance(filter: DatasetFilter, limit = 200): ProductP
   }));
 }
 
+export interface SegmentPerformanceRow {
+  segment: string;
+  salesQty: number;
+  salesValue: number;
+  productionQty: number;
+  wastageQty: number;
+  sellThroughPct: number | null;
+  wastagePct: number | null;
+  variancePct: number | null;
+  recordCount: number;
+}
+
+/**
+ * Cross-dataset rollup grouped by shift or outlet, mirroring productPerformance.
+ * This is what "which shift is performing worst" needs -- previously only the
+ * distinct *names* were queryable, never their measures.
+ */
+function segmentPerformance(column: "shift" | "outlet", filter: DatasetFilter): SegmentPerformanceRow[] {
+  const base: DatasetFilter = { ...filter, datasetType: undefined };
+  const { clause, params } = buildWhere(base);
+  const where = clause ? `${clause} AND ${column} IS NOT NULL` : `WHERE ${column} IS NOT NULL`;
+
+  const rows = db
+    .prepare(
+      `SELECT ${column} as segment,
+              COALESCE(SUM(CASE WHEN datasetType='sales' THEN quantity END),0) as salesQty,
+              COALESCE(SUM(CASE WHEN datasetType='sales' THEN salesValue END),0) as salesValue,
+              COALESCE(SUM(CASE WHEN datasetType='production' THEN quantity END),0) as productionQty,
+              COALESCE(SUM(CASE WHEN datasetType='wastage' THEN quantity END),0) as wastageQty,
+              COUNT(*) as recordCount
+       FROM dataset_records ${where}
+       GROUP BY ${column}
+       ORDER BY salesValue DESC`
+    )
+    .all(...params) as Omit<SegmentPerformanceRow, "sellThroughPct" | "wastagePct" | "variancePct">[];
+
+  return rows.map((r) => ({
+    ...r,
+    sellThroughPct: r.productionQty > 0 ? (r.salesQty / r.productionQty) * 100 : null,
+    wastagePct: r.productionQty > 0 ? (r.wastageQty / r.productionQty) * 100 : null,
+    variancePct: r.productionQty > 0 ? ((r.productionQty - r.salesQty - r.wastageQty) / r.productionQty) * 100 : null,
+  }));
+}
+
+export function shiftPerformance(filter: DatasetFilter): SegmentPerformanceRow[] {
+  return segmentPerformance("shift", filter);
+}
+
+export function outletPerformance(filter: DatasetFilter): SegmentPerformanceRow[] {
+  return segmentPerformance("outlet", filter);
+}
+
 export function wastageByReason(filter: DatasetFilter): { reason: string; quantity: number; recordCount: number }[] {
   const { clause, params } = buildWhere({ ...filter, datasetType: "wastage" });
   return db

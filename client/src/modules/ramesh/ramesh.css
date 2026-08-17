@@ -127,3 +127,33 @@
 @media (prefers-reduced-motion: reduce) {
   .ramesh-thinking img { animation: none; }
 }
+
+/* Ranked findings inside an analytical answer. Severity is a left rail only --
+   the number always carries the weight, not the colour. */
+.ramesh-insights { display: flex; flex-direction: column; gap: 8px; }
+.ramesh-insight {
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--muted);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--card);
+}
+.ramesh-insight.sev-high { border-left-color: var(--critical); }
+.ramesh-insight.sev-medium { border-left-color: var(--warning); }
+.ramesh-insight.sev-low { border-left-color: var(--serious); }
+.ramesh-insight.sev-info { border-left-color: var(--brand); }
+.ramesh-insight-head { display: flex; gap: 7px; align-items: flex-start; font-size: 12.5px; }
+.ramesh-insight-rank {
+  flex: 0 0 17px; height: 17px; border-radius: 50%;
+  background: var(--ink-2); color: var(--card);
+  font-size: 10px; font-weight: 700; display: grid; place-items: center; margin-top: 1px;
+}
+.ramesh-insight-grid {
+  display: grid; grid-template-columns: auto 1fr; gap: 2px 8px;
+  margin-top: 6px; font-size: 11.5px; color: var(--ink-2);
+}
+.ramesh-insight-grid .k {
+  text-transform: uppercase; font-size: 9px; letter-spacing: 0.5px;
+  color: var(--muted); font-weight: 700; padding-top: 2px; white-space: nowrap;
+}
+.ramesh-insight-drill { font-size: 11.5px; font-weight: 650; display: inline-block; margin-top: 6px; }
