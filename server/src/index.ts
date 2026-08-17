@@ -13,6 +13,9 @@ import { attendanceRouter } from "./entities/attendance/routes.js";
 import { expenseRouter } from "./entities/expenses/routes.js";
 import { orderRouter } from "./entities/orders/routes.js";
 import { salesRouter } from "./entities/sales/routes.js";
+import { datasetsRouter } from "./entities/datasets/routes.js";
+import { intelligenceRouter } from "./entities/intelligence/routes.js";
+import { rameshRouter } from "./entities/ramesh/routes.js";
 import { analyticsRouter } from "./entities/analytics/routes.js";
 import { actionCenterRouter } from "./shared/actionCenter.js";
 
@@ -35,6 +38,9 @@ app.use("/api/attendance", attendanceRouter);
 app.use("/api/expenses", expenseRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/sales", salesRouter);
+app.use("/api/datasets", datasetsRouter);
+app.use("/api/intelligence", intelligenceRouter);
+app.use("/api/ramesh", rameshRouter);
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/action-center", actionCenterRouter);
 

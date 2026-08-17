@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { db } from "../../db/client.js";
 import { ensureSalesTables } from "./db.js";
+import { ensureDatasetTables } from "../datasets/db.js";
 import type {
   SalesImportBatch,
   SalesLineItem,
@@ -9,6 +10,9 @@ import type {
 } from "../../../../shared-types/sales.js";
 
 ensureSalesTables();
+// The sales summary now reads the unified dataset store, so those tables must
+// exist here too regardless of which module the runtime loads first.
+ensureDatasetTables();
 
 export interface CandidateLineItem {
   channel: SalesChannel;
@@ -225,31 +229,40 @@ function whereClause(filter: SalesFilter): { clause: string; params: string[] } 
   return { clause: conditions.length ? `WHERE ${conditions.join(" AND ")}` : "", params };
 }
 
+/**
+ * Reads from the unified `dataset_records` store rather than the original
+ * sales-only table, so this endpoint now reflects Excel imports too. The
+ * response shape is unchanged, which keeps every existing dashboard component
+ * working untouched -- `channel` and `category` map straight across, and
+ * `hasHourlyData` becomes true automatically once a timestamped source is
+ * imported.
+ */
 export function getSalesSummary(filter: SalesFilter): SalesSummary {
   const { clause, params } = whereClause(filter);
+  const scoped = clause ? `${clause} AND datasetType = 'sales'` : `WHERE datasetType = 'sales'`;
 
   const totals = db
-    .prepare(`SELECT COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(amount),0) as amount, MIN(businessDate) as minDate, MAX(businessDate) as maxDate FROM sales_line_items ${clause}`)
+    .prepare(`SELECT COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as amount, MIN(businessDate) as minDate, MAX(businessDate) as maxDate FROM dataset_records ${scoped}`)
     .get(...params) as { quantity: number; amount: number; minDate: string | null; maxDate: string | null };
 
   const byChannel = db
-    .prepare(`SELECT channel, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(amount),0) as amount FROM sales_line_items ${clause} GROUP BY channel ORDER BY amount DESC`)
+    .prepare(`SELECT channel, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as amount FROM dataset_records ${scoped} AND channel IS NOT NULL GROUP BY channel ORDER BY amount DESC`)
     .all(...params) as { channel: SalesChannel; quantity: number; amount: number }[];
 
   const byCategory = db
-    .prepare(`SELECT category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(amount),0) as amount FROM sales_line_items ${clause} GROUP BY category ORDER BY amount DESC`)
+    .prepare(`SELECT COALESCE(category,'Uncategorised') as category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as amount FROM dataset_records ${scoped} GROUP BY COALESCE(category,'Uncategorised') ORDER BY amount DESC`)
     .all(...params) as { category: string; quantity: number; amount: number }[];
 
   const topItems = db
-    .prepare(`SELECT itemName, category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(amount),0) as amount FROM sales_line_items ${clause} GROUP BY itemName, category ORDER BY amount DESC LIMIT 15`)
+    .prepare(`SELECT product as itemName, MAX(COALESCE(category,'Uncategorised')) as category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as amount FROM dataset_records ${scoped} GROUP BY productKey ORDER BY amount DESC LIMIT 15`)
     .all(...params) as { itemName: string; category: string; quantity: number; amount: number }[];
 
   const dailyTrend = db
-    .prepare(`SELECT businessDate, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(amount),0) as amount FROM sales_line_items ${clause} GROUP BY businessDate ORDER BY businessDate ASC`)
+    .prepare(`SELECT businessDate, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as amount FROM dataset_records ${scoped} GROUP BY businessDate ORDER BY businessDate ASC`)
     .all(...params) as { businessDate: string; quantity: number; amount: number }[];
 
   const hourlyCountRow = db
-    .prepare(`SELECT COUNT(*) as c FROM sales_line_items ${clause}${clause ? " AND" : "WHERE"} transactionTime IS NOT NULL`)
+    .prepare(`SELECT COUNT(*) as c FROM dataset_records ${scoped} AND rawTimestamp IS NOT NULL`)
     .get(...params) as { c: number };
 
   return {
@@ -267,8 +280,16 @@ export function getSalesSummary(filter: SalesFilter): SalesSummary {
 
 export function listLineItems(filter: SalesFilter): SalesLineItem[] {
   const { clause, params } = whereClause(filter);
-  const rows = db.prepare(`SELECT * FROM sales_line_items ${clause} ORDER BY businessDate DESC, amount DESC`).all(...params);
-  return rows as SalesLineItem[];
+  const scoped = clause ? `${clause} AND datasetType = 'sales'` : `WHERE datasetType = 'sales'`;
+  const rows = db
+    .prepare(
+      `SELECT id, importBatchId, channel, COALESCE(category,'Uncategorised') as category, product as itemName,
+              quantity, salesValue as amount, transactionDate as calendarDate, businessDate,
+              businessDayStartHour, rawTimestamp as transactionTimestamp, createdAt, updatedAt
+       FROM dataset_records ${scoped} ORDER BY businessDate DESC, amount DESC LIMIT 5000`
+    )
+    .all(...params);
+  return rows as unknown as SalesLineItem[];
 }
 
 const DAILY_TARGET_KEY = "daily_target";

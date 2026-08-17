@@ -4,7 +4,8 @@ import { navGroups } from "../../routes";
 import { GlobalSearch } from "./GlobalSearch";
 import { getCurrentBusinessDate, formatBusinessDateLong } from "@shared/businessDate";
 import { useHealthCheck } from "../../lib/api/system";
-import { useLatestImportBatch } from "../../lib/api/sales";
+import { useLatestImportBatch } from "../../lib/api/datasets";
+import { RameshWidget } from "../../modules/ramesh/RameshWidget";
 
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") ?? "light");
@@ -91,6 +92,7 @@ export function AppShell() {
         <div className="content">
           <Outlet />
         </div>
+        <RameshWidget />
       </div>
     </div>
   );

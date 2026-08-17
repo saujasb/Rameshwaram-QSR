@@ -2,6 +2,10 @@ import { DashboardPage } from "./modules/dashboard/DashboardPage";
 import { ActionCenterPage } from "./modules/dashboard/ActionCenterPage";
 import { SalesAnalyticsPage } from "./modules/sales-analytics/SalesAnalyticsPage";
 import { SalesImportPage } from "./modules/sales-analytics/SalesImportPage";
+import { ImportCenterPage } from "./modules/import/ImportCenterPage";
+import { DataExplorerPage } from "./modules/explorer/DataExplorerPage";
+import { IntelligencePage } from "./modules/intelligence/IntelligencePage";
+import { SettingsPage } from "./modules/settings/SettingsPage";
 import { VegIndentPage } from "./modules/sales-analytics/VegIndentPage";
 import { KpiScorecardPage } from "./modules/sales-analytics/KpiScorecardPage";
 import { OrdersPage } from "./modules/orders/OrdersPage";
@@ -37,6 +41,7 @@ export const navGroups: NavGroup[] = [
     label: "Overview",
     items: [
       { path: "/", label: "Dashboard", element: <DashboardPage />, icon: "⌂" },
+      { path: "/intelligence", label: "Intelligence", element: <IntelligencePage />, icon: "◈" },
       { path: "/action-center", label: "Action Center", element: <ActionCenterPage />, icon: "⚑" },
     ],
   },
@@ -44,7 +49,9 @@ export const navGroups: NavGroup[] = [
     label: "Sales",
     items: [
       { path: "/sales-analytics", label: "Sales & Revenue", element: <SalesAnalyticsPage />, icon: "₹" },
-      { path: "/sales-import", label: "Sales Data Import", element: <SalesImportPage />, icon: "⇧" },
+      { path: "/data-import", label: "Data Import", element: <ImportCenterPage />, icon: "⇧" },
+      { path: "/data-explorer", label: "Data Explorer", element: <DataExplorerPage />, icon: "▧" },
+      { path: "/sales-import", label: "Sales PDF Import (legacy)", element: <SalesImportPage />, icon: "⇪" },
       { path: "/kpi-scorecard", label: "KPI Scorecard", element: <KpiScorecardPage />, icon: "◎" },
       { path: "/veg-indent", label: "Vegetable Indent", element: <VegIndentPage />, icon: "🥕" },
     ],
@@ -92,6 +99,12 @@ export const navGroups: NavGroup[] = [
     label: "Finance",
     items: [
       { path: "/expenses", label: "Expenses", element: <ExpensesPage />, icon: "¤" },
+    ],
+  },
+  {
+    label: "Admin",
+    items: [
+      { path: "/settings", label: "Settings", element: <SettingsPage />, icon: "⚙" },
     ],
   },
 ];
