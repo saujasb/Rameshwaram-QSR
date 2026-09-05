@@ -56,6 +56,8 @@
 }
 .nav-link .nav-icon { font-size: 12.5px; width: 16px; text-align: center; opacity: 0.85; }
 .nav-link:hover { background: rgba(255, 255, 255, 0.05); color: rgba(247, 243, 236, 0.92); }
+.nav-link:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 2px; }
+.nav-link:active { transform: scale(0.97); }
 .nav-link.active {
   background: linear-gradient(90deg, rgba(182, 95, 58, 0.22), rgba(182, 95, 58, 0.06));
   color: #fdf9f2;
@@ -88,8 +90,8 @@
 .topbar .search-box input {
   width: 100%;
   border: 1px solid var(--line-2);
-  border-radius: 9px;
-  padding: 8px 14px;
+  border-radius: 9999px;
+  padding: 8px 16px;
   font-size: 13px;
   background: var(--page);
   color: var(--ink);

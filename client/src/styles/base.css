@@ -45,7 +45,7 @@ h1, h2, h3, h4 { margin: 0; font-family: "Inter", system-ui, sans-serif; letter-
 }
 .kpi:disabled { cursor: default; }
 .kpi:not(:disabled):hover { border-color: var(--gold); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(23, 20, 15, 0.07); }
-.kpi:not(:disabled):active { transform: translateY(0); }
+.kpi:not(:disabled):active { transform: scale(0.97); }
 .kpi::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; }
 .kpi.good::before { background: var(--good); }
 .kpi.warn::before { background: var(--warning); }
@@ -196,9 +196,13 @@ tr.clickable:hover td { background: rgba(182, 95, 58, 0.045); }
   cursor: pointer;
 }
 .btn:hover { border-color: var(--brand); color: var(--brand); }
-.btn:active { transform: translateY(1px); }
+.btn:active { transform: scale(0.96); }
 .btn:disabled { opacity: 0.5; cursor: default; }
-.btn.primary { background: var(--brand); color: #fffdf8; border-color: var(--brand); }
+.btn:focus-visible, .kpi:focus-visible, .pager button:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+.btn.primary { background: var(--brand); color: #fffdf8; border-color: var(--brand); border-radius: 9999px; padding: 8px 20px; }
 .btn.primary:hover { background: var(--brand-2); border-color: var(--brand-2); color: #fffdf8; }
 .btn.highlight { background: var(--gold); color: var(--charcoal); border-color: var(--gold); }
 .btn.highlight:hover { filter: brightness(1.06); color: var(--charcoal); }

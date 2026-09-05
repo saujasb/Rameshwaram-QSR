@@ -22,6 +22,20 @@ services:
         value: /var/data
       - key: CLIENT_ORIGIN
         sync: false
+      # Optional: only enforced if set. Global API Documentation.pdf says the
+      # Petpooja webhook is "non-authenticated" by default; a static token is
+      # opt-in on their side, sent back in the payload body as "token".
+      - key: PETPOOJA_WEBHOOK_TOKEN
+        sync: false
+      # Optional outbound-adapter credentials for POST /order/status on
+      # GoSelfServe's order service. Leave unset to skip the sync (recorded as
+      # goselfserveSyncStatus: "not_configured" per order) until confirmed.
+      - key: GOSELFSERVE_BASE_URL
+        value: https://orderservice.qsr.goselfserve.in
+      - key: GOSELFSERVE_API_TOKEN
+        sync: false
+      - key: GOSELFSERVE_API_KEY
+        sync: false
     disk:
       name: qsr-data
       mountPath: /var/data

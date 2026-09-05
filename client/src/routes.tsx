@@ -9,6 +9,7 @@ import { SettingsPage } from "./modules/settings/SettingsPage";
 import { VegIndentPage } from "./modules/sales-analytics/VegIndentPage";
 import { KpiScorecardPage } from "./modules/sales-analytics/KpiScorecardPage";
 import { OrdersPage } from "./modules/orders/OrdersPage";
+import { LiveOrdersPage } from "./modules/live-orders/LiveOrdersPage";
 import { KitchenPage } from "./modules/kitchen/KitchenPage";
 import { DeliveryPage } from "./modules/delivery/DeliveryPage";
 import { FrontCounterPage } from "./modules/front-counter/FrontCounterPage";
@@ -59,7 +60,8 @@ export const navGroups: NavGroup[] = [
   {
     label: "Orders",
     items: [
-      { path: "/orders", label: "Orders", element: <OrdersPage />, icon: "▤" },
+      { path: "/live-orders", label: "Live Orders", element: <LiveOrdersPage />, icon: "◉" },
+      { path: "/orders", label: "Orders (manual)", element: <OrdersPage />, icon: "▤" },
       { path: "/kitchen", label: "Kitchen", element: <KitchenPage />, icon: "▲" },
       { path: "/delivery", label: "Delivery", element: <DeliveryPage />, icon: "→" },
       { path: "/front-counter", label: "Front Counter", element: <FrontCounterPage />, icon: "▭" },

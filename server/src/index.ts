@@ -18,6 +18,8 @@ import { intelligenceRouter } from "./entities/intelligence/routes.js";
 import { rameshRouter } from "./entities/ramesh/routes.js";
 import { analyticsRouter } from "./entities/analytics/routes.js";
 import { actionCenterRouter } from "./shared/actionCenter.js";
+import { providerOrdersRouter } from "./entities/provider-orders/routes.js";
+import { providerWebhookRouter } from "./entities/provider-orders/webhook.js";
 
 const allowedOrigins = process.env.CLIENT_ORIGIN?.split(",").map((o) => o.trim());
 
@@ -43,6 +45,8 @@ app.use("/api/intelligence", intelligenceRouter);
 app.use("/api/ramesh", rameshRouter);
 app.use("/api/analytics", analyticsRouter);
 app.use("/api/action-center", actionCenterRouter);
+app.use("/api/provider-orders", providerOrdersRouter);
+app.use("/api/webhooks", providerWebhookRouter);
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
