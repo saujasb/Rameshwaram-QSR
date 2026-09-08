@@ -5,3 +5,7 @@ dist/
 .env.local
 server/data/*.db
 server/data/*.db-*
+graphify-out/cost.json
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/cache/

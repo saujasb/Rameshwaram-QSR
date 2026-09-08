@@ -1,0 +1,25 @@
+---
+source_file: "client/tsconfig.json"
+type: "concept"
+community: "Client TypeScript Config"
+location: "L5"
+tags:
+  - graphify/concept
+  - graphify/EXTRACTED
+  - community/Client_TypeScript_Config
+---
+
+# DOM.Iterable
+
+## Connections
+- [[lib]] - `extends` [EXTRACTED]
+
+## Source
+**From** `client/tsconfig.json` **(starting line 5):**
+```json
+    "useDefineForClassFields": true,
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+```
+
+#graphify/concept #graphify/EXTRACTED #community/Client_TypeScript_Config

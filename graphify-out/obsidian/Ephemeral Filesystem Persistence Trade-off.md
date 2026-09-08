@@ -1,0 +1,67 @@
+---
+source_file: "render.yaml"
+type: "rationale"
+community: "Deployment Configuration (Render)"
+tags:
+  - graphify/rationale
+  - graphify/EXTRACTED
+  - community/Deployment_Configuration_Render
+---
+
+# Ephemeral Filesystem Persistence Trade-off
+
+## Connections
+- [[qsr-data persistent disk]] - `rationale_for` [EXTRACTED]
+- [[rameshwaram-qsr-server (Render web service)]] - `rationale_for` [EXTRACTED]
+
+## Source
+> [!note] Rationale
+> Render's free web-service plan has an ephemeral filesystem that resets on every deploy and after spin-down from inactivity, which would silently wipe the SQLite database. A persistent disk requires at least the 'starter' paid plan, hence plan: starter and the disk: block. Fly.io is noted as an alternative offering a real free persistent volume.
+
+**Full file:** `render.yaml`
+```yaml
+# Render Blueprint for the Express + SQLite backend.
+#
+# IMPORTANT — persistence caveat:
+# Render's free web-service plan has an EPHEMERAL filesystem: it resets on every
+# deploy and after the service spins down from inactivity. That would silently
+# wipe the SQLite database, defeating the whole point of local persistence.
+# A persistent disk (the `disk:` block below) requires at least the "starter"
+# paid plan. If you want real persistence on Render, use `starter` or higher.
+# If you'd rather stay free, Fly.io offers a real persistent volume on its free
+# allowance instead — ask if you want that variant.
+services:
+  - type: web
+    name: rameshwaram-qsr-server
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm run start --workspace=server
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATA_DIR
+        value: /var/data
+      - key: CLIENT_ORIGIN
+        sync: false
+      # Optional: only enforced if set. Global API Documentation.pdf says the
+      # Petpooja webhook is "non-authenticated" by default; a static token is
+      # opt-in on their side, sent back in the payload body as "token".
+      - key: PETPOOJA_WEBHOOK_TOKEN
+        sync: false
+      # Optional outbound-adapter credentials for POST /order/status on
+      # GoSelfServe's order service. Leave unset to skip the sync (recorded as
+      # goselfserveSyncStatus: "not_configured" per order) until confirmed.
+      - key: GOSELFSERVE_BASE_URL
+        value: https://orderservice.qsr.goselfserve.in
+      - key: GOSELFSERVE_API_TOKEN
+        sync: false
+      - key: GOSELFSERVE_API_KEY
+        sync: false
+    disk:
+      name: qsr-data
+      mountPath: /var/data
+      sizeGB: 1
+```
+
+#graphify/rationale #graphify/EXTRACTED #community/Deployment_Configuration_Render
