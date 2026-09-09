@@ -13,7 +13,7 @@ import type {
   ProviderOrderTax,
   ProviderOrderType,
 } from "../../../../../shared-types/providerOrders.js";
-import type { NormalizedPetpoojaOrder } from "../repository.js";
+import type { NormalizedProviderOrder } from "../repository.js";
 
 export class PetpoojaPayloadError extends Error {}
 
@@ -95,7 +95,7 @@ function mapPartPayment(raw: any): ProviderOrderPartPayment {
 }
 
 /** Throws PetpoojaPayloadError with a human-readable reason on any structural problem. */
-export function normalizePetpoojaPayload(body: any): NormalizedPetpoojaOrder {
+export function normalizePetpoojaPayload(body: any): NormalizedProviderOrder {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     throw new PetpoojaPayloadError("Request body must be a JSON object.");
   }

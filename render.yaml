@@ -27,6 +27,10 @@ services:
       # opt-in on their side, sent back in the payload body as "token".
       - key: PETPOOJA_WEBHOOK_TOKEN
         sync: false
+      # Optional shared secret for the inbound GoSelfServe order-push webhook.
+      # GoSelfServe sends this back as the "x-webhook-token" header.
+      - key: GOSELFSERVE_WEBHOOK_TOKEN
+        sync: false
       # Optional outbound-adapter credentials for POST /order/status on
       # GoSelfServe's order service. Leave unset to skip the sync (recorded as
       # goselfserveSyncStatus: "not_configured" per order) until confirmed.

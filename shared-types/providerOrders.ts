@@ -1,8 +1,8 @@
 import type { BaseRecord } from "./entities.js";
 
-export type ProviderName = "petpooja";
-export type ProviderOrderStatus = "success" | "cancelled";
-export type ProviderOrderType = "dine_in" | "pick_up" | "delivery";
+export type ProviderName = "petpooja" | "goselfserve";
+export type ProviderOrderStatus = "success" | "cancelled" | "pending";
+export type ProviderOrderType = "dine_in" | "pick_up" | "delivery" | "other";
 export type ProviderOrderSource = "pos" | "zomato" | "swiggy" | "other";
 export type GoSelfServeSyncStatus = "not_configured" | "pending" | "sent" | "failed";
 
@@ -101,6 +101,7 @@ export const PROVIDER_ORDER_TYPE_LABELS: Record<ProviderOrderType, string> = {
   dine_in: "Dine In",
   pick_up: "Pick Up",
   delivery: "Delivery",
+  other: "Other",
 };
 
 export const PROVIDER_ORDER_SOURCE_LABELS: Record<ProviderOrderSource, string> = {

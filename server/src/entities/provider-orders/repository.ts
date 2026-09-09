@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { db } from "../../db/client.js";
 import { ensureProviderOrderTables } from "./db.js";
 import type {
+  ProviderName,
   ProviderOrder,
   ProviderOrderAddon,
   ProviderOrderDiscount,
@@ -16,8 +17,8 @@ import type {
 
 ensureProviderOrderTables();
 
-export interface NormalizedPetpoojaOrder {
-  provider: "petpooja";
+export interface NormalizedProviderOrder {
+  provider: ProviderName;
   providerOrderId: string;
   providerInvoiceId: string;
   restaurantId: string;
@@ -170,7 +171,7 @@ export interface UpsertOutcome {
  * in place. Single prepared statement + SQLite's serialized writer thread
  * gives this its race-condition safety -- no separate app-level lock needed.
  */
-export function upsertProviderOrder(input: NormalizedPetpoojaOrder): UpsertOutcome {
+export function upsertProviderOrder(input: NormalizedProviderOrder): UpsertOutcome {
   const existing = findExistingStmt.get(input.provider, input.providerOrderId) as
     | { id: string; rawPayloadJson: string }
     | undefined;
