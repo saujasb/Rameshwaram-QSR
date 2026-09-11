@@ -1,0 +1,27 @@
+node_modules/
+dist/
+*.log
+.env
+.env.local
+server/data/*.db
+server/data/*.db-*
+graphify-out/cost.json
+graphify-out/cache/
+graphify-out/cost.json
+graphify-out/cache/
+
+# Stage 2: SQLite -> Supabase migration tooling. Never commit a copy of the
+# production database, any environment file carrying DATABASE_URL/Supabase
+# keys, or the tool's own run logs/reports.
+*.sqlite
+*.sqlite3
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+.env.*
+!.env.example
+!*/.env.example
+server/migration-logs/
+migrate-*.log
+migration-report*.json

@@ -1,0 +1,67 @@
+---
+source_file: "render.yaml"
+type: "code"
+community: "Deployment Configuration (Render)"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Deployment_Configuration_Render
+---
+
+# rameshwaram-qsr-server (Render web service)
+
+## Connections
+- [[Client HTML Entry Point]] - `conceptually_related_to` [INFERRED]
+- [[Ephemeral Filesystem Persistence Trade-off]] - `rationale_for` [EXTRACTED]
+- [[GoSelfServe order-status sync adapter config]] - `references` [EXTRACTED]
+- [[PETPOOJA_WEBHOOK_TOKEN config]] - `references` [EXTRACTED]
+- [[qsr-data persistent disk]] - `shares_data_with` [EXTRACTED]
+
+## Source
+**Full file:** `render.yaml`
+```yaml
+# Render Blueprint for the Express + SQLite backend.
+#
+# IMPORTANT — persistence caveat:
+# Render's free web-service plan has an EPHEMERAL filesystem: it resets on every
+# deploy and after the service spins down from inactivity. That would silently
+# wipe the SQLite database, defeating the whole point of local persistence.
+# A persistent disk (the `disk:` block below) requires at least the "starter"
+# paid plan. If you want real persistence on Render, use `starter` or higher.
+# If you'd rather stay free, Fly.io offers a real persistent volume on its free
+# allowance instead — ask if you want that variant.
+services:
+  - type: web
+    name: rameshwaram-qsr-server
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm run start --workspace=server
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: DATA_DIR
+        value: /var/data
+      - key: CLIENT_ORIGIN
+        sync: false
+      # Optional: only enforced if set. Global API Documentation.pdf says the
+      # Petpooja webhook is "non-authenticated" by default; a static token is
+      # opt-in on their side, sent back in the payload body as "token".
+      - key: PETPOOJA_WEBHOOK_TOKEN
+        sync: false
+      # Optional outbound-adapter credentials for POST /order/status on
+      # GoSelfServe's order service. Leave unset to skip the sync (recorded as
+      # goselfserveSyncStatus: "not_configured" per order) until confirmed.
+      - key: GOSELFSERVE_BASE_URL
+        value: https://orderservice.qsr.goselfserve.in
+      - key: GOSELFSERVE_API_TOKEN
+        sync: false
+      - key: GOSELFSERVE_API_KEY
+        sync: false
+    disk:
+      name: qsr-data
+      mountPath: /var/data
+      sizeGB: 1
+```
+
+#graphify/code #graphify/EXTRACTED #community/Deployment_Configuration_Render

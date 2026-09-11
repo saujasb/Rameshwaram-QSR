@@ -1,0 +1,36 @@
+---
+source_file: "server/tsconfig.json"
+type: "code"
+community: "Server TypeScript Config"
+location: "L2"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Server_TypeScript_Config
+---
+
+# compilerOptions
+
+## Connections
+- [[esModuleInterop_1]] - `contains` [EXTRACTED]
+- [[forceConsistentCasingInFileNames]] - `contains` [EXTRACTED]
+- [[lib_1]] - `contains` [EXTRACTED]
+- [[module_1]] - `contains` [EXTRACTED]
+- [[moduleResolution_1]] - `contains` [EXTRACTED]
+- [[noEmit_1]] - `contains` [EXTRACTED]
+- [[outDir]] - `contains` [EXTRACTED]
+- [[resolveJsonModule_1]] - `contains` [EXTRACTED]
+- [[servertsconfig.json]] - `contains` [EXTRACTED]
+- [[skipLibCheck_1]] - `contains` [EXTRACTED]
+- [[strict_1]] - `contains` [EXTRACTED]
+- [[target_1]] - `contains` [EXTRACTED]
+
+## Source
+**From** `server/tsconfig.json` **(starting line 2):**
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+```
+
+#graphify/code #graphify/EXTRACTED #community/Server_TypeScript_Config

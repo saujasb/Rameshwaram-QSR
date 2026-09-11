@@ -1,0 +1,151 @@
+/* Intelligence layer -- Today's Intelligence, Top Insights, Anomalies and
+   Reconciliation.
+   Cards, KPI tiles, pills, tables, glance rows and empty states all come from
+   base.css. Only structures that genuinely do not exist yet live here, and
+   every colour resolves through a design token so light and dark both stay
+   correct. */
+
+/* --- Provenance tag ---------------------------------------------------
+   Every server figure carries a `basis`. It is rendered next to the number so
+   a calculated value can never be mistaken for a measured one. */
+.basis-tag {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 750;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 5px;
+  white-space: nowrap;
+  cursor: help;
+  vertical-align: middle;
+}
+.basis-tag.observed { background: color-mix(in srgb, var(--good) 14%, transparent); color: var(--good); }
+.basis-tag.calculated { background: color-mix(in srgb, var(--brand) 12%, transparent); color: var(--brand); }
+.basis-tag.estimated { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
+.basis-tag.unavailable { background: color-mix(in srgb, var(--not-connected) 20%, transparent); color: var(--muted); }
+
+/* --- Metric values --------------------------------------------------- */
+.metric-val { font-variant-numeric: tabular-nums; }
+.metric-val.metric-unavailable {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12.5px;
+  font-variant-numeric: normal;
+  cursor: help;
+}
+.metric-sub { font-size: 12px; color: var(--muted); font-weight: 550; }
+
+/* Peak-hour / timestamp honesty note under a metric row. */
+.intel-honest-note {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin: 10px 0 0;
+  padding-left: 11px;
+  border-left: 2px solid var(--not-connected);
+}
+
+.intel-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 26px 0 10px;
+}
+.intel-section-head h2 { font-size: 15px; font-weight: 650; color: var(--ink-2); }
+.intel-section-head .count { font-size: 12px; color: var(--muted); }
+
+/* --- Insight rows ----------------------------------------------------
+   A whole insight is one button so the drill-down is keyboard reachable. */
+.insight {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 14px 6px 14px 4px;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.insight:last-child { border-bottom: none; }
+.insight:hover { background: color-mix(in srgb, var(--brand) 5%, transparent); }
+.insight:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.insight-dot { flex: 0 0 auto; margin-top: 6px; }
+.insight-body { flex: 1; min-width: 0; }
+.insight-what { font-size: 14px; font-weight: 650; margin: 0 0 7px; letter-spacing: -0.01em; }
+.insight-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1px 20px;
+  margin: 0;
+}
+.insight-field { display: flex; gap: 8px; font-size: 12.5px; line-height: 1.5; }
+.insight-field dt {
+  flex: 0 0 66px;
+  font-size: 9.5px;
+  font-weight: 750;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding-top: 3px;
+}
+.insight-field dd { margin: 0; color: var(--ink-2); min-width: 0; }
+.insight-field.is-action dd { color: var(--ink); font-weight: 600; }
+.insight-field.is-impact dd { color: var(--gold); font-weight: 650; }
+.insight-go { flex: 0 0 auto; font-size: 11.5px; font-weight: 650; color: var(--brand); padding-top: 3px; white-space: nowrap; }
+
+/* --- Anomalies ------------------------------------------------------- */
+.anomaly { padding: 16px 0; border-bottom: 1px solid var(--line); }
+.anomaly:last-child { border-bottom: none; }
+.anomaly-head { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+.anomaly-head h4 { font-size: 14px; font-weight: 650; letter-spacing: -0.01em; }
+.anomaly-head .pill { margin-top: 0; }
+.anomaly-meta { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+
+.compare {
+  display: flex;
+  gap: 26px;
+  flex-wrap: wrap;
+  margin: 11px 0 0;
+  padding: 11px 15px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--ink) 3%, transparent);
+}
+.compare-cell .lab {
+  font-size: 9.5px;
+  font-weight: 750;
+  letter-spacing: 0.55px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.compare-cell .num { font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.compare-cell .num.up { color: var(--good); }
+.compare-cell .num.down { color: var(--critical); }
+
+.basis-note { font-size: 12px; color: var(--muted); font-style: italic; margin: 9px 0 0; }
+.evidence { margin: 8px 0 0; padding-left: 19px; font-size: 12.5px; color: var(--ink-2); }
+.evidence li { margin: 2px 0; }
+.evidence .dataset { font-weight: 650; color: var(--ink); }
+.drill-link { display: inline-block; margin-top: 9px; font-size: 12px; font-weight: 650; color: var(--brand); }
+
+/* Anomaly cards on the Intelligence page. Every figure is shown next to the
+   expectation it was judged against, so severity is never asserted bare. */
+.anomaly-row { padding: 14px 0; border-bottom: 1px solid var(--line); }
+.anomaly-row:last-child { border-bottom: none; }
+.anomaly-when { font-size: 11.5px; color: var(--muted); }
+.anomaly-headline { margin: 6px 0 8px; font-size: 13.5px; color: var(--ink); }
+.anomaly-figures { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.anomaly-figures .lbl {
+  display: block; font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.5px;
+  color: var(--muted); font-weight: 700;
+}
+.anomaly-basis { margin: 8px 0 0; font-size: 11.5px; color: var(--muted); font-style: italic; }
+.anomaly-evidence { margin: 8px 0 10px; padding-left: 18px; font-size: 12px; color: var(--ink-2); }
+.anomaly-evidence li { margin-bottom: 2px; }
