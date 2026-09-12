@@ -1,5 +1,5 @@
-import { db } from "../../db/client.js";
-import { ensureDatasetTables, getBusinessDayStartHour } from "./db.js";
+import { query, withTransaction } from "../../db/client.js";
+import { getBusinessDayStartHour } from "./db.js";
 import type {
   DatasetCoverage,
   DatasetFilter,
@@ -7,38 +7,12 @@ import type {
   DatasetType,
   ImportBatch,
   PaginatedRecords,
+  SourceType,
 } from "../../../../shared-types/datasets.js";
 import type { HourlyBucket, ProductPerformanceRow } from "../../../../shared-types/intelligence.js";
 import { formatHourBucket, getBusinessHourSlot } from "../../../../shared-types/businessDate.js";
 
-ensureDatasetTables();
-
 // ---------------------------------------------------------------- writes ----
-
-const insertStmt = db.prepare(`
-  INSERT INTO dataset_records (
-    id, datasetType, rawTimestamp, transactionDate, businessDate, businessDayStartHour, hour, shift,
-    product, productKey, category, outlet, channel, quantity, salesValue, reason,
-    importBatchId, sourceFile, sourceType, sourceSheet, sourcePage, sourceRow,
-    fingerprint, flagsJson, createdAt, updatedAt
-  ) VALUES (
-    @id, @datasetType, @rawTimestamp, @transactionDate, @businessDate, @businessDayStartHour, @hour, @shift,
-    @product, @productKey, @category, @outlet, @channel, @quantity, @salesValue, @reason,
-    @importBatchId, @sourceFile, @sourceType, @sourceSheet, @sourcePage, @sourceRow,
-    @fingerprint, @flagsJson, @createdAt, @updatedAt
-  )
-`);
-
-const findByFingerprint = db.prepare(`SELECT id, quantity, salesValue FROM dataset_records WHERE fingerprint = ?`);
-
-const updateStmt = db.prepare(`
-  UPDATE dataset_records SET
-    importBatchId = @importBatchId, category = @category, product = @product, quantity = @quantity,
-    salesValue = @salesValue, reason = @reason, transactionDate = @transactionDate,
-    rawTimestamp = @rawTimestamp, hour = @hour, shift = @shift, outlet = @outlet,
-    businessDayStartHour = @businessDayStartHour, flagsJson = @flagsJson, updatedAt = @updatedAt
-  WHERE id = @id
-`);
 
 export interface UpsertResult {
   inserted: number;
@@ -50,156 +24,189 @@ function productKeyOf(product: string): string {
   return product.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
-export function upsertRecords(records: DatasetRecord[]): UpsertResult {
+export async function upsertRecords(records: DatasetRecord[]): Promise<UpsertResult> {
   let inserted = 0;
   let updated = 0;
   let duplicates = 0;
 
-  const run = db.transaction((rows: DatasetRecord[]) => {
-    for (const r of rows) {
-      const existing = findByFingerprint.get(r.fingerprint) as
-        | { id: string; quantity: number; salesValue: number | null }
-        | undefined;
-
-      const params = {
-        id: existing?.id ?? r.id,
-        datasetType: r.datasetType,
-        rawTimestamp: r.rawTimestamp,
-        transactionDate: r.transactionDate,
-        businessDate: r.businessDate,
-        businessDayStartHour: r.businessDayStartHour,
-        hour: r.hour,
-        shift: r.shift,
-        product: r.product,
-        productKey: productKeyOf(r.product),
-        category: r.category,
-        outlet: r.outlet,
-        channel: r.channel,
-        quantity: r.quantity,
-        salesValue: r.salesValue,
-        reason: r.reason,
-        importBatchId: r.importBatchId,
-        sourceFile: r.sourceFile,
-        sourceType: r.sourceType,
-        sourceSheet: r.sourceSheet,
-        sourcePage: r.sourcePage,
-        sourceRow: r.sourceRow,
-        fingerprint: r.fingerprint,
-        flagsJson: JSON.stringify(r.flags),
-        createdAt: r.createdAt,
-        updatedAt: r.updatedAt,
-      };
+  await withTransaction(async (client) => {
+    for (const r of records) {
+      const existingRes = await client.query<{ id: string; quantity: number; salesValue: number | null }>(
+        `SELECT id, quantity, "salesValue" FROM dataset_records WHERE fingerprint = $1`,
+        [r.fingerprint]
+      );
+      const existing = existingRes.rows[0];
+      const productKey = productKeyOf(r.product);
 
       if (!existing) {
-        insertStmt.run(params);
+        await client.query(
+          `INSERT INTO dataset_records (
+            id, "datasetType", "rawTimestamp", "transactionDate", "businessDate", "businessDayStartHour", hour, shift,
+            product, "productKey", category, outlet, channel, quantity, "salesValue", reason,
+            "importBatchId", "sourceFile", "sourceType", "sourceSheet", "sourcePage", "sourceRow",
+            fingerprint, "flagsJson", "createdAt", "updatedAt"
+          ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)`,
+          [
+            r.id,
+            r.datasetType,
+            r.rawTimestamp,
+            r.transactionDate,
+            r.businessDate,
+            r.businessDayStartHour,
+            r.hour,
+            r.shift,
+            r.product,
+            productKey,
+            r.category,
+            r.outlet,
+            r.channel,
+            r.quantity,
+            r.salesValue,
+            r.reason,
+            r.importBatchId,
+            r.sourceFile,
+            r.sourceType,
+            r.sourceSheet,
+            r.sourcePage,
+            r.sourceRow,
+            r.fingerprint,
+            JSON.stringify(r.flags),
+            r.createdAt,
+            r.updatedAt,
+          ]
+        );
         inserted++;
         continue;
       }
 
       const same =
-        Math.abs(existing.quantity - r.quantity) < 0.005 &&
-        Math.abs((existing.salesValue ?? 0) - (r.salesValue ?? 0)) < 0.005;
+        Math.abs(existing.quantity - r.quantity) < 0.005 && Math.abs((existing.salesValue ?? 0) - (r.salesValue ?? 0)) < 0.005;
       if (same) {
         duplicates++;
         continue;
       }
-      updateStmt.run(params);
+
+      await client.query(
+        `UPDATE dataset_records SET
+          "importBatchId" = $1, category = $2, product = $3, quantity = $4,
+          "salesValue" = $5, reason = $6, "transactionDate" = $7,
+          "rawTimestamp" = $8, hour = $9, shift = $10, outlet = $11,
+          "businessDayStartHour" = $12, "flagsJson" = $13, "updatedAt" = $14
+        WHERE id = $15`,
+        [
+          r.importBatchId,
+          r.category,
+          r.product,
+          r.quantity,
+          r.salesValue,
+          r.reason,
+          r.transactionDate,
+          r.rawTimestamp,
+          r.hour,
+          r.shift,
+          r.outlet,
+          r.businessDayStartHour,
+          JSON.stringify(r.flags),
+          r.updatedAt,
+          existing.id,
+        ]
+      );
       updated++;
     }
   });
 
-  run(records);
   return { inserted, updated, duplicates };
 }
 
 // -------------------------------------------------------------- batches ----
 
-export function insertImportBatch(batch: ImportBatch): ImportBatch {
-  db.prepare(`
-    INSERT INTO dataset_import_batches (
-      id, fileName, fileSizeBytes, sourceType, fileHash, datasetTypesJson, status,
-      businessDateFrom, businessDateTo, recordsFound, recordsInserted, recordsUpdated,
-      duplicatesSkipped, recordsRejected, qualityJson, sheetsJson, rejectedRowsJson,
-      reconciliationJson, businessDayStartHour, createdAt
-    ) VALUES (
-      @id, @fileName, @fileSizeBytes, @sourceType, @fileHash, @datasetTypesJson, @status,
-      @businessDateFrom, @businessDateTo, @recordsFound, @recordsInserted, @recordsUpdated,
-      @duplicatesSkipped, @recordsRejected, @qualityJson, @sheetsJson, @rejectedRowsJson,
-      @reconciliationJson, @businessDayStartHour, @createdAt
-    )
-  `).run({
-    id: batch.id,
-    fileName: batch.fileName,
-    fileSizeBytes: batch.fileSizeBytes,
-    sourceType: batch.sourceType,
-    fileHash: batch.fileHash,
-    datasetTypesJson: JSON.stringify(batch.datasetTypes),
-    status: batch.status,
-    businessDateFrom: batch.businessDateFrom,
-    businessDateTo: batch.businessDateTo,
-    recordsFound: batch.recordsFound,
-    recordsInserted: batch.recordsInserted,
-    recordsUpdated: batch.recordsUpdated,
-    duplicatesSkipped: batch.duplicatesSkipped,
-    recordsRejected: batch.recordsRejected,
-    qualityJson: JSON.stringify(batch.quality),
-    sheetsJson: JSON.stringify(batch.sheets),
-    rejectedRowsJson: JSON.stringify(batch.rejectedRows),
-    reconciliationJson: batch.reconciliation ? JSON.stringify(batch.reconciliation) : null,
-    businessDayStartHour: batch.businessDayStartHour,
-    createdAt: batch.createdAt,
-  });
+export async function insertImportBatch(batch: ImportBatch): Promise<ImportBatch> {
+  await query(
+    `INSERT INTO dataset_import_batches (
+      id, "fileName", "fileSizeBytes", "sourceType", "fileHash", "datasetTypesJson", status,
+      "businessDateFrom", "businessDateTo", "recordsFound", "recordsInserted", "recordsUpdated",
+      "duplicatesSkipped", "recordsRejected", "qualityJson", "sheetsJson", "rejectedRowsJson",
+      "reconciliationJson", "businessDayStartHour", "createdAt"
+    ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)`,
+    [
+      batch.id,
+      batch.fileName,
+      batch.fileSizeBytes,
+      batch.sourceType,
+      batch.fileHash,
+      JSON.stringify(batch.datasetTypes),
+      batch.status,
+      batch.businessDateFrom,
+      batch.businessDateTo,
+      batch.recordsFound,
+      batch.recordsInserted,
+      batch.recordsUpdated,
+      batch.duplicatesSkipped,
+      batch.recordsRejected,
+      JSON.stringify(batch.quality),
+      JSON.stringify(batch.sheets),
+      JSON.stringify(batch.rejectedRows),
+      batch.reconciliation ? JSON.stringify(batch.reconciliation) : null,
+      batch.businessDayStartHour,
+      batch.createdAt,
+    ]
+  );
   return batch;
 }
 
-function rowToBatch(row: any): ImportBatch {
+// "...Json" columns and every date/time column on these tables stayed plain
+// TEXT in Postgres (Stage 1 deliberately did not change these to jsonb/
+// timestamptz), so they come back from node-postgres as plain strings, same
+// as they did from better-sqlite3.
+function rowToBatch(row: Record<string, unknown>): ImportBatch {
   return {
-    id: row.id,
-    fileName: row.fileName,
-    fileSizeBytes: row.fileSizeBytes,
-    sourceType: row.sourceType,
-    fileHash: row.fileHash,
-    datasetTypes: JSON.parse(row.datasetTypesJson),
-    status: row.status,
-    businessDateFrom: row.businessDateFrom,
-    businessDateTo: row.businessDateTo,
-    recordsFound: row.recordsFound,
-    recordsInserted: row.recordsInserted,
-    recordsUpdated: row.recordsUpdated,
-    duplicatesSkipped: row.duplicatesSkipped,
-    recordsRejected: row.recordsRejected,
-    quality: JSON.parse(row.qualityJson),
-    sheets: JSON.parse(row.sheetsJson),
-    rejectedRows: JSON.parse(row.rejectedRowsJson),
-    reconciliation: row.reconciliationJson ? JSON.parse(row.reconciliationJson) : null,
-    businessDayStartHour: row.businessDayStartHour,
-    createdAt: row.createdAt,
+    id: row.id as string,
+    fileName: row.fileName as string,
+    fileSizeBytes: row.fileSizeBytes as number,
+    sourceType: row.sourceType as ImportBatch["sourceType"],
+    fileHash: row.fileHash as string,
+    datasetTypes: JSON.parse(row.datasetTypesJson as string),
+    status: row.status as ImportBatch["status"],
+    businessDateFrom: row.businessDateFrom as string | null,
+    businessDateTo: row.businessDateTo as string | null,
+    recordsFound: row.recordsFound as number,
+    recordsInserted: row.recordsInserted as number,
+    recordsUpdated: row.recordsUpdated as number,
+    duplicatesSkipped: row.duplicatesSkipped as number,
+    recordsRejected: row.recordsRejected as number,
+    quality: JSON.parse(row.qualityJson as string),
+    sheets: JSON.parse(row.sheetsJson as string),
+    rejectedRows: JSON.parse(row.rejectedRowsJson as string),
+    reconciliation: row.reconciliationJson ? JSON.parse(row.reconciliationJson as string) : null,
+    businessDayStartHour: row.businessDayStartHour as number,
+    createdAt: row.createdAt as string,
   };
 }
 
-export function listImportBatches(limit = 100): ImportBatch[] {
-  return db
-    .prepare(`SELECT * FROM dataset_import_batches ORDER BY createdAt DESC LIMIT ?`)
-    .all(limit)
-    .map(rowToBatch);
+export async function listImportBatches(limit = 100): Promise<ImportBatch[]> {
+  const { rows } = await query(`SELECT * FROM dataset_import_batches ORDER BY "createdAt" DESC LIMIT $1`, [limit]);
+  return rows.map(rowToBatch);
 }
 
-export function getImportBatch(id: string): ImportBatch | undefined {
-  const row = db.prepare(`SELECT * FROM dataset_import_batches WHERE id = ?`).get(id);
-  return row ? rowToBatch(row) : undefined;
+export async function getImportBatch(id: string): Promise<ImportBatch | undefined> {
+  const { rows } = await query(`SELECT * FROM dataset_import_batches WHERE id = $1`, [id]);
+  return rows[0] ? rowToBatch(rows[0]) : undefined;
 }
 
-export function findBatchByFileHash(fileHash: string): ImportBatch | undefined {
-  const row = db.prepare(`SELECT * FROM dataset_import_batches WHERE fileHash = ? ORDER BY createdAt DESC LIMIT 1`).get(fileHash);
-  return row ? rowToBatch(row) : undefined;
+export async function findBatchByFileHash(fileHash: string): Promise<ImportBatch | undefined> {
+  const { rows } = await query(
+    `SELECT * FROM dataset_import_batches WHERE "fileHash" = $1 ORDER BY "createdAt" DESC LIMIT 1`,
+    [fileHash]
+  );
+  return rows[0] ? rowToBatch(rows[0]) : undefined;
 }
 
-export function deleteImportBatch(id: string): boolean {
-  const run = db.transaction((batchId: string) => {
-    db.prepare(`DELETE FROM dataset_records WHERE importBatchId = ?`).run(batchId);
-    return db.prepare(`DELETE FROM dataset_import_batches WHERE id = ?`).run(batchId).changes > 0;
+export async function deleteImportBatch(id: string): Promise<boolean> {
+  return withTransaction(async (client) => {
+    await client.query(`DELETE FROM dataset_records WHERE "importBatchId" = $1`, [id]);
+    const res = await client.query(`DELETE FROM dataset_import_batches WHERE id = $1`, [id]);
+    return (res.rowCount ?? 0) > 0;
   });
-  return run(id);
 }
 
 // ---------------------------------------------------------------- reads ----
@@ -208,94 +215,98 @@ function buildWhere(filter: DatasetFilter): { clause: string; params: unknown[] 
   const conds: string[] = [];
   const params: unknown[] = [];
   if (filter.from) {
-    conds.push("businessDate >= ?");
     params.push(filter.from);
+    conds.push(`"businessDate" >= $${params.length}`);
   }
   if (filter.to) {
-    conds.push("businessDate <= ?");
     params.push(filter.to);
+    conds.push(`"businessDate" <= $${params.length}`);
   }
   if (filter.datasetType) {
-    conds.push("datasetType = ?");
     params.push(filter.datasetType);
+    conds.push(`"datasetType" = $${params.length}`);
   }
   if (filter.product) {
-    conds.push("productKey = ?");
     params.push(productKeyOf(filter.product));
+    conds.push(`"productKey" = $${params.length}`);
   }
   if (filter.outlet) {
-    conds.push("outlet = ?");
     params.push(filter.outlet);
+    conds.push(`outlet = $${params.length}`);
   }
   if (filter.shift) {
-    conds.push("shift = ?");
     params.push(filter.shift);
+    conds.push(`shift = $${params.length}`);
   }
   if (filter.search) {
-    conds.push("(product LIKE ? OR category LIKE ? OR sourceFile LIKE ? OR reason LIKE ?)");
     const like = `%${filter.search}%`;
     params.push(like, like, like, like);
+    const n = params.length;
+    conds.push(`(product LIKE $${n - 3} OR category LIKE $${n - 2} OR "sourceFile" LIKE $${n - 1} OR reason LIKE $${n})`);
   }
   return { clause: conds.length ? `WHERE ${conds.join(" AND ")}` : "", params };
 }
 
-function mapRecord(row: any): DatasetRecord {
+function mapRecord(row: Record<string, unknown>): DatasetRecord {
   return {
-    id: row.id,
-    datasetType: row.datasetType,
-    rawTimestamp: row.rawTimestamp,
-    transactionDate: row.transactionDate,
-    businessDate: row.businessDate,
-    businessDayStartHour: row.businessDayStartHour,
-    hour: row.hour,
-    shift: row.shift,
-    product: row.product,
-    category: row.category,
-    outlet: row.outlet,
-    channel: row.channel,
-    quantity: row.quantity,
-    salesValue: row.salesValue,
-    reason: row.reason,
-    importBatchId: row.importBatchId,
-    sourceFile: row.sourceFile,
-    sourceType: row.sourceType,
-    sourceSheet: row.sourceSheet,
-    sourcePage: row.sourcePage,
-    sourceRow: row.sourceRow,
-    fingerprint: row.fingerprint,
-    flags: JSON.parse(row.flagsJson ?? "[]"),
-    createdAt: row.createdAt,
-    updatedAt: row.updatedAt,
+    id: row.id as string,
+    datasetType: row.datasetType as DatasetType,
+    rawTimestamp: row.rawTimestamp as string | null,
+    transactionDate: row.transactionDate as string | null,
+    businessDate: row.businessDate as string,
+    businessDayStartHour: row.businessDayStartHour as number,
+    hour: row.hour as number | null,
+    shift: row.shift as string | null,
+    product: row.product as string,
+    category: row.category as string | null,
+    outlet: row.outlet as string | null,
+    channel: row.channel as string | null,
+    quantity: row.quantity as number,
+    salesValue: row.salesValue as number | null,
+    reason: row.reason as string | null,
+    importBatchId: row.importBatchId as string,
+    sourceFile: row.sourceFile as string,
+    sourceType: row.sourceType as SourceType,
+    sourceSheet: row.sourceSheet as string | null,
+    sourcePage: row.sourcePage as number | null,
+    sourceRow: row.sourceRow as number | null,
+    fingerprint: row.fingerprint as string,
+    flags: JSON.parse((row.flagsJson as string) ?? "[]"),
+    createdAt: row.createdAt as string,
+    updatedAt: row.updatedAt as string,
   };
 }
 
 const MAX_PAGE_SIZE = 200;
 
-export function queryRecords(filter: DatasetFilter): PaginatedRecords {
+export async function queryRecords(filter: DatasetFilter): Promise<PaginatedRecords> {
   const { clause, params } = buildWhere(filter);
-  const total = (db.prepare(`SELECT COUNT(*) as c FROM dataset_records ${clause}`).get(...params) as { c: number }).c;
+  const countRes = await query<{ c: number }>(`SELECT COUNT(*)::int as c FROM dataset_records ${clause}`, params);
+  const total = countRes.rows[0].c;
   const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, filter.pageSize ?? 50));
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const page = Math.min(Math.max(1, filter.page ?? 1), totalPages);
-  const rows = db
-    .prepare(
-      `SELECT * FROM dataset_records ${clause}
-       ORDER BY businessDate DESC, COALESCE(rawTimestamp, '') DESC, salesValue DESC, quantity DESC
-       LIMIT ? OFFSET ?`
-    )
-    .all(...params, pageSize, (page - 1) * pageSize)
-    .map(mapRecord);
 
-  return { data: rows, pagination: { page, pageSize, totalItems: total, totalPages } };
+  const limitParamIdx = params.length + 1;
+  const offsetParamIdx = params.length + 2;
+  const { rows } = await query(
+    `SELECT * FROM dataset_records ${clause}
+     ORDER BY "businessDate" DESC, COALESCE("rawTimestamp", '') DESC, "salesValue" DESC, quantity DESC
+     LIMIT $${limitParamIdx} OFFSET $${offsetParamIdx}`,
+    [...params, pageSize, (page - 1) * pageSize]
+  );
+
+  return { data: rows.map(mapRecord), pagination: { page, pageSize, totalItems: total, totalPages } };
 }
 
 /** Every record matching a filter, for CSV export. Hard-capped to stay safe. */
-export function exportRecords(filter: DatasetFilter, cap = 50000): DatasetRecord[] {
+export async function exportRecords(filter: DatasetFilter, cap = 50000): Promise<DatasetRecord[]> {
   const { clause, params } = buildWhere(filter);
-  return db
-    .prepare(`SELECT * FROM dataset_records ${clause} ORDER BY businessDate DESC, product ASC LIMIT ?`)
-    .all(...params, cap)
-    .map(mapRecord);
+  const { rows } = await query(
+    `SELECT * FROM dataset_records ${clause} ORDER BY "businessDate" DESC, product ASC LIMIT $${params.length + 1}`,
+    [...params, cap]
+  );
+  return rows.map(mapRecord);
 }
 
 export interface DatasetTotals {
@@ -304,64 +315,71 @@ export interface DatasetTotals {
   recordCount: number;
 }
 
-export function totalsFor(filter: DatasetFilter): DatasetTotals {
+export async function totalsFor(filter: DatasetFilter): Promise<DatasetTotals> {
   const { clause, params } = buildWhere(filter);
-  const row = db
-    .prepare(
-      `SELECT COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as value, COUNT(*) as recordCount
-       FROM dataset_records ${clause}`
-    )
-    .get(...params) as DatasetTotals;
-  return row;
+  const { rows } = await query<DatasetTotals>(
+    `SELECT COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM("salesValue"),0) as value, COUNT(*)::int as "recordCount"
+     FROM dataset_records ${clause}`,
+    params
+  );
+  const row = rows[0];
+  return { quantity: Number(row.quantity), value: Number(row.value), recordCount: row.recordCount };
 }
 
-export function dailyTotals(filter: DatasetFilter): { businessDate: string; quantity: number; value: number }[] {
+export async function dailyTotals(
+  filter: DatasetFilter
+): Promise<{ businessDate: string; quantity: number; value: number }[]> {
   const { clause, params } = buildWhere(filter);
-  return db
-    .prepare(
-      `SELECT businessDate, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as value
-       FROM dataset_records ${clause} GROUP BY businessDate ORDER BY businessDate ASC`
-    )
-    .all(...params) as { businessDate: string; quantity: number; value: number }[];
+  const { rows } = await query<{ businessDate: string; quantity: number; value: number }>(
+    `SELECT "businessDate", COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM("salesValue"),0) as value
+     FROM dataset_records ${clause} GROUP BY "businessDate" ORDER BY "businessDate" ASC`,
+    params
+  );
+  return rows.map((r) => ({ ...r, quantity: Number(r.quantity), value: Number(r.value) }));
 }
 
-export function topProducts(
+export async function topProducts(
   filter: DatasetFilter,
   limit = 15,
   order: "desc" | "asc" = "desc"
-): { product: string; category: string | null; quantity: number; value: number }[] {
+): Promise<{ product: string; category: string | null; quantity: number; value: number }[]> {
   const { clause, params } = buildWhere(filter);
-  return db
-    .prepare(
-      `SELECT product, MAX(category) as category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as value
-       FROM dataset_records ${clause}
-       GROUP BY productKey
-       ORDER BY value ${order === "desc" ? "DESC" : "ASC"}, quantity ${order === "desc" ? "DESC" : "ASC"}
-       LIMIT ?`
-    )
-    .all(...params, limit) as { product: string; category: string | null; quantity: number; value: number }[];
+  const dir = order === "desc" ? "DESC" : "ASC";
+  const { rows } = await query<{ product: string; category: string | null; quantity: number; value: number }>(
+    `SELECT product, MAX(category) as category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM("salesValue"),0) as value
+     FROM dataset_records ${clause}
+     GROUP BY "productKey", product
+     ORDER BY value ${dir}, quantity ${dir}
+     LIMIT $${params.length + 1}`,
+    [...params, limit]
+  );
+  return rows.map((r) => ({ ...r, quantity: Number(r.quantity), value: Number(r.value) }));
 }
 
-export function categoryTotals(filter: DatasetFilter): { category: string; quantity: number; value: number }[] {
+export async function categoryTotals(
+  filter: DatasetFilter
+): Promise<{ category: string; quantity: number; value: number }[]> {
   const { clause, params } = buildWhere(filter);
-  return db
-    .prepare(
-      `SELECT COALESCE(category, 'Uncategorised') as category, COALESCE(SUM(quantity),0) as quantity,
-              COALESCE(SUM(salesValue),0) as value
-       FROM dataset_records ${clause} GROUP BY COALESCE(category, 'Uncategorised') ORDER BY value DESC`
-    )
-    .all(...params) as { category: string; quantity: number; value: number }[];
+  const { rows } = await query<{ category: string; quantity: number; value: number }>(
+    `SELECT COALESCE(category, 'Uncategorised') as category, COALESCE(SUM(quantity),0) as quantity,
+            COALESCE(SUM("salesValue"),0) as value
+     FROM dataset_records ${clause} GROUP BY COALESCE(category, 'Uncategorised') ORDER BY value DESC`,
+    params
+  );
+  return rows.map((r) => ({ ...r, quantity: Number(r.quantity), value: Number(r.value) }));
 }
 
-export function channelTotals(filter: DatasetFilter): { channel: string; quantity: number; value: number }[] {
+export async function channelTotals(
+  filter: DatasetFilter
+): Promise<{ channel: string; quantity: number; value: number }[]> {
   const { clause, params } = buildWhere(filter);
   const extra = clause ? `${clause} AND channel IS NOT NULL` : `WHERE channel IS NOT NULL`;
-  return db
-    .prepare(
-      `SELECT channel, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM(salesValue),0) as value
-       FROM dataset_records ${extra} GROUP BY channel ORDER BY value DESC`
-    )
-    .all(...params) as { channel: string; quantity: number; value: number }[];
+  const { rows } = await query<{ channel: string; quantity: number; value: number }>(
+    `SELECT channel, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM("salesValue"),0) as value
+     FROM dataset_records ${extra} GROUP BY channel ORDER BY value DESC`,
+    params
+  );
+  return rows.map((r) => ({ ...r, quantity: Number(r.quantity), value: Number(r.value) }));
 }
 
 /**
@@ -370,21 +388,20 @@ export function channelTotals(filter: DatasetFilter): { channel: string; quantit
  * at the end of its own business day's curve, with its real clock time intact.
  * Returns [] when no record in range carries a timestamp.
  */
-export function hourlyBuckets(filter: DatasetFilter): HourlyBucket[] {
-  const startHour = getBusinessDayStartHour();
+export async function hourlyBuckets(filter: DatasetFilter): Promise<HourlyBucket[]> {
+  const startHour = await getBusinessDayStartHour();
   const { clause, params } = buildWhere({ ...filter, datasetType: undefined });
   const where = clause ? `${clause} AND hour IS NOT NULL` : `WHERE hour IS NOT NULL`;
 
-  const rows = db
-    .prepare(
-      `SELECT hour, datasetType,
-              COALESCE(SUM(quantity),0) as quantity,
-              COALESCE(SUM(salesValue),0) as value,
-              COUNT(*) as recordCount
-       FROM dataset_records ${where}
-       GROUP BY hour, datasetType`
-    )
-    .all(...params) as { hour: number; datasetType: DatasetType; quantity: number; value: number; recordCount: number }[];
+  const { rows } = await query<{ hour: number; datasetType: DatasetType; quantity: number; value: number; recordCount: number }>(
+    `SELECT hour, "datasetType",
+            COALESCE(SUM(quantity),0) as quantity,
+            COALESCE(SUM("salesValue"),0) as value,
+            COUNT(*)::int as "recordCount"
+     FROM dataset_records ${where}
+     GROUP BY hour, "datasetType"`,
+    params
+  );
 
   if (rows.length === 0) return [];
 
@@ -406,10 +423,10 @@ export function hourlyBuckets(filter: DatasetFilter): HourlyBucket[] {
       byHour.set(r.hour, b);
     }
     if (r.datasetType === "sales") {
-      b.salesValue += r.value;
-      b.salesQty += r.quantity;
-    } else if (r.datasetType === "production") b.productionQty += r.quantity;
-    else if (r.datasetType === "wastage") b.wastageQty += r.quantity;
+      b.salesValue += Number(r.value);
+      b.salesQty += Number(r.quantity);
+    } else if (r.datasetType === "production") b.productionQty += Number(r.quantity);
+    else if (r.datasetType === "wastage") b.wastageQty += Number(r.quantity);
     b.recordCount += r.recordCount;
   }
 
@@ -417,29 +434,38 @@ export function hourlyBuckets(filter: DatasetFilter): HourlyBucket[] {
 }
 
 /** Per-product sales/production/wastage side by side, for cross-dataset analysis. */
-export function productPerformance(filter: DatasetFilter, limit = 200): ProductPerformanceRow[] {
+export async function productPerformance(filter: DatasetFilter, limit = 200): Promise<ProductPerformanceRow[]> {
   const base: DatasetFilter = { ...filter, datasetType: undefined };
   const { clause, params } = buildWhere(base);
-  const rows = db
-    .prepare(
-      `SELECT product, MAX(category) as category,
-              COALESCE(SUM(CASE WHEN datasetType='sales' THEN quantity END),0) as salesQty,
-              COALESCE(SUM(CASE WHEN datasetType='sales' THEN salesValue END),0) as salesValue,
-              COALESCE(SUM(CASE WHEN datasetType='production' THEN quantity END),0) as productionQty,
-              COALESCE(SUM(CASE WHEN datasetType='wastage' THEN quantity END),0) as wastageQty
-       FROM dataset_records ${clause}
-       GROUP BY productKey
-       ORDER BY salesValue DESC, salesQty DESC
-       LIMIT ?`
-    )
-    .all(...params, limit) as Omit<ProductPerformanceRow, "sellThroughPct" | "wastagePct" | "variancePct">[];
+  const { rows } = await query<Omit<ProductPerformanceRow, "sellThroughPct" | "wastagePct" | "variancePct">>(
+    `SELECT product, MAX(category) as category,
+            COALESCE(SUM(CASE WHEN "datasetType"='sales' THEN quantity END),0) as "salesQty",
+            COALESCE(SUM(CASE WHEN "datasetType"='sales' THEN "salesValue" END),0) as "salesValue",
+            COALESCE(SUM(CASE WHEN "datasetType"='production' THEN quantity END),0) as "productionQty",
+            COALESCE(SUM(CASE WHEN "datasetType"='wastage' THEN quantity END),0) as "wastageQty"
+     FROM dataset_records ${clause}
+     GROUP BY "productKey", product
+     ORDER BY "salesValue" DESC, "salesQty" DESC
+     LIMIT $${params.length + 1}`,
+    [...params, limit]
+  );
 
-  return rows.map((r) => ({
-    ...r,
-    sellThroughPct: r.productionQty > 0 ? (r.salesQty / r.productionQty) * 100 : null,
-    wastagePct: r.productionQty > 0 ? (r.wastageQty / r.productionQty) * 100 : null,
-    variancePct: r.productionQty > 0 ? ((r.productionQty - r.salesQty - r.wastageQty) / r.productionQty) * 100 : null,
-  }));
+  return rows.map((r) => {
+    const salesQty = Number(r.salesQty);
+    const salesValue = Number(r.salesValue);
+    const productionQty = Number(r.productionQty);
+    const wastageQty = Number(r.wastageQty);
+    return {
+      ...r,
+      salesQty,
+      salesValue,
+      productionQty,
+      wastageQty,
+      sellThroughPct: productionQty > 0 ? (salesQty / productionQty) * 100 : null,
+      wastagePct: productionQty > 0 ? (wastageQty / productionQty) * 100 : null,
+      variancePct: productionQty > 0 ? ((productionQty - salesQty - wastageQty) / productionQty) * 100 : null,
+    };
+  });
 }
 
 export interface SegmentPerformanceRow {
@@ -456,65 +482,82 @@ export interface SegmentPerformanceRow {
 
 /**
  * Cross-dataset rollup grouped by shift or outlet, mirroring productPerformance.
- * This is what "which shift is performing worst" needs -- previously only the
- * distinct *names* were queryable, never their measures.
+ * `column` is always a hardcoded literal ("shift" | "outlet") from the two
+ * wrapper functions below, never request input, so it is safe to
+ * interpolate directly (as the original SQLite version also did).
  */
-function segmentPerformance(column: "shift" | "outlet", filter: DatasetFilter): SegmentPerformanceRow[] {
+async function segmentPerformance(column: "shift" | "outlet", filter: DatasetFilter): Promise<SegmentPerformanceRow[]> {
   const base: DatasetFilter = { ...filter, datasetType: undefined };
   const { clause, params } = buildWhere(base);
   const where = clause ? `${clause} AND ${column} IS NOT NULL` : `WHERE ${column} IS NOT NULL`;
 
-  const rows = db
-    .prepare(
-      `SELECT ${column} as segment,
-              COALESCE(SUM(CASE WHEN datasetType='sales' THEN quantity END),0) as salesQty,
-              COALESCE(SUM(CASE WHEN datasetType='sales' THEN salesValue END),0) as salesValue,
-              COALESCE(SUM(CASE WHEN datasetType='production' THEN quantity END),0) as productionQty,
-              COALESCE(SUM(CASE WHEN datasetType='wastage' THEN quantity END),0) as wastageQty,
-              COUNT(*) as recordCount
-       FROM dataset_records ${where}
-       GROUP BY ${column}
-       ORDER BY salesValue DESC`
-    )
-    .all(...params) as Omit<SegmentPerformanceRow, "sellThroughPct" | "wastagePct" | "variancePct">[];
+  const { rows } = await query<Omit<SegmentPerformanceRow, "sellThroughPct" | "wastagePct" | "variancePct">>(
+    `SELECT ${column} as segment,
+            COALESCE(SUM(CASE WHEN "datasetType"='sales' THEN quantity END),0) as "salesQty",
+            COALESCE(SUM(CASE WHEN "datasetType"='sales' THEN "salesValue" END),0) as "salesValue",
+            COALESCE(SUM(CASE WHEN "datasetType"='production' THEN quantity END),0) as "productionQty",
+            COALESCE(SUM(CASE WHEN "datasetType"='wastage' THEN quantity END),0) as "wastageQty",
+            COUNT(*)::int as "recordCount"
+     FROM dataset_records ${where}
+     GROUP BY ${column}
+     ORDER BY "salesValue" DESC`,
+    params
+  );
 
-  return rows.map((r) => ({
-    ...r,
-    sellThroughPct: r.productionQty > 0 ? (r.salesQty / r.productionQty) * 100 : null,
-    wastagePct: r.productionQty > 0 ? (r.wastageQty / r.productionQty) * 100 : null,
-    variancePct: r.productionQty > 0 ? ((r.productionQty - r.salesQty - r.wastageQty) / r.productionQty) * 100 : null,
-  }));
+  return rows.map((r) => {
+    const salesQty = Number(r.salesQty);
+    const salesValue = Number(r.salesValue);
+    const productionQty = Number(r.productionQty);
+    const wastageQty = Number(r.wastageQty);
+    return {
+      ...r,
+      salesQty,
+      salesValue,
+      productionQty,
+      wastageQty,
+      sellThroughPct: productionQty > 0 ? (salesQty / productionQty) * 100 : null,
+      wastagePct: productionQty > 0 ? (wastageQty / productionQty) * 100 : null,
+      variancePct: productionQty > 0 ? ((productionQty - salesQty - wastageQty) / productionQty) * 100 : null,
+    };
+  });
 }
 
-export function shiftPerformance(filter: DatasetFilter): SegmentPerformanceRow[] {
+export function shiftPerformance(filter: DatasetFilter): Promise<SegmentPerformanceRow[]> {
   return segmentPerformance("shift", filter);
 }
 
-export function outletPerformance(filter: DatasetFilter): SegmentPerformanceRow[] {
+export function outletPerformance(filter: DatasetFilter): Promise<SegmentPerformanceRow[]> {
   return segmentPerformance("outlet", filter);
 }
 
-export function wastageByReason(filter: DatasetFilter): { reason: string; quantity: number; recordCount: number }[] {
+export async function wastageByReason(
+  filter: DatasetFilter
+): Promise<{ reason: string; quantity: number; recordCount: number }[]> {
   const { clause, params } = buildWhere({ ...filter, datasetType: "wastage" });
-  return db
-    .prepare(
-      `SELECT COALESCE(reason, 'Not recorded') as reason, COALESCE(SUM(quantity),0) as quantity, COUNT(*) as recordCount
-       FROM dataset_records ${clause} GROUP BY COALESCE(reason, 'Not recorded') ORDER BY quantity DESC`
-    )
-    .all(...params) as { reason: string; quantity: number; recordCount: number }[];
+  const { rows } = await query<{ reason: string; quantity: number; recordCount: number }>(
+    `SELECT COALESCE(reason, 'Not recorded') as reason, COALESCE(SUM(quantity),0) as quantity, COUNT(*)::int as "recordCount"
+     FROM dataset_records ${clause} GROUP BY COALESCE(reason, 'Not recorded') ORDER BY quantity DESC`,
+    params
+  );
+  return rows.map((r) => ({ ...r, quantity: Number(r.quantity) }));
 }
 
 /** What data actually exists -- drives every "Insufficient data" decision. */
-export function datasetCoverage(): DatasetCoverage[] {
-  const rows = db
-    .prepare(
-      `SELECT datasetType, COUNT(*) as recordCount, MIN(businessDate) as businessDateFrom,
-              MAX(businessDate) as businessDateTo,
-              SUM(CASE WHEN rawTimestamp IS NOT NULL THEN 1 ELSE 0 END) as tsCount,
-              COUNT(DISTINCT productKey) as distinctProducts
-       FROM dataset_records GROUP BY datasetType`
-    )
-    .all() as any[];
+export async function datasetCoverage(): Promise<DatasetCoverage[]> {
+  const { rows } = await query<{
+    datasetType: DatasetType;
+    recordCount: number;
+    businessDateFrom: string | null;
+    businessDateTo: string | null;
+    tsCount: number;
+    distinctProducts: number;
+  }>(
+    `SELECT "datasetType", COUNT(*)::int as "recordCount", MIN("businessDate") as "businessDateFrom",
+            MAX("businessDate") as "businessDateTo",
+            SUM(CASE WHEN "rawTimestamp" IS NOT NULL THEN 1 ELSE 0 END)::int as "tsCount",
+            COUNT(DISTINCT "productKey")::int as "distinctProducts"
+     FROM dataset_records GROUP BY "datasetType"`
+  );
 
   return rows.map((r) => ({
     datasetType: r.datasetType,
@@ -526,20 +569,21 @@ export function datasetCoverage(): DatasetCoverage[] {
   }));
 }
 
-export function distinctValues(column: "product" | "outlet" | "shift"): string[] {
+export async function distinctValues(column: "product" | "outlet" | "shift"): Promise<string[]> {
   const col = column === "product" ? "product" : column;
-  return (
-    db.prepare(`SELECT DISTINCT ${col} as v FROM dataset_records WHERE ${col} IS NOT NULL ORDER BY v ASC LIMIT 500`).all() as {
-      v: string;
-    }[]
-  ).map((r) => r.v);
+  const { rows } = await query<{ v: string }>(
+    `SELECT DISTINCT ${col} as v FROM dataset_records WHERE ${col} IS NOT NULL ORDER BY v ASC LIMIT 500`
+  );
+  return rows.map((r) => r.v);
 }
 
-export function latestBusinessDate(datasetType?: DatasetType): string | null {
-  const row = datasetType
-    ? (db.prepare(`SELECT MAX(businessDate) as d FROM dataset_records WHERE datasetType = ?`).get(datasetType) as { d: string | null })
-    : (db.prepare(`SELECT MAX(businessDate) as d FROM dataset_records`).get() as { d: string | null });
-  return row?.d ?? null;
+export async function latestBusinessDate(datasetType?: DatasetType): Promise<string | null> {
+  const { rows } = datasetType
+    ? await query<{ d: string | null }>(`SELECT MAX("businessDate") as d FROM dataset_records WHERE "datasetType" = $1`, [
+        datasetType,
+      ])
+    : await query<{ d: string | null }>(`SELECT MAX("businessDate") as d FROM dataset_records`);
+  return rows[0]?.d ?? null;
 }
 
 export { getBusinessDayStartHour };

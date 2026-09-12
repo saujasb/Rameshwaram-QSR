@@ -3,6 +3,9 @@ dist/
 *.log
 .env
 .env.local
+
+# Stage 4: local Vercel CLI project link/build output -- never committed.
+.vercel/
 server/data/*.db
 server/data/*.db-*
 graphify-out/cost.json

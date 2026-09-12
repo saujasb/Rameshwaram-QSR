@@ -1,6 +1,7 @@
 import { Router } from "express";
 import type { RameshQuery } from "../../../../shared-types/ramesh.js";
 import { answer, suggestionsForCurrentData } from "./engine.js";
+import { asyncHandler } from "../../shared/asyncHandler.js";
 
 export const rameshRouter: Router = Router();
 
@@ -31,52 +32,58 @@ function rateLimited(key: string): { limited: boolean; retryAfterSec: number } {
   return { limited: false, retryAfterSec: 0 };
 }
 
-rameshRouter.post("/ask", (req, res) => {
-  const { limited, retryAfterSec } = rateLimited(req.ip ?? "unknown");
-  if (limited) {
-    res.setHeader("Retry-After", String(retryAfterSec));
-    res.status(429).json({
-      error: "Too many questions at once.",
-      detail: `Ramesh accepts up to ${MAX_PER_WINDOW} questions a minute. Try again in ${retryAfterSec}s.`,
-    });
-    return;
-  }
+rameshRouter.post(
+  "/ask",
+  asyncHandler(async (req, res) => {
+    const { limited, retryAfterSec } = rateLimited(req.ip ?? "unknown");
+    if (limited) {
+      res.setHeader("Retry-After", String(retryAfterSec));
+      res.status(429).json({
+        error: "Too many questions at once.",
+        detail: `Ramesh accepts up to ${MAX_PER_WINDOW} questions a minute. Try again in ${retryAfterSec}s.`,
+      });
+      return;
+    }
 
-  const body = req.body as Partial<RameshQuery> | undefined;
-  const question = typeof body?.question === "string" ? body.question.trim() : "";
-  if (!question) {
-    res.status(400).json({ error: "A question is required." });
-    return;
-  }
-  if (question.length > MAX_QUESTION_CHARS) {
-    res.status(400).json({
-      error: "That question is too long.",
-      detail: `Keep it under ${MAX_QUESTION_CHARS} characters.`,
-    });
-    return;
-  }
+    const body = req.body as Partial<RameshQuery> | undefined;
+    const question = typeof body?.question === "string" ? body.question.trim() : "";
+    if (!question) {
+      res.status(400).json({ error: "A question is required." });
+      return;
+    }
+    if (question.length > MAX_QUESTION_CHARS) {
+      res.status(400).json({
+        error: "That question is too long.",
+        detail: `Keep it under ${MAX_QUESTION_CHARS} characters.`,
+      });
+      return;
+    }
 
-  try {
-    res.json(answer({ question, context: body?.context }));
-  } catch (err) {
-    // Ramesh must never 500 on an odd question -- that would look like a data
-    // problem to a business user. Surface it as an honest inability instead.
-    console.error("[ramesh] answer failed:", err);
-    res.json({
-      intent: "unsupported",
-      answer: "I couldn't work that question out from the data I have. Try asking about sales, production or wastage for a specific date or product.",
-      dataUsed: null,
-      calculation: [],
-      conclusion: "",
-      evidence: [],
-      drilldownQuery: null,
-      insufficientData: true,
-      refusalReason: null,
-      suggestions: suggestionsForCurrentData().suggestions,
-    });
-  }
-});
+    try {
+      res.json(await answer({ question, context: body?.context }));
+    } catch (err) {
+      // Ramesh must never 500 on an odd question -- that would look like a data
+      // problem to a business user. Surface it as an honest inability instead.
+      console.error("[ramesh] answer failed:", err);
+      res.json({
+        intent: "unsupported",
+        answer: "I couldn't work that question out from the data I have. Try asking about sales, production or wastage for a specific date or product.",
+        dataUsed: null,
+        calculation: [],
+        conclusion: "",
+        evidence: [],
+        drilldownQuery: null,
+        insufficientData: true,
+        refusalReason: null,
+        suggestions: (await suggestionsForCurrentData()).suggestions,
+      });
+    }
+  })
+);
 
-rameshRouter.get("/suggestions", (_req, res) => {
-  res.json(suggestionsForCurrentData());
-});
+rameshRouter.get(
+  "/suggestions",
+  asyncHandler(async (_req, res) => {
+    res.json(await suggestionsForCurrentData());
+  })
+);

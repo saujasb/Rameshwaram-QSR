@@ -53,7 +53,7 @@ export async function runImport(req: ImportRequest): Promise<ImportOutcome> {
 
   const fileHash = createHash("sha256").update(buffer).digest("hex");
   if (!req.allowDuplicateFile) {
-    const prior = findBatchByFileHash(fileHash);
+    const prior = await findBatchByFileHash(fileHash);
     if (prior) {
       return {
         ok: false,
@@ -64,7 +64,7 @@ export async function runImport(req: ImportRequest): Promise<ImportOutcome> {
     }
   }
 
-  const businessDayStartHour = getBusinessDayStartHour();
+  const businessDayStartHour = await getBusinessDayStartHour();
   const importBatchId = randomUUID();
 
   let rawRows: RawRowInput[] = [];
@@ -160,7 +160,7 @@ export async function runImport(req: ImportRequest): Promise<ImportOutcome> {
     };
   }
 
-  const upsert = upsertRecords(records);
+  const upsert = await upsertRecords(records);
 
   const dates = records.map((r) => r.businessDate).sort();
   const businessDateFrom = dates[0] ?? null;
@@ -230,6 +230,6 @@ export async function runImport(req: ImportRequest): Promise<ImportOutcome> {
     createdAt: new Date().toISOString(),
   };
 
-  insertImportBatch(batch);
+  await insertImportBatch(batch);
   return { ok: true, batch };
 }

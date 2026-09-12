@@ -20,6 +20,7 @@ import {
   wastageByReason,
 } from "./repository.js";
 import { getBusinessDayStartHour, setBusinessDayStartHour } from "./db.js";
+import { asyncHandler } from "../../shared/asyncHandler.js";
 
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
@@ -76,137 +77,178 @@ const uploadFiles: RequestHandler = (req, res, next) => {
 };
 
 /** Accepts one or many files in a single request; each is imported independently. */
-datasetsRouter.post("/import", uploadFiles, async (req, res) => {
-  const files = (req.files as Express.Multer.File[] | undefined) ?? [];
-  if (files.length === 0) {
-    res.status(400).json({ error: "No files uploaded." });
-    return;
-  }
-
-  const rawDate = req.body?.businessDate;
-  const businessDate = typeof rawDate === "string" && rawDate.trim() ? rawDate.trim() : undefined;
-
-  let datasetOverrides: Record<string, DatasetType> | undefined;
-  if (typeof req.body?.datasetOverrides === "string" && req.body.datasetOverrides.trim()) {
-    try {
-      datasetOverrides = JSON.parse(req.body.datasetOverrides);
-    } catch {
-      res.status(400).json({ error: "datasetOverrides must be valid JSON." });
+datasetsRouter.post(
+  "/import",
+  uploadFiles,
+  asyncHandler(async (req, res) => {
+    const files = (req.files as Express.Multer.File[] | undefined) ?? [];
+    if (files.length === 0) {
+      res.status(400).json({ error: "No files uploaded." });
       return;
     }
-  }
-  const allowDuplicateFile = req.body?.allowDuplicateFile === "true" || req.body?.allowDuplicateFile === true;
 
-  const results: unknown[] = [];
-  for (const file of files) {
-    if (!ALLOWED_EXT.test(file.originalname)) {
-      results.push({
-        fileName: file.originalname,
-        ok: false,
-        error: "Unsupported file extension.",
-        detail: "Accepted: .pdf, .xlsx, .xls, .xlsm",
-      });
-      continue;
+    const rawDate = req.body?.businessDate;
+    const businessDate = typeof rawDate === "string" && rawDate.trim() ? rawDate.trim() : undefined;
+
+    let datasetOverrides: Record<string, DatasetType> | undefined;
+    if (typeof req.body?.datasetOverrides === "string" && req.body.datasetOverrides.trim()) {
+      try {
+        datasetOverrides = JSON.parse(req.body.datasetOverrides);
+      } catch {
+        res.status(400).json({ error: "datasetOverrides must be valid JSON." });
+        return;
+      }
     }
-    try {
-      const outcome = await runImport({
-        fileName: file.originalname,
-        buffer: file.buffer,
-        businessDate,
-        datasetOverrides,
-        allowDuplicateFile,
-      });
-      results.push(
-        outcome.ok
-          ? { fileName: file.originalname, ok: true, batch: outcome.batch }
-          : { fileName: file.originalname, ok: false, error: outcome.error, detail: outcome.detail, duplicateOf: outcome.duplicateOf }
-      );
-    } catch (err) {
-      results.push({
-        fileName: file.originalname,
-        ok: false,
-        error: "Failed to process this file.",
-        detail: err instanceof Error ? err.message : String(err),
-      });
+    const allowDuplicateFile = req.body?.allowDuplicateFile === "true" || req.body?.allowDuplicateFile === true;
+
+    const results: unknown[] = [];
+    for (const file of files) {
+      if (!ALLOWED_EXT.test(file.originalname)) {
+        results.push({
+          fileName: file.originalname,
+          ok: false,
+          error: "Unsupported file extension.",
+          detail: "Accepted: .pdf, .xlsx, .xls, .xlsm",
+        });
+        continue;
+      }
+      try {
+        const outcome = await runImport({
+          fileName: file.originalname,
+          buffer: file.buffer,
+          businessDate,
+          datasetOverrides,
+          allowDuplicateFile,
+        });
+        results.push(
+          outcome.ok
+            ? { fileName: file.originalname, ok: true, batch: outcome.batch }
+            : { fileName: file.originalname, ok: false, error: outcome.error, detail: outcome.detail, duplicateOf: outcome.duplicateOf }
+        );
+      } catch (err) {
+        results.push({
+          fileName: file.originalname,
+          ok: false,
+          error: "Failed to process this file.",
+          detail: err instanceof Error ? err.message : String(err),
+        });
+      }
     }
-  }
 
-  const anyOk = results.some((r) => (r as { ok: boolean }).ok);
-  res.status(anyOk ? 201 : 422).json({ results });
-});
+    const anyOk = results.some((r) => (r as { ok: boolean }).ok);
+    res.status(anyOk ? 201 : 422).json({ results });
+  })
+);
 
-datasetsRouter.get("/import-batches", (_req, res) => {
-  res.json(listImportBatches());
-});
+datasetsRouter.get(
+  "/import-batches",
+  asyncHandler(async (_req, res) => {
+    res.json(await listImportBatches());
+  })
+);
 
-datasetsRouter.get("/import-batches/:id", (req, res) => {
-  const batch = getImportBatch(req.params.id);
-  if (!batch) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.json(batch);
-});
+datasetsRouter.get(
+  "/import-batches/:id",
+  asyncHandler(async (req, res) => {
+    const batch = await getImportBatch(req.params.id);
+    if (!batch) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.json(batch);
+  })
+);
 
-datasetsRouter.delete("/import-batches/:id", (req, res) => {
-  if (!deleteImportBatch(req.params.id)) {
-    res.status(404).json({ error: "Not found" });
-    return;
-  }
-  res.status(204).end();
-});
+datasetsRouter.delete(
+  "/import-batches/:id",
+  asyncHandler(async (req, res) => {
+    if (!(await deleteImportBatch(req.params.id))) {
+      res.status(404).json({ error: "Not found" });
+      return;
+    }
+    res.status(204).end();
+  })
+);
 
-datasetsRouter.get("/records", (req, res) => {
-  res.json(queryRecords(parseFilter(req.query as Record<string, unknown>)));
-});
+datasetsRouter.get(
+  "/records",
+  asyncHandler(async (req, res) => {
+    res.json(await queryRecords(parseFilter(req.query as Record<string, unknown>)));
+  })
+);
 
-datasetsRouter.get("/coverage", (_req, res) => {
-  res.json(datasetCoverage());
-});
+datasetsRouter.get(
+  "/coverage",
+  asyncHandler(async (_req, res) => {
+    res.json(await datasetCoverage());
+  })
+);
 
-datasetsRouter.get("/facets", (_req, res) => {
-  res.json({
-    products: distinctValues("product"),
-    outlets: distinctValues("outlet"),
-    shifts: distinctValues("shift"),
-  });
-});
+datasetsRouter.get(
+  "/facets",
+  asyncHandler(async (_req, res) => {
+    const [products, outlets, shifts] = await Promise.all([
+      distinctValues("product"),
+      distinctValues("outlet"),
+      distinctValues("shift"),
+    ]);
+    res.json({ products, outlets, shifts });
+  })
+);
 
-datasetsRouter.get("/summary", (req, res) => {
-  const filter = parseFilter(req.query as Record<string, unknown>);
-  res.json({
-    totals: totalsFor(filter),
-    daily: dailyTotals(filter),
-    topProducts: topProducts(filter, 15),
-    categories: categoryTotals(filter),
-    channels: channelTotals(filter),
-    hourly: hourlyBuckets(filter),
-    wastageReasons: wastageByReason(filter),
-  });
-});
+datasetsRouter.get(
+  "/summary",
+  asyncHandler(async (req, res) => {
+    const filter = parseFilter(req.query as Record<string, unknown>);
+    const [totals, daily, top, categories, channels, hourly, wastageReasons] = await Promise.all([
+      totalsFor(filter),
+      dailyTotals(filter),
+      topProducts(filter, 15),
+      categoryTotals(filter),
+      channelTotals(filter),
+      hourlyBuckets(filter),
+      wastageByReason(filter),
+    ]);
+    res.json({
+      totals,
+      daily,
+      topProducts: top,
+      categories,
+      channels,
+      hourly,
+      wastageReasons,
+    });
+  })
+);
 
-datasetsRouter.get("/products", (req, res) => {
-  res.json(productPerformance(parseFilter(req.query as Record<string, unknown>)));
-});
+datasetsRouter.get(
+  "/products",
+  asyncHandler(async (req, res) => {
+    res.json(await productPerformance(parseFilter(req.query as Record<string, unknown>)));
+  })
+);
 
 /** CSV export. Formula-looking cells are neutralized so Excel can't execute them. */
-datasetsRouter.get("/export.csv", (req, res) => {
-  const rows = exportRecords(parseFilter(req.query as Record<string, unknown>));
-  const cols = [
-    "datasetType", "businessDate", "transactionDate", "rawTimestamp", "hour", "shift",
-    "product", "category", "outlet", "channel", "quantity", "salesValue", "reason",
-    "sourceFile", "sourceType", "sourceSheet", "sourcePage", "sourceRow",
-  ] as const;
+datasetsRouter.get(
+  "/export.csv",
+  asyncHandler(async (req, res) => {
+    const rows = await exportRecords(parseFilter(req.query as Record<string, unknown>));
+    const cols = [
+      "datasetType", "businessDate", "transactionDate", "rawTimestamp", "hour", "shift",
+      "product", "category", "outlet", "channel", "quantity", "salesValue", "reason",
+      "sourceFile", "sourceType", "sourceSheet", "sourcePage", "sourceRow",
+    ] as const;
 
-  const lines = [cols.join(",")];
-  for (const r of rows) {
-    lines.push(cols.map((c) => csvCell((r as unknown as Record<string, unknown>)[c])).join(","));
-  }
+    const lines = [cols.join(",")];
+    for (const r of rows) {
+      lines.push(cols.map((c) => csvCell((r as unknown as Record<string, unknown>)[c])).join(","));
+    }
 
-  res.setHeader("Content-Type", "text/csv; charset=utf-8");
-  res.setHeader("Content-Disposition", `attachment; filename="rameshwaram-records-${Date.now()}.csv"`);
-  res.send(lines.join("\r\n"));
-});
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader("Content-Disposition", `attachment; filename="rameshwaram-records-${Date.now()}.csv"`);
+    res.send(lines.join("\r\n"));
+  })
+);
 
 /**
  * CSV injection defence: a cell beginning =, +, -, @, tab or CR is prefixed
@@ -220,16 +262,22 @@ function csvCell(value: unknown): string {
   return s;
 }
 
-datasetsRouter.get("/settings", (_req, res) => {
-  res.json({ businessDayStartHour: getBusinessDayStartHour() });
-});
+datasetsRouter.get(
+  "/settings",
+  asyncHandler(async (_req, res) => {
+    res.json({ businessDayStartHour: await getBusinessDayStartHour() });
+  })
+);
 
-datasetsRouter.put("/settings", (req, res) => {
-  const hour = req.body?.businessDayStartHour;
-  if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
-    res.status(400).json({ error: "businessDayStartHour must be an integer between 0 and 23." });
-    return;
-  }
-  const saved = setBusinessDayStartHour(hour);
-  res.json({ businessDayStartHour: saved.hour, updatedAt: saved.updatedAt });
-});
+datasetsRouter.put(
+  "/settings",
+  asyncHandler(async (req, res) => {
+    const hour = req.body?.businessDayStartHour;
+    if (!Number.isInteger(hour) || hour < 0 || hour > 23) {
+      res.status(400).json({ error: "businessDayStartHour must be an integer between 0 and 23." });
+      return;
+    }
+    const saved = await setBusinessDayStartHour(hour);
+    res.json({ businessDayStartHour: saved.hour, updatedAt: saved.updatedAt });
+  })
+);

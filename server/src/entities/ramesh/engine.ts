@@ -101,15 +101,15 @@ function used(
   };
 }
 
-function spanOf(filter: DatasetFilter): { from: string | null; to: string | null } {
-  const daily = dailyTotals(filter);
+async function spanOf(filter: DatasetFilter): Promise<{ from: string | null; to: string | null }> {
+  const daily = await dailyTotals(filter);
   if (daily.length === 0) return { from: filter.from ?? null, to: filter.to ?? null };
   return { from: daily[0].businessDate, to: daily[daily.length - 1].businessDate };
 }
 
 // ------------------------------------------------------------ suggestions ----
 
-function buildSuggestions(question: string, coverage: DatasetCoverage[]): string[] {
+async function buildSuggestions(question: string, coverage: DatasetCoverage[]): Promise<string[]> {
   const pool: string[] = [];
   const sales = coverage.find((c) => c.datasetType === "sales");
   const production = coverage.find((c) => c.datasetType === "production");
@@ -119,7 +119,7 @@ function buildSuggestions(question: string, coverage: DatasetCoverage[]): string
     const day = formatBusinessDateLong(sales.businessDateTo);
     pool.push(`What were total sales on ${day}?`);
     pool.push(`Which product sold the most on ${day}?`);
-    const top = topProducts({ datasetType: "sales", from: sales.businessDateTo, to: sales.businessDateTo }, 1);
+    const top = await topProducts({ datasetType: "sales", from: sales.businessDateTo, to: sales.businessDateTo }, 1);
     if (top[0]) pool.push(`How much ${top[0].product} did we sell on ${day}?`);
     pool.push(`Which product sold the least on ${day}?`);
     if (sales.businessDateFrom && sales.businessDateFrom !== sales.businessDateTo) {
@@ -198,10 +198,10 @@ function missingDataset(c: Ctx, type: DatasetType, why: string): RameshAnswer {
   );
 }
 
-function noMatch(c: Ctx, types: DatasetType[], filter: DatasetFilter): RameshAnswer {
+async function noMatch(c: Ctx, types: DatasetType[], filter: DatasetFilter): Promise<RameshAnswer> {
   const labels = types.map((t) => DATASET_LABELS[t].toLowerCase()).join("/");
   const where = rangeLabel(filter.from, filter.to);
-  const latest = latestBusinessDate(types.length === 1 ? types[0] : undefined);
+  const latest = await latestBusinessDate(types.length === 1 ? types[0] : undefined);
   const hint = latest
     ? `The most recent business day I hold ${labels} data for is ${formatBusinessDateLong(latest)}.`
     : `No ${labels} records have been imported yet.`;
@@ -216,15 +216,15 @@ function noMatch(c: Ctx, types: DatasetType[], filter: DatasetFilter): RameshAns
 
 // ------------------------------------------------------------- handlers -----
 
-function answerTotals(c: Ctx, type: DatasetType): RameshAnswer {
+async function answerTotals(c: Ctx, type: DatasetType): Promise<RameshAnswer> {
   if (!coverageOf(c, type)) {
     return missingDataset(c, type, `A ${DATASET_LABELS[type].toLowerCase()} total can only come from ${DATASET_LABELS[type].toLowerCase()} rows.`);
   }
   const filter: DatasetFilter = { ...c.base, datasetType: type };
-  const totals = totalsFor(filter);
+  const totals = await totalsFor(filter);
   if (totals.recordCount === 0) return noMatch(c, [type], filter);
 
-  const daily = dailyTotals(filter);
+  const daily = await dailyTotals(filter);
   const span = { from: daily[0].businessDate, to: daily[daily.length - 1].businessDate };
   const label = rangeLabel(span.from, span.to);
   const byValue = type === "sales" && totals.value > 0;
@@ -277,20 +277,20 @@ function answerTotals(c: Ctx, type: DatasetType): RameshAnswer {
   });
 }
 
-function answerRanked(c: Ctx, type: DatasetType, direction: "highest" | "lowest"): RameshAnswer {
+async function answerRanked(c: Ctx, type: DatasetType, direction: "highest" | "lowest"): Promise<RameshAnswer> {
   if (!coverageOf(c, type)) {
     return missingDataset(c, type, `Ranking products by ${DATASET_LABELS[type].toLowerCase()} needs ${DATASET_LABELS[type].toLowerCase()} rows.`);
   }
   const filter: DatasetFilter = { ...c.base, datasetType: type, product: undefined };
-  const rows = topProducts(filter, 5, direction === "lowest" ? "asc" : "desc");
+  const rows = await topProducts(filter, 5, direction === "lowest" ? "asc" : "desc");
   if (rows.length === 0) return noMatch(c, [type], filter);
 
-  const totals = totalsFor(filter);
+  const totals = await totalsFor(filter);
   const byValue = type === "sales" && totals.value > 0;
   const measure = (r: { quantity: number; value: number }) => (byValue ? r.value : r.quantity);
   const fmt = byValue ? money : units;
   const winner = rows[0];
-  const span = spanOf(filter);
+  const span = await spanOf(filter);
   const label = rangeLabel(span.from, span.to);
 
   const steps: RameshCalculationStep[] = [
@@ -330,8 +330,8 @@ function answerRanked(c: Ctx, type: DatasetType, direction: "highest" | "lowest"
   });
 }
 
-function answerPeakHour(c: Ctx): RameshAnswer {
-  const buckets = hourlyBuckets(c.base);
+async function answerPeakHour(c: Ctx): Promise<RameshAnswer> {
+  const buckets = await hourlyBuckets(c.base);
   if (buckets.length === 0) {
     return insufficient(
       c,
@@ -346,7 +346,7 @@ function answerPeakHour(c: Ctx): RameshAnswer {
   const peak = ranked[0];
   const fmt = byValue ? money : units;
   const total = buckets.reduce((s, b) => s + measure(b), 0);
-  const span = spanOf(c.base);
+  const span = await spanOf(c.base);
 
   const steps: RameshCalculationStep[] = [
     {
@@ -386,13 +386,13 @@ function answerPeakHour(c: Ctx): RameshAnswer {
   });
 }
 
-function answerCompareDates(c: Ctx): RameshAnswer {
+async function answerCompareDates(c: Ctx): Promise<RameshAnswer> {
   const type = c.slots.datasetType ?? "sales";
   if (!coverageOf(c, type)) return missingDataset(c, type, "A date-vs-date comparison needs rows from that dataset.");
 
   let pair = c.slots.dates ?? [];
   if (pair.length < 2) {
-    const daily = dailyTotals({ ...c.base, from: undefined, to: undefined, datasetType: type });
+    const daily = await dailyTotals({ ...c.base, from: undefined, to: undefined, datasetType: type });
     if (daily.length < 2) {
       return insufficient(
         c,
@@ -407,8 +407,7 @@ function answerCompareDates(c: Ctx): RameshAnswer {
   const [a, b] = [...pair].sort();
   const fa: DatasetFilter = { ...c.base, from: a, to: a, datasetType: type };
   const fb: DatasetFilter = { ...c.base, from: b, to: b, datasetType: type };
-  const ta = totalsFor(fa);
-  const tb = totalsFor(fb);
+  const [ta, tb] = await Promise.all([totalsFor(fa), totalsFor(fb)]);
   const empty = [ta.recordCount === 0 ? a : null, tb.recordCount === 0 ? b : null].filter(Boolean) as string[];
   if (empty.length > 0) {
     return insufficient(
@@ -456,7 +455,7 @@ function answerCompareDates(c: Ctx): RameshAnswer {
   });
 }
 
-function answerCompareDatasets(c: Ctx): RameshAnswer {
+async function answerCompareDatasets(c: Ctx): Promise<RameshAnswer> {
   const wanted = [...new Set(c.slots.datasetTypes ?? [])];
   const list: DatasetType[] = wanted.length >= 2 ? wanted : ["production", "sales"];
   const missing = list.filter((t) => !coverageOf(c, t));
@@ -470,11 +469,11 @@ function answerCompareDatasets(c: Ctx): RameshAnswer {
     );
   }
 
-  const rows = list.map((t) => ({ type: t, totals: totalsFor({ ...c.base, datasetType: t }) }));
+  const rows = await Promise.all(list.map(async (t) => ({ type: t, totals: await totalsFor({ ...c.base, datasetType: t }) })));
   const emptyRows = rows.filter((r) => r.totals.recordCount === 0);
   if (emptyRows.length > 0) return noMatch(c, emptyRows.map((r) => r.type), { ...c.base, datasetType: emptyRows[0].type });
 
-  const span = spanOf(c.base);
+  const span = await spanOf(c.base);
   const steps: RameshCalculationStep[] = rows.map((r) => ({
     label: `${DATASET_LABELS[r.type]} quantity`,
     expression: `sum over ${r.totals.recordCount} ${DATASET_LABELS[r.type].toLowerCase()} record(s)`,
@@ -490,8 +489,12 @@ function answerCompareDatasets(c: Ctx): RameshAnswer {
     // production reads as 2113% sell-through. Restrict the ratio to the business
     // dates where BOTH datasets actually have records, and say so when that
     // differs from the range asked about.
-    const prodDates = new Set(dailyTotals({ ...c.base, datasetType: "production" }).map((d) => d.businessDate));
-    const saleDates = new Set(dailyTotals({ ...c.base, datasetType: "sales" }).map((d) => d.businessDate));
+    const [prodDaily, saleDaily] = await Promise.all([
+      dailyTotals({ ...c.base, datasetType: "production" }),
+      dailyTotals({ ...c.base, datasetType: "sales" }),
+    ]);
+    const prodDates = new Set(prodDaily.map((d) => d.businessDate));
+    const saleDates = new Set(saleDaily.map((d) => d.businessDate));
     const overlap = [...prodDates].filter((d) => saleDates.has(d)).sort();
 
     if (overlap.length === 0) {
@@ -502,8 +505,10 @@ function answerCompareDatasets(c: Ctx): RameshAnswer {
     } else {
       const overlapFrom = overlap[0];
       const overlapTo = overlap[overlap.length - 1];
-      const pOver = totalsFor({ ...c.base, datasetType: "production", from: overlapFrom, to: overlapTo });
-      const sOver = totalsFor({ ...c.base, datasetType: "sales", from: overlapFrom, to: overlapTo });
+      const [pOver, sOver] = await Promise.all([
+        totalsFor({ ...c.base, datasetType: "production", from: overlapFrom, to: overlapTo }),
+        totalsFor({ ...c.base, datasetType: "sales", from: overlapFrom, to: overlapTo }),
+      ]);
 
       if (pOver.quantity > 0) {
         const sellThrough = (sOver.quantity / pOver.quantity) * 100;
@@ -544,12 +549,12 @@ function answerCompareDatasets(c: Ctx): RameshAnswer {
   });
 }
 
-function answerWastageReason(c: Ctx): RameshAnswer {
+async function answerWastageReason(c: Ctx): Promise<RameshAnswer> {
   if (!coverageOf(c, "wastage")) {
     return missingDataset(c, "wastage", "Wastage reasons live on wastage rows only.");
   }
   const filter: DatasetFilter = { ...c.base, datasetType: "wastage" };
-  const rows = wastageByReason(c.base);
+  const rows = await wastageByReason(c.base);
   if (rows.length === 0) return noMatch(c, ["wastage"], filter);
   if (rows.every((r) => r.reason === "Not recorded")) {
     return insufficient(
@@ -560,9 +565,9 @@ function answerWastageReason(c: Ctx): RameshAnswer {
       "wastage"
     );
   }
-  const totals = totalsFor(filter);
+  const totals = await totalsFor(filter);
   const top = rows[0];
-  const span = spanOf(filter);
+  const span = await spanOf(filter);
   const steps: RameshCalculationStep[] = [
     {
       label: `Wastage quantity by reason (descending), ${rows.length} reason(s)`,
@@ -592,16 +597,18 @@ function answerWastageReason(c: Ctx): RameshAnswer {
   });
 }
 
-function answerVariance(c: Ctx): RameshAnswer {
+async function answerVariance(c: Ctx): Promise<RameshAnswer> {
   if (!coverageOf(c, "production")) {
     return missingDataset(c, "production", "Variance is production minus sales minus wastage, so production rows are mandatory.");
   }
-  const p = totalsFor({ ...c.base, datasetType: "production" });
+  const p = await totalsFor({ ...c.base, datasetType: "production" });
   if (p.recordCount === 0) return noMatch(c, ["production"], { ...c.base, datasetType: "production" });
-  const s = totalsFor({ ...c.base, datasetType: "sales" });
-  const w = totalsFor({ ...c.base, datasetType: "wastage" });
+  const [s, w] = await Promise.all([
+    totalsFor({ ...c.base, datasetType: "sales" }),
+    totalsFor({ ...c.base, datasetType: "wastage" }),
+  ]);
   const variance = p.quantity - s.quantity - w.quantity;
-  const span = spanOf(c.base);
+  const span = await spanOf(c.base);
 
   const steps: RameshCalculationStep[] = [
     { label: "Unaccounted quantity", expression: `${qty(p.quantity)} produced − ${qty(s.quantity)} sold − ${qty(w.quantity)} wasted`, result: units(variance) },
@@ -628,11 +635,11 @@ function answerVariance(c: Ctx): RameshAnswer {
   });
 }
 
-function answerSeries(c: Ctx, mode: "trend" | "anomaly"): RameshAnswer {
+async function answerSeries(c: Ctx, mode: "trend" | "anomaly"): Promise<RameshAnswer> {
   const type = c.slots.datasetType ?? "sales";
   if (!coverageOf(c, type)) return missingDataset(c, type, `A ${mode === "trend" ? "trend" : "baseline"} needs rows from that dataset.`);
 
-  const history = dailyTotals({ ...c.base, from: undefined, to: undefined, datasetType: type });
+  const history = await dailyTotals({ ...c.base, from: undefined, to: undefined, datasetType: type });
   if (history.length < 2) {
     return insufficient(
       c,
@@ -650,13 +657,13 @@ function answerSeries(c: Ctx, mode: "trend" | "anomaly"): RameshAnswer {
   const fmt = byValue ? money : units;
 
   if (mode === "trend") {
-    const windowed = c.base.from || c.base.to ? dailyTotals({ ...c.base, datasetType: type }) : history;
+    const windowed = c.base.from || c.base.to ? await dailyTotals({ ...c.base, datasetType: type }) : history;
     const series = windowed.length >= 2 ? windowed : history;
     const first = series[0];
     const last = series[series.length - 1];
     const diff = val(last) - val(first);
     const changePct = val(first) !== 0 ? (diff / val(first)) * 100 : null;
-    const totals = totalsFor({ ...c.base, from: series[0].businessDate, to: last.businessDate, datasetType: type });
+    const totals = await totalsFor({ ...c.base, from: series[0].businessDate, to: last.businessDate, datasetType: type });
     const steps: RameshCalculationStep[] = [
       { label: `Daily ${byValue ? "value" : "quantity"} series, ${series.length} business day(s)`, expression: series.map((d) => `${d.businessDate} ${fmt(val(d))}`).join(" → "), result: `${fmt(val(first))} → ${fmt(val(last))}` },
       { label: "Change across the window", expression: `${fmt(val(last))} − ${fmt(val(first))}`, result: `${diff >= 0 ? "+" : "−"}${fmt(Math.abs(diff))}` },
@@ -691,7 +698,7 @@ function answerSeries(c: Ctx, mode: "trend" | "anomaly"): RameshAnswer {
   const mean = prior.reduce((s, d) => s + val(d), 0) / prior.length;
   const diff = val(target) - mean;
   const devPct = mean !== 0 ? (diff / mean) * 100 : null;
-  const totals = totalsFor({ ...c.base, from: targetKey, to: targetKey, datasetType: type });
+  const totals = await totalsFor({ ...c.base, from: targetKey, to: targetKey, datasetType: type });
 
   const steps: RameshCalculationStep[] = [
     { label: `Baseline: mean of the ${prior.length} prior business day(s)`, expression: `(${prior.map((d) => fmt(val(d))).join(" + ")}) ÷ ${prior.length}`, result: fmt(mean) },
@@ -774,17 +781,19 @@ function answerUnsupported(c: Ctx): RameshAnswer {
 
 // ----------------------------------------------------------------- entry ----
 
-export function answer(query: RameshQuery): RameshAnswer {
+export async function answer(query: RameshQuery): Promise<RameshAnswer> {
   const question = typeof query?.question === "string" ? query.question : "";
-  const coverage = datasetCoverage();
+  const coverage = await datasetCoverage();
   const hasAnyData = coverage.some((c) => c.recordCount > 0);
 
-  const cls = classify(question, {
-    knownProducts: hasAnyData ? distinctValues("product") : [],
-    knownOutlets: hasAnyData ? distinctValues("outlet") : [],
-    knownShifts: hasAnyData ? distinctValues("shift") : [],
-    startHour: getBusinessDayStartHour(),
-  });
+  const [knownProducts, knownOutlets, knownShifts, startHour] = await Promise.all([
+    hasAnyData ? distinctValues("product") : Promise.resolve([]),
+    hasAnyData ? distinctValues("outlet") : Promise.resolve([]),
+    hasAnyData ? distinctValues("shift") : Promise.resolve([]),
+    getBusinessDayStartHour(),
+  ]);
+
+  const cls = classify(question, { knownProducts, knownOutlets, knownShifts, startHour });
   const slots = cls.slots;
 
   if (cls.intent === "off_topic") {
@@ -801,7 +810,7 @@ export function answer(query: RameshQuery): RameshAnswer {
       drilldownQuery: null,
       insufficientData: false,
       refusalReason: slots.injection ? "injection_attempt" : "off_topic",
-      suggestions: buildSuggestions(question, coverage),
+      suggestions: await buildSuggestions(question, coverage),
     };
   }
 
@@ -826,7 +835,7 @@ export function answer(query: RameshQuery): RameshAnswer {
     slots,
     base,
     coverage,
-    suggestions: buildSuggestions(question, coverage),
+    suggestions: await buildSuggestions(question, coverage),
   };
 
   switch (cls.intent) {
@@ -851,23 +860,23 @@ export function answer(query: RameshQuery): RameshAnswer {
     case "variance_explain":
       return answerVariance(c);
     case "anomaly_explain":
-      return fromAnalysis(c, anomalyAnalysis(c.base));
+      return fromAnalysis(c, await anomalyAnalysis(c.base));
     case "trend":
       return answerSeries(c, "trend");
     case "executive_analysis":
-      return fromAnalysis(c, executiveAnalysis(c.base, slots.direction === "lowest" ? 7 : 5));
+      return fromAnalysis(c, await executiveAnalysis(c.base, slots.direction === "lowest" ? 7 : 5));
     case "root_cause":
-      return fromAnalysis(c, rootCause(slots.datasetType ?? slots.datasetTypes?.[0] ?? "wastage", c.base));
+      return fromAnalysis(c, await rootCause(slots.datasetType ?? slots.datasetTypes?.[0] ?? "wastage", c.base));
     case "efficiency":
-      return fromAnalysis(c, efficiencyAnalysis(c.base));
+      return fromAnalysis(c, await efficiencyAnalysis(c.base));
     case "shift_performance":
-      return fromAnalysis(c, segmentAnalysis("shift", c.base));
+      return fromAnalysis(c, await segmentAnalysis("shift", c.base));
     case "outlet_performance":
-      return fromAnalysis(c, segmentAnalysis("outlet", c.base));
+      return fromAnalysis(c, await segmentAnalysis("outlet", c.base));
     case "product_performance":
-      return fromAnalysis(c, productAnalysis(c.base, productFocus(cls.slots)));
+      return fromAnalysis(c, await productAnalysis(c.base, productFocus(cls.slots)));
     case "reconciliation":
-      return fromAnalysis(c, reconciliationAnalysis(c.base));
+      return fromAnalysis(c, await reconciliationAnalysis(c.base));
     case "data_coverage":
       return answerCoverage(c);
     case "help":
@@ -883,8 +892,8 @@ export function answer(query: RameshQuery): RameshAnswer {
  * numbers are already computed there by the dashboard's own engines; nothing is
  * recalculated or reworded into a claim the evidence doesn't carry.
  */
-function fromAnalysis(c: Ctx, r: AnalysisResult, drillFilter?: DatasetFilter): RameshAnswer {
-  const span = spanOf(c.base);
+async function fromAnalysis(c: Ctx, r: AnalysisResult, drillFilter?: DatasetFilter): Promise<RameshAnswer> {
+  const span = await spanOf(c.base);
   return shell(c, {
     answer: r.answer,
     dataUsed: r.recordCount
@@ -916,7 +925,7 @@ function productFocus(slots: RameshSlots): "overproduced" | "wastage" | "revenue
 }
 
 /** Starter questions for the empty chat state, derived from what is actually loaded. */
-export function suggestionsForCurrentData(): { suggestions: string[]; hasData: boolean } {
-  const coverage = datasetCoverage();
-  return { suggestions: buildSuggestions("", coverage), hasData: coverage.some((c) => c.recordCount > 0) };
+export async function suggestionsForCurrentData(): Promise<{ suggestions: string[]; hasData: boolean }> {
+  const coverage = await datasetCoverage();
+  return { suggestions: await buildSuggestions("", coverage), hasData: coverage.some((c) => c.recordCount > 0) };
 }

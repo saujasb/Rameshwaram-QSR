@@ -2,14 +2,21 @@ import { wastageRepository } from "../../entities/wastage/repository.js";
 import { taskRepository } from "../../entities/tasks/repository.js";
 import { inventoryRepository } from "../../entities/inventory/repository.js";
 import { analyticsSnapshot } from "../../entities/analytics/data.js";
+import { pool } from "../client.js";
 
 // Idempotent: only seeds a table the first time it's empty, so re-running
 // `npm run seed` after a manager has added real records never overwrites them.
+//
+// Stage 3: this now runs against whatever PostgreSQL database DATABASE_URL
+// points at (local Postgres or a non-production Supabase project) instead of
+// the SQLite file. It still must never be pointed at production -- there is
+// no code-level guard against that here, same as before; DATABASE_URL is
+// simply expected to be a local/staging database when this script is run.
 
-function seedWastage() {
-  if (wastageRepository.list().length > 0) return;
+async function seedWastage() {
+  if ((await wastageRepository.list()).length > 0) return;
   for (const item of analyticsSnapshot.wastage) {
-    wastageRepository.create({
+    await wastageRepository.create({
       itemName: item.name,
       quantityKg: item.wastageKg,
       reasonCode: null, // not recorded in the source report
@@ -59,10 +66,10 @@ const SOP_TASKS = [
   },
 ];
 
-function seedTasks() {
-  if (taskRepository.list().length > 0) return;
+async function seedTasks() {
+  if ((await taskRepository.list()).length > 0) return;
   for (const sop of SOP_TASKS) {
-    taskRepository.create({
+    await taskRepository.create({
       name: sop.name,
       category: "spo",
       department: sop.department,
@@ -84,11 +91,11 @@ function seedTasks() {
   console.log(`[seed] tasks: ${SOP_TASKS.length} SOP templates`);
 }
 
-function seedInventory() {
-  if (inventoryRepository.list().length > 0) return;
+async function seedInventory() {
+  if ((await inventoryRepository.list()).length > 0) return;
   let count = 0;
   for (const veg of analyticsSnapshot.vegIndent) {
-    inventoryRepository.create({
+    await inventoryRepository.create({
       name: veg.name,
       category: "Vegetable / Produce",
       unit: veg.unit ?? "",
@@ -105,7 +112,12 @@ function seedInventory() {
   console.log(`[seed] inventory: ${count} item-master rows (names/units from the veg indent; no quantities — awaiting first stock count)`);
 }
 
-seedWastage();
-seedTasks();
-seedInventory();
+await seedWastage();
+await seedTasks();
+await seedInventory();
 console.log("[seed] done");
+
+// Unlike better-sqlite3, an open pg.Pool keeps live sockets that would
+// otherwise hold the Node process open indefinitely after this script's
+// work is done.
+await pool.end();

@@ -41,15 +41,15 @@ function compact(items: (AnomalyEvidence | null)[]): AnomalyEvidence[] {
 }
 
 /** Evidence rows carry real record counts; an empty group is dropped, never zero-padded. */
-function evidenceFor(
+async function evidenceFor(
   filter: DatasetFilter,
   datasetType: DatasetType,
   from: string,
   to: string,
   product: string | null,
   description: string
-): AnomalyEvidence | null {
-  const t = totalsFor({ ...filter, datasetType, from, to, product: product ?? filter.product });
+): Promise<AnomalyEvidence | null> {
+  const t = await totalsFor({ ...filter, datasetType, from, to, product: product ?? filter.product });
   if (t.recordCount === 0) return null;
   return {
     datasetType,
@@ -73,9 +73,9 @@ function drill(
 }
 
 /** Outlet is frequently absent from the source PDFs; say so rather than inventing a location. */
-function whereLabel(filter: DatasetFilter): string {
+async function whereLabel(filter: DatasetFilter): Promise<string> {
   if (filter.outlet) return `${filter.outlet} (outlet filter applied)`;
-  const outlets = distinctValues("outlet");
+  const outlets = await distinctValues("outlet");
   if (outlets.length === 0) return "Outlet is not recorded in the imported files, so this covers all imported records";
   if (outlets.length === 1) return `${outlets[0]} branch (single outlet in the data)`;
   return `${outlets.length} outlets present in the data (${outlets.slice(0, 3).join(", ")})`;
@@ -105,7 +105,7 @@ function windowFor(dates: string[]): Window | null {
 
 // ------------------------------------------------------------------ sales ----
 
-function salesInsights(
+async function salesInsights(
   filter: DatasetFilter,
   win: Window,
   where: string,
@@ -113,7 +113,7 @@ function salesInsights(
   totalRevenue: number,
   totalQty: number,
   missingProduction: boolean
-): Insight[] {
+): Promise<Insight[]> {
   const sold = products.filter((p) => p.salesQty > 0);
   if (sold.length === 0) return [];
   const out: Insight[] = [];
@@ -141,7 +141,7 @@ function salesInsights(
       (topUnit ? `: at its imported average of ${money(topUnit)} per unit, each unit not sold forgoes that much revenue.` : ".") +
       (missingProduction ? ` Production and wastage are not imported, so its sell-through cannot be verified yet -- import those to size the loss.` : ""),
     evidence: compact([
-      evidenceFor(filter, "sales", win.from, win.to, top.product, `Sales records for ${top.product} between ${win.from} and ${win.to}`),
+      await evidenceFor(filter, "sales", win.from, win.to, top.product, `Sales records for ${top.product} between ${win.from} and ${win.to}`),
     ]),
     drilldownQuery: drill(filter, { from: win.from, to: win.to, datasetType: "sales", product: top.product }),
     score: 88,
@@ -169,7 +169,7 @@ function salesInsights(
         ? `Before delisting ${bottom.product}, import production and wastage for it -- ${qtyText(bottom.salesQty)} units sold over ${win.days} day(s) shows demand, but nothing in the data shows what it costs to keep on the menu.`
         : `Compare ${bottom.product}'s ${qtyText(bottom.salesQty)} units sold against its recorded production before deciding whether to keep making it daily.`,
       evidence: compact([
-        evidenceFor(filter, "sales", win.from, win.to, bottom.product, `Sales records for ${bottom.product} between ${win.from} and ${win.to}`),
+        await evidenceFor(filter, "sales", win.from, win.to, bottom.product, `Sales records for ${bottom.product} between ${win.from} and ${win.to}`),
       ]),
       drilldownQuery: drill(filter, { from: win.from, to: win.to, datasetType: "sales", product: bottom.product }),
       score: 44,
@@ -180,11 +180,11 @@ function salesInsights(
 }
 
 /** Movement between the two most recent business dates that actually have data. */
-function movementInsight(
+async function movementInsight(
   filter: DatasetFilter,
   daily: { businessDate: string; quantity: number; value: number }[],
   where: string
-): Insight | null {
+): Promise<Insight | null> {
   if (daily.length < 2) return null;
   const prev = daily[daily.length - 2];
   const last = daily[daily.length - 1];
@@ -212,10 +212,12 @@ function movementInsight(
       gapDays > 0
         ? `Import the ${gapDays} business date(s) between ${prev.businessDate} and ${last.businessDate} before reading this as a trend -- these are simply the two most recent dates with data, not consecutive days.`
         : `${dropped ? "Check" : "Record"} what changed on ${formatBusinessDateLong(last.businessDate)} against ${formatBusinessDateLong(prev.businessDate)}; both dates are fully imported, so the ${fmt(Math.abs(b - a))} difference is real and traceable in the Data Explorer.`,
-    evidence: compact([
-      evidenceFor(filter, "sales", prev.businessDate, prev.businessDate, null, `Sales records on ${prev.businessDate}`),
-      evidenceFor(filter, "sales", last.businessDate, last.businessDate, null, `Sales records on ${last.businessDate}`),
-    ]),
+    evidence: compact(
+      await Promise.all([
+        evidenceFor(filter, "sales", prev.businessDate, prev.businessDate, null, `Sales records on ${prev.businessDate}`),
+        evidenceFor(filter, "sales", last.businessDate, last.businessDate, null, `Sales records on ${last.businessDate}`),
+      ])
+    ),
     drilldownQuery: drill(filter, { from: prev.businessDate, to: last.businessDate, datasetType: "sales" }),
     score: 76,
   };
@@ -223,13 +225,13 @@ function movementInsight(
 
 // ---------------------------------------------------------------- product ----
 
-function concentrationInsight(
+async function concentrationInsight(
   filter: DatasetFilter,
   win: Window,
   where: string,
   products: ProductPerformanceRow[],
   totalRevenue: number
-): Insight | null {
+): Promise<Insight | null> {
   const sold = products.filter((p) => p.salesValue > 0).sort((a, b) => b.salesValue - a.salesValue);
   if (sold.length < 4 || totalRevenue <= 0) return null;
 
@@ -250,7 +252,9 @@ function concentrationInsight(
     impact: `${pctText(pct)} of imported revenue depends on 3 items; a stockout in any one of them is measurable at the period level`,
     action: `Make ${names.join(", ")} a named daily availability checklist -- together they account for ${money(top3Revenue)} of recorded revenue, so they carry more risk than the remaining ${sold.length - 3} items combined.`,
     evidence: compact(
-      top3.map((p) => evidenceFor(filter, "sales", win.from, win.to, p.product, `Sales records for ${p.product} between ${win.from} and ${win.to}`))
+      await Promise.all(
+        top3.map((p) => evidenceFor(filter, "sales", win.from, win.to, p.product, `Sales records for ${p.product} between ${win.from} and ${win.to}`))
+      )
     ),
     drilldownQuery: drill(filter, { from: win.from, to: win.to, datasetType: "sales" }),
     score: 62,
@@ -259,17 +263,18 @@ function concentrationInsight(
 
 // ---------------------------------------------------------------- wastage ----
 
-function wastageInsights(
+async function wastageInsights(
   filter: DatasetFilter,
   win: Window,
   where: string,
   products: ProductPerformanceRow[]
-): Insight[] {
-  const totals = totalsFor({ ...filter, datasetType: "wastage" });
+): Promise<Insight[]> {
+  const totals = await totalsFor({ ...filter, datasetType: "wastage" });
   if (totals.recordCount === 0) return []; // no wastage imports -> no wastage claims
 
   const out: Insight[] = [];
-  const reasons = wastageByReason(filter).filter((r) => r.quantity > 0);
+  const reasonsAll = await wastageByReason(filter);
+  const reasons = reasonsAll.filter((r) => r.quantity > 0);
   if (reasons.length > 0) {
     const top = reasons[0];
     const pct = share(top.quantity, totals.quantity);
@@ -287,7 +292,7 @@ function wastageInsights(
           ? `${qtyText(top.quantity)} units of recorded wastage`
           : `${pctText(pct)} of the ${qtyText(totals.quantity)} units of wastage imported for the period`,
       action: `Attack "${top.reason}" first: it is ${pct === null ? "the largest" : pctText(pct)} of imported wastage. The ${top.recordCount} record(s) behind it are listed in the Data Explorer for the exact items and dates.`,
-      evidence: compact([evidenceFor(filter, "wastage", win.from, win.to, null, `Wastage records between ${win.from} and ${win.to}`)]),
+      evidence: compact([await evidenceFor(filter, "wastage", win.from, win.to, null, `Wastage records between ${win.from} and ${win.to}`)]),
       drilldownQuery: drill(filter, { from: win.from, to: win.to, datasetType: "wastage" }),
       score: 70,
     });
@@ -315,7 +320,7 @@ function wastageInsights(
           ? `Cut ${top.product} production toward the ${qtyText(top.salesQty)} units actually sold; ${qtyText(top.wastageQty)} of ${qtyText(top.productionQty)} produced units were recorded as waste.`
           : `Import production for ${top.product} -- ${qtyText(top.wastageQty)} units of waste are recorded but the produced quantity is not, so the waste rate cannot be computed.`,
       evidence: compact([
-        evidenceFor(filter, "wastage", win.from, win.to, top.product, `Wastage records for ${top.product} between ${win.from} and ${win.to}`),
+        await evidenceFor(filter, "wastage", win.from, win.to, top.product, `Wastage records for ${top.product} between ${win.from} and ${win.to}`),
       ]),
       drilldownQuery: drill(filter, { from: win.from, to: win.to, datasetType: "wastage", product: top.product }),
       score: 68,
@@ -328,8 +333,8 @@ function wastageInsights(
 // ------------------------------------------------------------------- time ----
 
 /** Emitted only when records carry real timestamps; there is no derived hour. */
-function peakHourInsight(filter: DatasetFilter, win: Window, where: string): Insight | null {
-  const buckets = hourlyBuckets(filter);
+async function peakHourInsight(filter: DatasetFilter, win: Window, where: string): Promise<Insight | null> {
+  const buckets = await hourlyBuckets(filter);
   if (buckets.length === 0) return null;
 
   const dayValue = buckets.reduce((a, b) => a + b.salesValue, 0);
@@ -351,7 +356,7 @@ function peakHourInsight(filter: DatasetFilter, win: Window, where: string): Ins
         ? `${money(peak.salesValue)} of timestamped sales fall in this hour`
         : `${pctText(pct)} of timestamped sales value falls in this single hour`,
     action: `Keep the counter fully staffed through ${formatHourBucket(peak.hour)} and schedule breaks or changeovers outside it -- ${pct === null ? money(peak.salesValue) : pctText(pct)} of timestamped sales value lands in that hour.`,
-    evidence: compact([evidenceFor(filter, "sales", win.from, win.to, null, `Timestamped sales records between ${win.from} and ${win.to}`)]),
+    evidence: compact([await evidenceFor(filter, "sales", win.from, win.to, null, `Timestamped sales records between ${win.from} and ${win.to}`)]),
     drilldownQuery: drill(filter, { from: win.from, to: win.to, datasetType: "sales" }),
     score: 58,
   };
@@ -359,7 +364,7 @@ function peakHourInsight(filter: DatasetFilter, win: Window, where: string): Ins
 
 // ---------------------------------------------------------------- quality ----
 
-function importQualityInsight(filter: DatasetFilter, where: string, batch: ImportBatch): Insight | null {
+async function importQualityInsight(filter: DatasetFilter, where: string, batch: ImportBatch): Promise<Insight | null> {
   const q = batch.quality;
   if (q.rowsRejected === 0 && q.rowsFlagged === 0) return null;
   const from = batch.businessDateFrom ?? batch.createdAt.slice(0, 10);
@@ -379,14 +384,14 @@ function importQualityInsight(filter: DatasetFilter, where: string, batch: Impor
       q.rowsRejected > 0
         ? `Open Import History for ${batch.fileName}, read the ${q.rowsRejected} rejected row(s) listed there, correct the source file and re-import it -- totals for ${from} to ${to} are understated until then.`
         : `Review the ${q.rowsFlagged} flagged row(s) from ${batch.fileName} in Import History; they are counted in totals, so confirm their quantities before relying on ${from} to ${to}.`,
-    evidence: compact([evidenceFor(filter, "sales", from, to, null, `Sales records imported for ${from} to ${to}`)]),
+    evidence: compact([await evidenceFor(filter, "sales", from, to, null, `Sales records imported for ${from} to ${to}`)]),
     drilldownQuery: drill(filter, { from, to }),
     score: 52,
   };
 }
 
 /** Gaps inside an otherwise continuous imported range make any per-day average wrong. */
-function missingDatesInsight(filter: DatasetFilter, win: Window, where: string, dates: string[]): Insight | null {
+async function missingDatesInsight(filter: DatasetFilter, win: Window, where: string, dates: string[]): Promise<Insight | null> {
   if (win.from === win.to) return null;
   const present = new Set(dates);
   const span = businessDateRange(win.from, win.to);
@@ -404,7 +409,7 @@ function missingDatesInsight(filter: DatasetFilter, win: Window, where: string, 
     product: null,
     impact: `Period totals cover ${dates.length} of ${span.length} business dates, so any per-day average is computed over ${dates.length} days and understates a ${span.length}-day period`,
     action: `Import the sales report(s) for ${missing.slice(0, 5).join(", ")}${missing.length > 5 ? " and the other missing dates" : ""} before comparing period totals or daily averages.`,
-    evidence: compact([evidenceFor(filter, "sales", win.from, win.to, null, `Sales records present between ${win.from} and ${win.to}`)]),
+    evidence: compact([await evidenceFor(filter, "sales", win.from, win.to, null, `Sales records present between ${win.from} and ${win.to}`)]),
     drilldownQuery: drill(filter, { from: win.from, to: win.to }),
     score: 66,
   };
@@ -454,42 +459,46 @@ function anomalyInsight(a: Anomaly, where: string): Insight {
 
 // ------------------------------------------------------------------- build ----
 
-export function buildInsights(filter: DatasetFilter): Insight[] {
-  const coverage = datasetCoverage();
+export async function buildInsights(filter: DatasetFilter): Promise<Insight[]> {
+  const coverage = await datasetCoverage();
   const hasSales = (coverage.find((c) => c.datasetType === "sales")?.recordCount ?? 0) > 0;
   const missingProduction = (coverage.find((c) => c.datasetType === "production")?.recordCount ?? 0) === 0;
 
-  const daily = hasSales ? dailyTotals({ ...filter, datasetType: "sales" }) : [];
+  const daily = hasSales ? await dailyTotals({ ...filter, datasetType: "sales" }) : [];
   const win = windowFor(daily.map((d) => d.businessDate));
-  const where = whereLabel(filter);
+  const where = await whereLabel(filter);
   const out: Insight[] = [];
 
   // Anomalies are the sharpest insights available, so they lead the list.
-  const anomalies = detectAnomalies(filter)
-    .filter((a) => a.severity !== "low")
-    .slice(0, MAX_ANOMALY_INSIGHTS);
+  const allAnomalies = await detectAnomalies(filter);
+  const anomalies = allAnomalies.filter((a) => a.severity !== "low").slice(0, MAX_ANOMALY_INSIGHTS);
   for (const a of anomalies) out.push(anomalyInsight(a, where));
 
   if (win) {
     const rangeFilter: DatasetFilter = { ...filter, from: win.from, to: win.to };
-    const products = productPerformance(rangeFilter);
-    const salesTotals = totalsFor({ ...rangeFilter, datasetType: "sales" });
+    const products = await productPerformance(rangeFilter);
+    const salesTotals = await totalsFor({ ...rangeFilter, datasetType: "sales" });
 
-    out.push(...salesInsights(rangeFilter, win, where, products, salesTotals.value, salesTotals.quantity, missingProduction));
-    const movement = movementInsight(filter, daily, where);
+    out.push(...(await salesInsights(rangeFilter, win, where, products, salesTotals.value, salesTotals.quantity, missingProduction)));
+    const movement = await movementInsight(filter, daily, where);
     if (movement) out.push(movement);
-    const concentration = concentrationInsight(rangeFilter, win, where, products, salesTotals.value);
+    const concentration = await concentrationInsight(rangeFilter, win, where, products, salesTotals.value);
     if (concentration) out.push(concentration);
-    out.push(...wastageInsights(rangeFilter, win, where, products));
-    const peak = peakHourInsight(rangeFilter, win, where);
+    out.push(...(await wastageInsights(rangeFilter, win, where, products)));
+    const peak = await peakHourInsight(rangeFilter, win, where);
     if (peak) out.push(peak);
-    const gaps = missingDatesInsight(rangeFilter, win, where, daily.map((d) => d.businessDate));
+    const gaps = await missingDatesInsight(
+      rangeFilter,
+      win,
+      where,
+      daily.map((d) => d.businessDate)
+    );
     if (gaps) out.push(gaps);
   }
 
-  const [latestBatch] = listImportBatches(1);
+  const [latestBatch] = await listImportBatches(1);
   if (latestBatch) {
-    const quality = importQualityInsight(filter, where, latestBatch);
+    const quality = await importQualityInsight(filter, where, latestBatch);
     if (quality) out.push(quality);
   }
 

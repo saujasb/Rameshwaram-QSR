@@ -62,8 +62,8 @@ function drilldown(
  * purpose: a one-day window would otherwise never have priors, and the prior
  * days used are always named in expectedBasisNote.
  */
-function salesMovement(filter: DatasetFilter): Candidate[] {
-  const history = dailyTotals({ ...filter, datasetType: "sales", from: undefined });
+async function salesMovement(filter: DatasetFilter): Promise<Candidate[]> {
+  const history = await dailyTotals({ ...filter, datasetType: "sales", from: undefined });
   if (history.length <= MIN_PRIOR_DAYS) return [];
 
   // Sales value is the honest measure when the imports carry amounts; when they
@@ -124,19 +124,24 @@ function salesMovement(filter: DatasetFilter): Candidate[] {
  * cover it -- otherwise a product's 0 wastage means "never imported", not
  * "nothing wasted", and the variance would be manufactured.
  */
-function productionVariance(filter: DatasetFilter): Candidate[] {
-  const productionDays = dailyTotals({ ...filter, datasetType: "production" });
+async function productionVariance(filter: DatasetFilter): Promise<Candidate[]> {
+  const productionDays = await dailyTotals({ ...filter, datasetType: "production" });
   if (productionDays.length === 0) return [];
 
-  const salesDays = new Set(dailyTotals({ ...filter, datasetType: "sales" }).map((d) => d.businessDate));
-  const wastageDays = new Set(dailyTotals({ ...filter, datasetType: "wastage" }).map((d) => d.businessDate));
+  const [salesDaysList, wastageDaysList] = await Promise.all([
+    dailyTotals({ ...filter, datasetType: "sales" }),
+    dailyTotals({ ...filter, datasetType: "wastage" }),
+  ]);
+  const salesDays = new Set(salesDaysList.map((d) => d.businessDate));
+  const wastageDays = new Set(wastageDaysList.map((d) => d.businessDate));
 
   const out: Candidate[] = [];
   for (const day of productionDays.slice(-MAX_PRODUCTION_DAYS)) {
     const date = day.businessDate;
     if (!salesDays.has(date) || !wastageDays.has(date)) continue;
 
-    for (const row of productPerformance({ ...filter, from: date, to: date })) {
+    const rows = await productPerformance({ ...filter, from: date, to: date });
+    for (const row of rows) {
       if (row.productionQty <= 0) continue;
 
       const accounted = row.salesQty + row.wastageQty;
@@ -171,15 +176,16 @@ function productionVariance(filter: DatasetFilter): Candidate[] {
 
 // --------------------------------------------------------- wastage surges ----
 
-function wastageSurges(filter: DatasetFilter): Candidate[] {
-  const products = productPerformance(filter)
+async function wastageSurges(filter: DatasetFilter): Promise<Candidate[]> {
+  const allProducts = await productPerformance(filter);
+  const products = allProducts
     .filter((p) => p.wastageQty > 0)
     .sort((a, b) => b.wastageQty - a.wastageQty)
     .slice(0, MAX_WASTAGE_PRODUCTS);
 
   const out: Candidate[] = [];
   for (const p of products) {
-    const series = dailyTotals({ ...filter, datasetType: "wastage", product: p.product, from: undefined });
+    const series = await dailyTotals({ ...filter, datasetType: "wastage", product: p.product, from: undefined });
     for (let i = MIN_PRIOR_DAYS; i < series.length; i++) {
       const day = series[i];
       if (filter.from && day.businessDate < filter.from) continue;
@@ -230,31 +236,30 @@ function wastageSurges(filter: DatasetFilter): Candidate[] {
  * only emitted when the product still appears for that date in the production
  * or wastage dataset. With no such dataset imported, nothing is emitted.
  */
-function productStalls(filter: DatasetFilter): Candidate[] {
-  const dates = [
-    ...new Set(
-      [
-        ...dailyTotals({ ...filter, datasetType: "production" }).map((d) => d.businessDate),
-        ...dailyTotals({ ...filter, datasetType: "wastage" }).map((d) => d.businessDate),
-      ]
-    ),
-  ]
+async function productStalls(filter: DatasetFilter): Promise<Candidate[]> {
+  const [productionDates, wastageDates] = await Promise.all([
+    dailyTotals({ ...filter, datasetType: "production" }),
+    dailyTotals({ ...filter, datasetType: "wastage" }),
+  ]);
+  const dates = [...new Set([...productionDates.map((d) => d.businessDate), ...wastageDates.map((d) => d.businessDate)])]
     .sort()
     .slice(-MAX_STALL_DAYS);
 
   const out: Candidate[] = [];
   for (const date of dates) {
-    for (const row of productPerformance({ ...filter, from: date, to: date })) {
+    const rows = await productPerformance({ ...filter, from: date, to: date });
+    for (const row of rows) {
       const seenElsewhere = row.productionQty > 0 || row.wastageQty > 0;
       if (row.salesQty > 0 || !seenElsewhere) continue;
 
-      const priorSales = dailyTotals({
+      const priorSalesAll = await dailyTotals({
         ...filter,
         datasetType: "sales",
         product: row.product,
         from: undefined,
         to: shiftDateKey(date, -1),
-      }).filter((d) => d.quantity > 0);
+      });
+      const priorSales = priorSalesAll.filter((d) => d.quantity > 0);
       if (priorSales.length < MIN_PRIOR_DAYS) continue;
 
       const priors = priorSales.slice(-MAX_PRIOR_DAYS);
@@ -289,10 +294,10 @@ function productStalls(filter: DatasetFilter): Candidate[] {
 
 const SEVERITY_RANK: Record<AnomalySeverity, number> = { high: 0, medium: 1, low: 2 };
 
-function buildEvidence(filter: DatasetFilter, candidate: Candidate): AnomalyEvidence[] {
+async function buildEvidence(filter: DatasetFilter, candidate: Candidate): Promise<AnomalyEvidence[]> {
   const out: AnomalyEvidence[] = [];
   for (const datasetType of candidate.evidenceTypes) {
-    const totals = totalsFor({
+    const totals = await totalsFor({
       ...filter,
       datasetType,
       from: candidate.businessDate,
@@ -311,22 +316,25 @@ function buildEvidence(filter: DatasetFilter, candidate: Candidate): AnomalyEvid
   return out;
 }
 
-export function detectAnomalies(filter: DatasetFilter): Anomaly[] {
-  const coverage = datasetCoverage();
+export async function detectAnomalies(filter: DatasetFilter): Promise<Anomaly[]> {
+  const coverage = await datasetCoverage();
   const has = (t: DatasetType) => (coverage.find((c) => c.datasetType === t)?.recordCount ?? 0) > 0;
 
   const candidates: Candidate[] = [];
-  if (has("sales")) candidates.push(...salesMovement(filter));
-  if (has("production")) candidates.push(...productionVariance(filter));
-  if (has("wastage")) candidates.push(...wastageSurges(filter));
-  if (has("production") || has("wastage")) candidates.push(...productStalls(filter));
+  if (has("sales")) candidates.push(...(await salesMovement(filter)));
+  if (has("production")) candidates.push(...(await productionVariance(filter)));
+  if (has("wastage")) candidates.push(...(await wastageSurges(filter)));
+  if (has("production") || has("wastage")) candidates.push(...(await productStalls(filter)));
 
   candidates.sort(
     (a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity] || Math.abs(b.variancePct) - Math.abs(a.variancePct)
   );
 
-  return candidates.slice(0, MAX_ANOMALIES).map(({ evidenceTypes, ...rest }) => ({
-    ...rest,
-    evidence: buildEvidence(filter, { ...rest, evidenceTypes }),
-  }));
+  const top = candidates.slice(0, MAX_ANOMALIES);
+  return Promise.all(
+    top.map(async ({ evidenceTypes, ...rest }) => ({
+      ...rest,
+      evidence: await buildEvidence(filter, { ...rest, evidenceTypes }),
+    }))
+  );
 }

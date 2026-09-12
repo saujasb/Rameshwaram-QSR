@@ -7,6 +7,7 @@ import { hourlyBuckets, latestBusinessDate, totalsFor } from "../datasets/reposi
 import { calculated, computeReconciliation, observed, unavailable } from "./reconciliation.js";
 import { detectAnomalies } from "./anomalies.js";
 import { buildInsights } from "./insights.js";
+import { asyncHandler } from "../../shared/asyncHandler.js";
 
 export const intelligenceRouter: Router = Router();
 
@@ -29,25 +30,29 @@ function parseFilter(q: Record<string, unknown>): DatasetFilter {
  * day's report has been imported should see the last real day, clearly labelled,
  * not an empty page implying zero trade.
  */
-function resolveBusinessDate(requested?: string): string {
+async function resolveBusinessDate(requested?: string): Promise<string> {
   if (requested) return requested;
-  return latestBusinessDate() ?? getCurrentBusinessDate(getBusinessDayStartHour());
+  const latest = await latestBusinessDate();
+  if (latest) return latest;
+  return getCurrentBusinessDate(await getBusinessDayStartHour());
 }
 
-function buildTodaysIntelligence(businessDate: string): TodaysIntelligence {
-  const startHour = getBusinessDayStartHour();
+async function buildTodaysIntelligence(businessDate: string): Promise<TodaysIntelligence> {
+  const startHour = await getBusinessDayStartHour();
   const range: DatasetFilter = { from: businessDate, to: businessDate };
 
-  const sales = totalsFor({ ...range, datasetType: "sales" });
-  const production = totalsFor({ ...range, datasetType: "production" });
-  const wastage = totalsFor({ ...range, datasetType: "wastage" });
+  const [sales, production, wastage] = await Promise.all([
+    totalsFor({ ...range, datasetType: "sales" }),
+    totalsFor({ ...range, datasetType: "production" }),
+    totalsFor({ ...range, datasetType: "wastage" }),
+  ]);
 
   const scope = `${businessDate} business day`;
   const hasSales = sales.recordCount > 0;
   const hasProduction = production.recordCount > 0;
   const hasWastage = wastage.recordCount > 0;
 
-  const buckets = hourlyBuckets(range);
+  const buckets = await hourlyBuckets(range);
   const salesBuckets = buckets.filter((b) => b.salesValue > 0);
   const peak = salesBuckets.length
     ? salesBuckets.reduce((a, b) => (b.salesValue > a.salesValue ? b : a))
@@ -88,19 +93,31 @@ function buildTodaysIntelligence(businessDate: string): TodaysIntelligence {
   };
 }
 
-intelligenceRouter.get("/today", (req, res) => {
-  const requested = typeof req.query.businessDate === "string" ? req.query.businessDate : undefined;
-  res.json(buildTodaysIntelligence(resolveBusinessDate(requested)));
-});
+intelligenceRouter.get(
+  "/today",
+  asyncHandler(async (req, res) => {
+    const requested = typeof req.query.businessDate === "string" ? req.query.businessDate : undefined;
+    res.json(await buildTodaysIntelligence(await resolveBusinessDate(requested)));
+  })
+);
 
-intelligenceRouter.get("/insights", (req, res) => {
-  res.json(buildInsights(parseFilter(req.query as Record<string, unknown>)));
-});
+intelligenceRouter.get(
+  "/insights",
+  asyncHandler(async (req, res) => {
+    res.json(await buildInsights(parseFilter(req.query as Record<string, unknown>)));
+  })
+);
 
-intelligenceRouter.get("/anomalies", (req, res) => {
-  res.json(detectAnomalies(parseFilter(req.query as Record<string, unknown>)));
-});
+intelligenceRouter.get(
+  "/anomalies",
+  asyncHandler(async (req, res) => {
+    res.json(await detectAnomalies(parseFilter(req.query as Record<string, unknown>)));
+  })
+);
 
-intelligenceRouter.get("/reconciliation", (req, res) => {
-  res.json(computeReconciliation(parseFilter(req.query as Record<string, unknown>)));
-});
+intelligenceRouter.get(
+  "/reconciliation",
+  asyncHandler(async (req, res) => {
+    res.json(await computeReconciliation(parseFilter(req.query as Record<string, unknown>)));
+  })
+);

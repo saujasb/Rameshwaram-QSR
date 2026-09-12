@@ -10,12 +10,24 @@ import { wastageRepository } from "../entities/wastage/repository.js";
 
 const WASTAGE_SINGLE_ENTRY_ATTENTION_KG = 3;
 
-function buildActionCenter(): ActionCenterItem[] {
+async function buildActionCenter(): Promise<ActionCenterItem[]> {
   const items: ActionCenterItem[] = [];
   const now = new Date().toISOString();
   const today = now.slice(0, 10);
 
-  for (const task of taskRepository.list()) {
+  // The six repositories below are independent of each other, so fetching
+  // them concurrently rather than one `await` per loop cuts this endpoint's
+  // latency to that of the slowest single query instead of the sum of all six.
+  const [tasks, maintenanceIssues, complaints, inventoryItems, purchases, wastageEntries] = await Promise.all([
+    taskRepository.list(),
+    maintenanceRepository.list(),
+    complaintRepository.list(),
+    inventoryRepository.list(),
+    purchaseRepository.list(),
+    wastageRepository.list(),
+  ]);
+
+  for (const task of tasks) {
     const isOpen = task.status !== "completed" && task.status !== "failed";
     const isPastDue = task.dueTime ? new Date(task.dueTime).getTime() < Date.now() : false;
     if (isOpen && isPastDue) {
@@ -53,7 +65,7 @@ function buildActionCenter(): ActionCenterItem[] {
     }
   }
 
-  for (const issue of maintenanceRepository.list()) {
+  for (const issue of maintenanceIssues) {
     if (issue.status === "resolved") {
       if (issue.updatedAt.slice(0, 10) === today) {
         items.push({
@@ -79,7 +91,7 @@ function buildActionCenter(): ActionCenterItem[] {
     });
   }
 
-  for (const complaint of complaintRepository.list()) {
+  for (const complaint of complaints) {
     if (complaint.status === "resolved") {
       if (complaint.updatedAt.slice(0, 10) === today) {
         items.push({
@@ -105,7 +117,7 @@ function buildActionCenter(): ActionCenterItem[] {
     });
   }
 
-  for (const item of inventoryRepository.list()) {
+  for (const item of inventoryItems) {
     const status = computeInventoryStatus(item);
     if (status === "out_of_stock" || status === "critical") {
       items.push({
@@ -130,7 +142,7 @@ function buildActionCenter(): ActionCenterItem[] {
     }
   }
 
-  for (const purchase of purchaseRepository.list()) {
+  for (const purchase of purchases) {
     if (purchase.status === "received") continue;
     const isOverdue = purchase.expectedDelivery ? new Date(purchase.expectedDelivery).getTime() < Date.now() : false;
     if (isOverdue) {
@@ -146,7 +158,7 @@ function buildActionCenter(): ActionCenterItem[] {
     }
   }
 
-  for (const entry of wastageRepository.list()) {
+  for (const entry of wastageEntries) {
     if (entry.date === today && entry.quantityKg >= WASTAGE_SINGLE_ENTRY_ATTENTION_KG) {
       items.push({
         id: `wastage-high-${entry.id}`,
@@ -166,5 +178,10 @@ function buildActionCenter(): ActionCenterItem[] {
 export const actionCenterRouter: Router = Router();
 
 actionCenterRouter.get("/", (_req, res) => {
-  res.json(buildActionCenter());
+  buildActionCenter()
+    .then((items) => res.json(items))
+    .catch((err: unknown) => {
+      console.error("[action-center] Failed to build action center:", err instanceof Error ? err.stack ?? err.message : err);
+      res.status(500).json({ error: "Internal server error" });
+    });
 });

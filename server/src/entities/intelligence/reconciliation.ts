@@ -68,8 +68,8 @@ const ABSENT: TypeFacts = { present: false, quantity: 0, value: 0, recordCount: 
 
 type FactsByType = Record<DatasetType, TypeFacts>;
 
-function factsFor(filter: DatasetFilter, datasetType: DatasetType): TypeFacts {
-  const t = totalsFor({ ...filter, datasetType });
+async function factsFor(filter: DatasetFilter, datasetType: DatasetType): Promise<TypeFacts> {
+  const t = await totalsFor({ ...filter, datasetType });
   return { present: t.recordCount > 0, quantity: t.quantity, value: t.value, recordCount: t.recordCount };
 }
 
@@ -139,25 +139,26 @@ export function emptyRow(businessDate: string, scopeLabel: string): Reconciliati
  * records at all, which is why they are left out of the map rather than stored
  * as zero -- callers then get "unavailable", not a fake measurement.
  */
-function perDateFacts(filter: DatasetFilter, datasetType: DatasetType): Map<string, TypeFacts> {
+async function perDateFacts(filter: DatasetFilter, datasetType: DatasetType): Promise<Map<string, TypeFacts>> {
   const out = new Map<string, TypeFacts>();
-  for (const day of dailyTotals({ ...filter, datasetType })) {
+  const days = await dailyTotals({ ...filter, datasetType });
+  for (const day of days) {
     // recordCount is only obtainable per date via a scoped totals read; the
     // repository is the data layer, so no raw SQL is written here.
-    const t = totalsFor({ ...filter, datasetType, from: day.businessDate, to: day.businessDate });
+    const t = await totalsFor({ ...filter, datasetType, from: day.businessDate, to: day.businessDate });
     out.set(day.businessDate, { present: t.recordCount > 0, quantity: t.quantity, value: t.value, recordCount: t.recordCount });
   }
   return out;
 }
 
-export function computeReconciliation(filter: DatasetFilter): ReconciliationSummary {
-  const coverage = datasetCoverage();
+export async function computeReconciliation(filter: DatasetFilter): Promise<ReconciliationSummary> {
+  const coverage = await datasetCoverage();
   const availableDatasets = ALL_DATASET_TYPES.filter((t) => (coverage.find((c) => c.datasetType === t)?.recordCount ?? 0) > 0);
   const missingDatasets = ALL_DATASET_TYPES.filter((t) => !availableDatasets.includes(t));
 
   // Only query types that exist at all; the common sales-only case costs one pass.
   const byType = new Map<DatasetType, Map<string, TypeFacts>>();
-  for (const t of availableDatasets) byType.set(t, perDateFacts(filter, t));
+  for (const t of availableDatasets) byType.set(t, await perDateFacts(filter, t));
 
   const dates = [...new Set([...byType.values()].flatMap((m) => [...m.keys()]))].sort();
 
@@ -185,11 +186,12 @@ export function computeReconciliation(filter: DatasetFilter): ReconciliationSumm
   });
 
   const rangeFilter: DatasetFilter = { ...filter, from: businessDateFrom, to: businessDateTo };
-  const totalFacts: FactsByType = {
-    sales: availableDatasets.includes("sales") ? factsFor(rangeFilter, "sales") : ABSENT,
-    production: availableDatasets.includes("production") ? factsFor(rangeFilter, "production") : ABSENT,
-    wastage: availableDatasets.includes("wastage") ? factsFor(rangeFilter, "wastage") : ABSENT,
-  };
+  const [salesFacts, productionFacts, wastageFacts] = await Promise.all([
+    availableDatasets.includes("sales") ? factsFor(rangeFilter, "sales") : Promise.resolve(ABSENT),
+    availableDatasets.includes("production") ? factsFor(rangeFilter, "production") : Promise.resolve(ABSENT),
+    availableDatasets.includes("wastage") ? factsFor(rangeFilter, "wastage") : Promise.resolve(ABSENT),
+  ]);
+  const totalFacts: FactsByType = { sales: salesFacts, production: productionFacts, wastage: wastageFacts };
 
   // The totals row keeps the range in businessDate so a UI row key stays unique
   // against the per-date rows above.
@@ -210,8 +212,8 @@ export function computeReconciliation(filter: DatasetFilter): ReconciliationSumm
 }
 
 /** Sales value for a window, or "unavailable" when the records carry no amounts. */
-export function salesValueMetric(filter: DatasetFilter, scopeLabel: string): Metric {
-  const t = totalsFor({ ...filter, datasetType: "sales" });
+export async function salesValueMetric(filter: DatasetFilter, scopeLabel: string): Promise<Metric> {
+  const t = await totalsFor({ ...filter, datasetType: "sales" });
   if (t.recordCount === 0) return unavailable(`No sales records imported for ${scopeLabel}.`);
   if (t.value === 0 && t.quantity !== 0) {
     return unavailable(`The ${t.recordCount} sales record(s) for ${scopeLabel} carry no monetary amount, so revenue cannot be stated.`);

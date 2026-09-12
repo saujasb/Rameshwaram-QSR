@@ -96,7 +96,7 @@ export async function runSalesImport(options: ImportOptions): Promise<ImportOutc
   }));
 
   const batchId = randomUUID();
-  const upsertResult = upsertLineItems(candidates, batchId);
+  const upsertResult = await upsertLineItems(candidates, batchId);
   const computed = sumItems(report.items);
 
   const notes: string[] = [];
@@ -128,7 +128,7 @@ export async function runSalesImport(options: ImportOptions): Promise<ImportOutc
     notes.push(...report.parsingErrors);
   }
 
-  const batch = insertImportBatch({
+  const batch = await insertImportBatch({
     id: batchId,
     fileName: options.fileName,
     channel: report.channel,

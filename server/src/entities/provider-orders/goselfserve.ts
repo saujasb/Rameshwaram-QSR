@@ -42,7 +42,7 @@ function buildStatusPayload(order: ProviderOrder): Record<string, unknown> {
  */
 export async function syncOrderStatusToGoSelfServe(order: ProviderOrder): Promise<void> {
   if (!API_TOKEN && !API_KEY) {
-    markGoSelfServeNotConfigured(order.id);
+    await markGoSelfServeNotConfigured(order.id);
     return;
   }
 
@@ -61,12 +61,12 @@ export async function syncOrderStatusToGoSelfServe(order: ProviderOrder): Promis
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      markGoSelfServeSyncResult(order.id, false, `HTTP ${res.status}: ${text.slice(0, 300)}`);
+      await markGoSelfServeSyncResult(order.id, false, `HTTP ${res.status}: ${text.slice(0, 300)}`);
       return;
     }
-    markGoSelfServeSyncResult(order.id, true, null);
+    await markGoSelfServeSyncResult(order.id, true, null);
   } catch (err) {
-    markGoSelfServeSyncResult(order.id, false, err instanceof Error ? err.message : String(err));
+    await markGoSelfServeSyncResult(order.id, false, err instanceof Error ? err.message : String(err));
   } finally {
     clearTimeout(timeout);
   }

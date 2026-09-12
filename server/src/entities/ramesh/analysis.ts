@@ -68,12 +68,14 @@ export interface AnalysisResult {
   insufficientData: boolean;
 }
 
-function coverageEvidence(filter: DatasetFilter): { evidence: AnomalyEvidence[]; datasets: DatasetType[]; recordCount: number } {
+async function coverageEvidence(
+  filter: DatasetFilter
+): Promise<{ evidence: AnomalyEvidence[]; datasets: DatasetType[]; recordCount: number }> {
   const evidence: AnomalyEvidence[] = [];
   const datasets: DatasetType[] = [];
   let recordCount = 0;
   for (const t of ["sales", "production", "wastage"] as DatasetType[]) {
-    const tot = totalsFor({ ...filter, datasetType: t });
+    const tot = await totalsFor({ ...filter, datasetType: t });
     if (tot.recordCount === 0) continue;
     datasets.push(t);
     recordCount += tot.recordCount;
@@ -93,8 +95,8 @@ function coverageEvidence(filter: DatasetFilter): { evidence: AnomalyEvidence[];
  * "what should management look at". Composes the dashboard's own insight and
  * anomaly engines, ranks the result, and reports only what the data proves.
  */
-export function executiveAnalysis(filter: DatasetFilter, limit = 5): AnalysisResult {
-  const cov = coverageEvidence(filter);
+export async function executiveAnalysis(filter: DatasetFilter, limit = 5): Promise<AnalysisResult> {
+  const cov = await coverageEvidence(filter);
   if (cov.recordCount === 0) {
     return {
       answer: "There are no records in this scope, so there is nothing for me to analyse.",
@@ -108,8 +110,7 @@ export function executiveAnalysis(filter: DatasetFilter, limit = 5): AnalysisRes
     };
   }
 
-  const insights = buildInsights(filter);
-  const anomalies = detectAnomalies(filter);
+  const [insights, anomalies] = await Promise.all([buildInsights(filter), detectAnomalies(filter)]);
 
   // Anomalies the insight engine already surfaced would otherwise appear twice.
   const insightHeadlines = new Set(insights.map((i) => i.what));
@@ -126,9 +127,11 @@ export function executiveAnalysis(filter: DatasetFilter, limit = 5): AnalysisRes
     .slice(0, limit)
     .map((l, n) => ({ ...l, rank: n + 1 }));
 
-  const sales = totalsFor({ ...filter, datasetType: "sales" });
-  const production = totalsFor({ ...filter, datasetType: "production" });
-  const wastage = totalsFor({ ...filter, datasetType: "wastage" });
+  const [sales, production, wastage] = await Promise.all([
+    totalsFor({ ...filter, datasetType: "sales" }),
+    totalsFor({ ...filter, datasetType: "production" }),
+    totalsFor({ ...filter, datasetType: "wastage" }),
+  ]);
 
   const calculation: RameshCalculationStep[] = [];
   if (sales.recordCount > 0) {
@@ -179,8 +182,8 @@ export function executiveAnalysis(filter: DatasetFilter, limit = 5): AnalysisRes
  * down through product -> hour -> shift -> production-vs-demand and reports the
  * strongest evidenced contributor. Never asserts a cause the data can't carry.
  */
-export function rootCause(metric: DatasetType, filter: DatasetFilter): AnalysisResult {
-  const own = totalsFor({ ...filter, datasetType: metric });
+export async function rootCause(metric: DatasetType, filter: DatasetFilter): Promise<AnalysisResult> {
+  const own = await totalsFor({ ...filter, datasetType: metric });
   if (own.recordCount === 0) {
     return {
       answer: `I cannot determine the cause because no ${DATASET_LABELS[metric].toLowerCase()} records exist in this scope.`,
@@ -194,7 +197,7 @@ export function rootCause(metric: DatasetType, filter: DatasetFilter): AnalysisR
     };
   }
 
-  const cov = coverageEvidence(filter);
+  const cov = await coverageEvidence(filter);
   const calculation: RameshCalculationStep[] = [
     {
       label: `Total ${DATASET_LABELS[metric].toLowerCase()} in scope`,
@@ -206,7 +209,7 @@ export function rootCause(metric: DatasetType, filter: DatasetFilter): AnalysisR
   let rank = 1;
 
   // 1. Product concentration -- which item drives the number.
-  const perf = productPerformance(filter, 200);
+  const perf = await productPerformance(filter, 200);
   const keyed = perf
     .map((p) => ({ name: p.product, value: metric === "wastage" ? p.wastageQty : metric === "production" ? p.productionQty : p.salesValue }))
     .filter((p) => p.value > 0)
@@ -236,7 +239,7 @@ export function rootCause(metric: DatasetType, filter: DatasetFilter): AnalysisR
   }
 
   // 2. Time concentration -- only when records actually carry a clock time.
-  const buckets = hourlyBuckets(filter);
+  const buckets = await hourlyBuckets(filter);
   if (buckets.length > 0) {
     const pick = (b: (typeof buckets)[number]) =>
       metric === "wastage" ? b.wastageQty : metric === "production" ? b.productionQty : b.salesValue;
@@ -266,7 +269,8 @@ export function rootCause(metric: DatasetType, filter: DatasetFilter): AnalysisR
   }
 
   // 3. Shift concentration.
-  const shifts = shiftPerformance(filter).filter((s) => (metric === "wastage" ? s.wastageQty : metric === "production" ? s.productionQty : s.salesValue) > 0);
+  const shiftsAll = await shiftPerformance(filter);
+  const shifts = shiftsAll.filter((s) => (metric === "wastage" ? s.wastageQty : metric === "production" ? s.productionQty : s.salesValue) > 0);
   if (shifts.length > 1) {
     const key = (s: SegmentPerformanceRow) => (metric === "wastage" ? s.wastageQty : metric === "production" ? s.productionQty : s.salesValue);
     const worst = [...shifts].sort((a, b) => key(b) - key(a))[0];
@@ -281,15 +285,18 @@ export function rootCause(metric: DatasetType, filter: DatasetFilter): AnalysisR
   // Restricted to business dates where production, sales AND wastage all have
   // records: mixing 5 days of sales with 1 day of production produces a
   // reconciliation figure in the thousands of percent, which is noise, not signal.
-  const datesOf = (t: DatasetType) => new Set(dailyTotals({ ...filter, datasetType: t }).map((d) => d.businessDate));
-  const prodDates = datesOf("production");
-  const saleDates = datesOf("sales");
-  const wasteDates = datesOf("wastage");
+  const datesOf = async (t: DatasetType) => new Set((await dailyTotals({ ...filter, datasetType: t })).map((d) => d.businessDate));
+  const [prodDates, saleDates, wasteDates] = await Promise.all([datesOf("production"), datesOf("sales"), datesOf("wastage")]);
   const overlap = [...prodDates].filter((d) => saleDates.has(d) && wasteDates.has(d)).sort();
 
-  const prod = overlap.length ? totalsFor({ ...filter, datasetType: "production", from: overlap[0], to: overlap[overlap.length - 1] }) : { quantity: 0, value: 0, recordCount: 0 };
-  const sales = overlap.length ? totalsFor({ ...filter, datasetType: "sales", from: overlap[0], to: overlap[overlap.length - 1] }) : { quantity: 0, value: 0, recordCount: 0 };
-  const wasteOverlap = overlap.length ? totalsFor({ ...filter, datasetType: "wastage", from: overlap[0], to: overlap[overlap.length - 1] }) : { quantity: 0, value: 0, recordCount: 0 };
+  const zeroTotals = { quantity: 0, value: 0, recordCount: 0 };
+  const [prod, sales, wasteOverlap] = overlap.length
+    ? await Promise.all([
+        totalsFor({ ...filter, datasetType: "production", from: overlap[0], to: overlap[overlap.length - 1] }),
+        totalsFor({ ...filter, datasetType: "sales", from: overlap[0], to: overlap[overlap.length - 1] }),
+        totalsFor({ ...filter, datasetType: "wastage", from: overlap[0], to: overlap[overlap.length - 1] }),
+      ])
+    : [zeroTotals, zeroTotals, zeroTotals];
 
   let conclusion: string;
   if (metric === "wastage" && overlap.length > 0 && prod.quantity > 0) {
@@ -330,9 +337,8 @@ export function rootCause(metric: DatasetType, filter: DatasetFilter): AnalysisR
 }
 
 /** EFFICIENCY — where performance is strongest/weakest, per the reconciliation engine. */
-export function efficiencyAnalysis(filter: DatasetFilter): AnalysisResult {
-  const recon = computeReconciliation(filter);
-  const cov = coverageEvidence(filter);
+export async function efficiencyAnalysis(filter: DatasetFilter): Promise<AnalysisResult> {
+  const [recon, cov] = await Promise.all([computeReconciliation(filter), coverageEvidence(filter)]);
 
   const usable = recon.rows.filter((r) => r.efficiencyPct.value != null);
   if (usable.length === 0) {
@@ -393,9 +399,8 @@ export function efficiencyAnalysis(filter: DatasetFilter): AnalysisResult {
 }
 
 /** SHIFT / OUTLET performance ranking. */
-export function segmentAnalysis(kind: "shift" | "outlet", filter: DatasetFilter): AnalysisResult {
-  const rows = kind === "shift" ? shiftPerformance(filter) : outletPerformance(filter);
-  const cov = coverageEvidence(filter);
+export async function segmentAnalysis(kind: "shift" | "outlet", filter: DatasetFilter): Promise<AnalysisResult> {
+  const [rows, cov] = await Promise.all([kind === "shift" ? shiftPerformance(filter) : outletPerformance(filter), coverageEvidence(filter)]);
 
   if (rows.length === 0) {
     return {
@@ -466,9 +471,9 @@ export function segmentAnalysis(kind: "shift" | "outlet", filter: DatasetFilter)
 }
 
 /** PRODUCT performance — "which products are overproduced / worst offenders". */
-export function productAnalysis(filter: DatasetFilter, focus: "overproduced" | "wastage" | "revenue"): AnalysisResult {
-  const perf = productPerformance(filter, 200);
-  const cov = coverageEvidence(filter);
+export async function productAnalysis(filter: DatasetFilter, focus: "overproduced" | "wastage" | "revenue"): Promise<AnalysisResult> {
+  const perf = await productPerformance(filter, 200);
+  const cov = await coverageEvidence(filter);
 
   if (perf.length === 0) {
     return {
@@ -487,7 +492,8 @@ export function productAnalysis(filter: DatasetFilter, focus: "overproduced" | "
     // Overproduction is only measurable on business dates that actually HAVE
     // production records. Aggregating sales from days with no production makes
     // every product look under-produced and hides real overproduction.
-    const prodDates = dailyTotals({ ...filter, datasetType: "production" }).map((d) => d.businessDate).sort();
+    const prodDaily = await dailyTotals({ ...filter, datasetType: "production" });
+    const prodDates = prodDaily.map((d) => d.businessDate).sort();
     if (prodDates.length === 0) {
       return {
         answer: "I can't name overproduced products because no production records exist in this scope.",
@@ -501,7 +507,7 @@ export function productAnalysis(filter: DatasetFilter, focus: "overproduced" | "
       };
     }
     const scoped: DatasetFilter = { ...filter, from: prodDates[0], to: prodDates[prodDates.length - 1] };
-    const perfScoped = productPerformance(scoped, 200);
+    const perfScoped = await productPerformance(scoped, 200);
     const candidates = perfScoped.filter((p) => p.productionQty > 0 && p.variancePct != null && p.variancePct > 0).sort((a, b) => (b.variancePct ?? 0) - (a.variancePct ?? 0));
     if (candidates.length === 0) {
       const why = perf.every((p) => p.productionQty === 0)
@@ -592,9 +598,8 @@ export function productAnalysis(filter: DatasetFilter, focus: "overproduced" | "
 }
 
 /** RECONCILIATION in chat form, straight from the dashboard's own engine. */
-export function reconciliationAnalysis(filter: DatasetFilter): AnalysisResult {
-  const recon = computeReconciliation(filter);
-  const cov = coverageEvidence(filter);
+export async function reconciliationAnalysis(filter: DatasetFilter): Promise<AnalysisResult> {
+  const [recon, cov] = await Promise.all([computeReconciliation(filter), coverageEvidence(filter)]);
   const t = recon.totals;
 
   if (!t || t.productionQty.value == null) {
@@ -650,9 +655,8 @@ export function reconciliationAnalysis(filter: DatasetFilter): AnalysisResult {
 }
 
 /** ANOMALIES in chat form, from the dashboard's own detector. */
-export function anomalyAnalysis(filter: DatasetFilter): AnalysisResult {
-  const anomalies = detectAnomalies(filter);
-  const cov = coverageEvidence(filter);
+export async function anomalyAnalysis(filter: DatasetFilter): Promise<AnalysisResult> {
+  const [anomalies, cov] = await Promise.all([detectAnomalies(filter), coverageEvidence(filter)]);
 
   if (anomalies.length === 0) {
     return {
@@ -687,16 +691,18 @@ export function anomalyAnalysis(filter: DatasetFilter): AnalysisResult {
 }
 
 /** Day-over-day movement across every dataset — "what changed vs yesterday". */
-export function changeAnalysis(current: string, previous: string, filter: DatasetFilter): AnalysisResult {
-  const cov = coverageEvidence({ ...filter, from: previous, to: current });
+export async function changeAnalysis(current: string, previous: string, filter: DatasetFilter): Promise<AnalysisResult> {
+  const cov = await coverageEvidence({ ...filter, from: previous, to: current });
   const calculation: RameshCalculationStep[] = [];
   const insights: RameshInsightLine[] = [];
   let rank = 1;
   let any = false;
 
   for (const t of ["sales", "production", "wastage"] as DatasetType[]) {
-    const now = totalsFor({ ...filter, datasetType: t, from: current, to: current });
-    const then = totalsFor({ ...filter, datasetType: t, from: previous, to: previous });
+    const [now, then] = await Promise.all([
+      totalsFor({ ...filter, datasetType: t, from: current, to: current }),
+      totalsFor({ ...filter, datasetType: t, from: previous, to: previous }),
+    ]);
     if (now.recordCount === 0 && then.recordCount === 0) continue;
     if (then.recordCount === 0 || now.recordCount === 0) {
       calculation.push({

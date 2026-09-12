@@ -14,11 +14,12 @@
     "migrate:verify": "tsx src/db/migrate-sqlite-to-postgres.ts --mode=verify"
   },
   "dependencies": {
-    "better-sqlite3": "^13.0.3",
+    "@vercel/functions": "^3.9.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "multer": "^2.2.0",
     "pdf-parse": "^1.1.1",
+    "pg": "^8.23.0",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
@@ -28,7 +29,7 @@
     "@types/multer": "^2.2.0",
     "@types/node": "^22.10.5",
     "@types/pg": "^8.23.1",
-    "pg": "^8.23.0",
+    "better-sqlite3": "^13.0.3",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
