@@ -25,16 +25,28 @@ if (!DATABASE_URL) {
 }
 
 /**
- * Supabase's Postgres endpoints use publicly-trusted certificates, so
- * verification stays on by default -- there is no reason to weaken it
- * against them. `sslmode=disable` in the URL (a plain local Postgres with no
- * TLS listener at all) turns SSL off entirely. PGSSL_ALLOW_SELF_SIGNED=true
- * is a separate, explicit local-only escape hatch (e.g. a self-signed local
- * Postgres/Supabase CLI stack) and must never be set when DATABASE_URL
- * points at a real Supabase project.
+ * Verification stays on by default -- there is no reason to weaken it.
+ * `sslmode=disable` in the URL (a plain local Postgres with no TLS listener
+ * at all) turns SSL off entirely.
+ *
+ * Supabase's Supavisor pooler signs its certificate with a project-specific
+ * root CA that isn't in Node's public trust store, so verifying against it
+ * requires supplying that CA explicitly rather than skipping verification --
+ * PGSSL_CA_CERT holds its PEM contents (downloaded from the Supabase
+ * dashboard: Project Settings -> Database -> SSL Configuration; this is a
+ * public certificate, not a secret) and keeps full chain verification on.
+ *
+ * PGSSL_ALLOW_SELF_SIGNED=true is a separate, narrowly-scoped fallback kept
+ * for backward compatibility (e.g. a self-signed local Postgres/Supabase CLI
+ * stack that has no CA to supply) -- it disables verification for this one
+ * pg.Pool only, never Node's global TLS behavior, and should not be needed
+ * once PGSSL_CA_CERT is set.
  */
-function resolveSsl(url: string): boolean | { rejectUnauthorized: boolean } {
+function resolveSsl(url: string): boolean | { rejectUnauthorized: boolean; ca?: string } {
   if (url.includes("sslmode=disable")) return false;
+  if (process.env.PGSSL_CA_CERT) {
+    return { rejectUnauthorized: true, ca: process.env.PGSSL_CA_CERT };
+  }
   if (process.env.PGSSL_ALLOW_SELF_SIGNED === "true") return { rejectUnauthorized: false };
   return { rejectUnauthorized: true };
 }
