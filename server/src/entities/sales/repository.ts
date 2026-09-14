@@ -208,7 +208,7 @@ export async function getSalesSummary(filter: SalesFilter): Promise<SalesSummary
   );
 
   const topItems = await query<{ itemName: string; category: string; quantity: string; amount: string }>(
-    `SELECT product as "itemName", MAX(COALESCE(category,'Uncategorised')) as category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM("salesValue"),0) as amount FROM dataset_records ${scoped} GROUP BY "productKey" ORDER BY amount DESC LIMIT 15`,
+    `SELECT product as "itemName", MAX(COALESCE(category,'Uncategorised')) as category, COALESCE(SUM(quantity),0) as quantity, COALESCE(SUM("salesValue"),0) as amount FROM dataset_records ${scoped} GROUP BY "productKey", product ORDER BY amount DESC LIMIT 15`,
     params
   );
 
