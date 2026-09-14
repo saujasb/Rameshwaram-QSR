@@ -16,9 +16,18 @@ if (!connectionString) {
   );
 }
 
+// Verification stays on. Supabase's Supavisor pooler signs its certificate
+// with a project-specific root CA that isn't in Node's public trust store;
+// PGSSL_CA_CERT supplies that CA's PEM (Supabase Dashboard -> Project
+// Settings -> Database -> SSL Configuration) so the chain verifies properly
+// instead of disabling verification.
+const ssl: pg.PoolConfig["ssl"] = process.env.PGSSL_CA_CERT
+  ? { rejectUnauthorized: true, ca: process.env.PGSSL_CA_CERT }
+  : { rejectUnauthorized: true };
+
 export const pool = new pg.Pool({
   connectionString,
-  ssl: { rejectUnauthorized: false },
+  ssl,
   max: 10,
   idleTimeoutMillis: 10_000,
 });
