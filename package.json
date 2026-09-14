@@ -1,6 +1,7 @@
 {
   "name": "rameshwaram-qsr-dashboard",
   "private": true,
+  "type": "module",
   "workspaces": [
     "client",
     "server"
