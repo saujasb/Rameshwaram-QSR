@@ -1,0 +1,67 @@
+:root {
+  /* Rameshwaram Café — Master Tracking Command Centre design tokens */
+  --brand: #b65f3a;       /* Terracotta */
+  --brand-2: #d9953d;     /* Burnt Saffron */
+  --gold: #c8a45d;        /* Brass Gold */
+  --charcoal: #171717;    /* Deep Charcoal */
+
+  --page: #f7f3ec;        /* Warm Ivory */
+  --card: #fffdf8;        /* Soft Cream */
+  --surface-1: #fffdf8;
+
+  --ink: #24211e;         /* Primary text */
+  --ink-2: #756b61;       /* Secondary text */
+  --muted: #9a8f84;
+
+  --line: rgba(36, 33, 30, 0.08);
+  --line-2: rgba(36, 33, 30, 0.13);
+
+  /* chart series: primary / secondary / highlight */
+  --s1: #b65f3a;
+  --s2: #d9953d;
+  --s3: #c8a45d;
+
+  --good: #3f6b50;        /* Success */
+  --warning: #c4862c;     /* Warning */
+  --serious: #b3592e;     /* between warning and critical */
+  --critical: #a94736;    /* Critical */
+  --not-connected: #ab9f92;
+
+  --grid: rgba(36, 33, 30, 0.08);
+  --axis: rgba(36, 33, 30, 0.2);
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --page: #17140f;
+  --card: #221d17;
+  --surface-1: #221d17;
+
+  --ink: #f7f3ec;
+  --ink-2: #c9bfb3;
+  --muted: #948879;
+
+  --brand: #cb7649;
+  --brand-2: #e3a24d;
+  --gold: #d4b876;
+
+  --line: rgba(247, 243, 236, 0.1);
+  --line-2: rgba(247, 243, 236, 0.15);
+
+  --s1: #cb7649;
+  --s2: #e3a24d;
+  --s3: #d4b876;
+
+  --good: #4f8a64;
+  --warning: #d99a3e;
+  --serious: #c96b3e;
+  --critical: #c25a48;
+  --not-connected: #948879;
+
+  --grid: rgba(247, 243, 236, 0.08);
+  --axis: rgba(247, 243, 236, 0.22);
+
+  color-scheme: dark;
+}

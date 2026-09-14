@@ -1,0 +1,17 @@
+---
+source_file: "shared-types/entities.ts"
+type: "code"
+community: "Expense Tracking"
+location: "L118"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/Expense_Tracking
+---
+
+# MaintenanceStatus
+
+## Connections
+- [[entities.ts]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Expense_Tracking
