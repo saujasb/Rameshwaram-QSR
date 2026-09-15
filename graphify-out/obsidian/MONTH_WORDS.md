@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/ramesh/intents.ts"
 type: "code"
-community: "Query Intent Classification"
+community: "Ramesh AI Assistant Engine"
 location: "L135"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Query_Intent_Classification
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # MONTH_WORDS
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[intents.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Query_Intent_Classification
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

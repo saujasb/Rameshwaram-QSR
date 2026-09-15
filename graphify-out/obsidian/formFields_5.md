@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/purchases/PurchasesPage.tsx"
 type: "code"
-community: "Purchases Tracking"
+community: "Purchases Module"
 location: "L27"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Purchases_Tracking
+  - community/Purchases_Module
 ---
 
 # formFields
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[PurchasesPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Purchases_Tracking
+#graphify/code #graphify/EXTRACTED #community/Purchases_Module

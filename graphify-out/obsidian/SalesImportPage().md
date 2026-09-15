@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/sales-analytics/SalesImportPage.tsx"
 type: "code"
-community: "Sales Data Hooks"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L79"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # SalesImportPage()
@@ -14,13 +14,13 @@ tags:
 ## Connections
 - [[SalesImportPage.tsx]] - `contains` [EXTRACTED]
 - [[getCurrentBusinessDate()]] - `calls` [EXTRACTED]
-- [[handleDrop()_1]] - `contains` [EXTRACTED]
-- [[handleSubmit()_2]] - `contains` [EXTRACTED]
+- [[handleDrop()]] - `contains` [EXTRACTED]
+- [[handleSubmit()]] - `contains` [EXTRACTED]
 - [[routes.tsx]] - `imports` [EXTRACTED]
-- [[useDeleteImportBatch()_1]] - `calls` [EXTRACTED]
-- [[useImportBatches()_1]] - `calls` [EXTRACTED]
+- [[useDeleteImportBatch()]] - `calls` [EXTRACTED]
+- [[useImportBatches()]] - `calls` [EXTRACTED]
 - [[useImportSalesPdf()]] - `calls` [EXTRACTED]
-- [[useStagedProgress()_1]] - `calls` [EXTRACTED]
+- [[useStagedProgress()]] - `calls` [EXTRACTED]
 - [[validationTone()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

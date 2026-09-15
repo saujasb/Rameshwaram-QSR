@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/pdfAdapter.ts"
 type: "code"
-community: "Dataset Import Pipeline"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L144"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Import_Pipeline
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # looksLikePdf()
@@ -14,6 +14,5 @@ tags:
 ## Connections
 - [[datasetsimportPipeline.ts]] - `imports` [EXTRACTED]
 - [[pdfAdapter.ts]] - `contains` [EXTRACTED]
-- [[runImport()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Pipeline
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

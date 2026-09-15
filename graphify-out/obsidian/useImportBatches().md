@@ -1,20 +1,20 @@
 ---
-source_file: "client/src/lib/api/datasets.ts"
+source_file: "client/src/lib/api/sales.ts"
 type: "code"
-community: "Datasets API & Export"
-location: "L65"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L22"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Datasets_API__Export
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # useImportBatches()
 
 ## Connections
-- [[ImportCenterPage.tsx]] - `imports` [EXTRACTED]
-- [[ImportHistory()]] - `calls` [EXTRACTED]
-- [[apidatasets.ts]] - `contains` [EXTRACTED]
+- [[SalesImportPage()]] - `calls` [EXTRACTED]
+- [[SalesImportPage.tsx]] - `imports` [EXTRACTED]
+- [[apisales.ts]] - `contains` [EXTRACTED]
 - [[apiGet()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Datasets_API__Export
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

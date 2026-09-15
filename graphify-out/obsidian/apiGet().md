@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/client.ts"
 type: "code"
-community: "Datasets API & Export"
-location: "L14"
+community: "App Shell, Global Search & Client API Core"
+location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Datasets_API__Export
+  - community/App_Shell_Global_Search__Client_API_Core
 ---
 
 # apiGet()
@@ -36,8 +36,8 @@ tags:
 - [[useDatasetRecords()]] - `calls` [EXTRACTED]
 - [[useDatasetSummary()]] - `calls` [EXTRACTED]
 - [[useHealthCheck()]] - `calls` [EXTRACTED]
-- [[useImportBatches()]] - `calls` [EXTRACTED]
 - [[useImportBatches()_1]] - `calls` [EXTRACTED]
+- [[useImportBatches()]] - `calls` [EXTRACTED]
 - [[useLatestImportBatch()]] - `calls` [EXTRACTED]
 - [[useLatestImportBatch()_1]] - `calls` [EXTRACTED]
 - [[useList()]] - `calls` [EXTRACTED]
@@ -52,4 +52,4 @@ tags:
 - [[useTodaysIntelligence()]] - `calls` [EXTRACTED]
 - [[useTopInsights()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Datasets_API__Export
+#graphify/code #graphify/EXTRACTED #community/App_Shell_Global_Search__Client_API_Core

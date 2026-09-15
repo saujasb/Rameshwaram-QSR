@@ -1,18 +1,18 @@
 ---
 source_file: "client/src/modules/expenses/ExpensesPage.tsx"
 type: "code"
-community: "Expense Tracking"
+community: "Expenses Module"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Expense_Tracking
+  - community/Expenses_Module
 ---
 
 # ExpensesPage.tsx
 
 ## Connections
-- [[CATEGORY_OPTIONS]] - `contains` [EXTRACTED]
+- [[CATEGORY_OPTIONS_1]] - `contains` [EXTRACTED]
 - [[ColumnConfig]] - `imports` [EXTRACTED]
 - [[CrudModulePage()]] - `imports` [EXTRACTED]
 - [[CrudModulePage.tsx]] - `imports_from` [EXTRACTED]
@@ -27,4 +27,4 @@ tags:
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Expense_Tracking
+#graphify/code #graphify/EXTRACTED #community/Expenses_Module

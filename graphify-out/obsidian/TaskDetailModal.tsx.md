@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/tasks/TaskDetailModal.tsx"
 type: "code"
-community: "Record Form & Status UI"
+community: "Task Management (CRUD Base Record)"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Record_Form__Status_UI
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # TaskDetailModal.tsx
@@ -23,9 +23,10 @@ tags:
 - [[TaskDetailModal()]] - `contains` [EXTRACTED]
 - [[TasksPage.tsx]] - `imports_from` [EXTRACTED]
 - [[entities.ts]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
 - [[taskFields.ts]] - `imports_from` [EXTRACTED]
 - [[taskFormFields]] - `imports` [EXTRACTED]
 - [[taskHooks]] - `imports` [EXTRACTED]
 - [[tasks.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Record_Form__Status_UI
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

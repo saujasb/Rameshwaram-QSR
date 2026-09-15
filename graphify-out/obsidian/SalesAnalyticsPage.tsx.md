@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/sales-analytics/SalesAnalyticsPage.tsx"
 type: "code"
-community: "Chart Components (Donut/HBar)"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Chart_Components_Donut/HBar
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # SalesAnalyticsPage.tsx
@@ -36,6 +36,8 @@ tags:
 - [[format.ts]] - `imports_from` [EXTRACTED]
 - [[formatInrCompact()]] - `imports` [EXTRACTED]
 - [[getCurrentBusinessDate()]] - `imports` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
+- [[react-router-dom_1]] - `imports` [EXTRACTED]
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[shared-typessales.ts]] - `imports_from` [EXTRACTED]
 - [[shiftDateKey()]] - `imports` [EXTRACTED]
@@ -45,4 +47,4 @@ tags:
 - [[useSalesSummary()]] - `imports` [EXTRACTED]
 - [[useSalesTargetWithEditor()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Chart_Components_Donut/HBar
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

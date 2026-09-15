@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/shift-performance/ShiftPerformancePage.tsx"
 type: "code"
-community: "Staff & Wastage Tracking"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # ShiftPerformancePage()
@@ -16,4 +16,4 @@ tags:
 - [[getCurrentBusinessDate()]] - `calls` [EXTRACTED]
 - [[routes.tsx]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

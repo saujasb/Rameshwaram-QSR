@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/repository.ts"
 type: "code"
-community: "Dataset Schema & Migrations"
+community: "Datasets & Intelligence Analytics (Postgres)"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Schema__Migrations
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # datasets/repository.ts
@@ -34,30 +34,28 @@ tags:
 - [[datasetsdb.ts]] - `re_exports` [EXTRACTED]
 - [[datasetsimportPipeline.ts]] - `imports_from` [EXTRACTED]
 - [[datasetsroutes.ts]] - `imports_from` [EXTRACTED]
-- [[db]] - `imports` [EXTRACTED]
-- [[dbclient.ts]] - `imports_from` [EXTRACTED]
 - [[deleteImportBatch()]] - `contains` [EXTRACTED]
 - [[distinctValues()]] - `contains` [EXTRACTED]
 - [[engine.ts]] - `imports_from` [EXTRACTED]
-- [[ensureDatasetTables()]] - `imports` [EXTRACTED]
 - [[exportRecords()]] - `contains` [EXTRACTED]
 - [[findBatchByFileHash()]] - `contains` [EXTRACTED]
-- [[findByFingerprint]] - `contains` [EXTRACTED]
 - [[formatHourBucket()]] - `imports` [EXTRACTED]
 - [[getBusinessDayStartHour()]] - `imports` [EXTRACTED]
 - [[getBusinessHourSlot()]] - `imports` [EXTRACTED]
 - [[getImportBatch()]] - `contains` [EXTRACTED]
 - [[hourlyBuckets()]] - `contains` [EXTRACTED]
 - [[insertImportBatch()]] - `contains` [EXTRACTED]
-- [[insertStmt]] - `contains` [EXTRACTED]
 - [[insights.ts]] - `imports_from` [EXTRACTED]
 - [[intelligenceroutes.ts]] - `imports_from` [EXTRACTED]
 - [[latestBusinessDate()]] - `contains` [EXTRACTED]
 - [[listImportBatches()]] - `contains` [EXTRACTED]
 - [[mapRecord()]] - `contains` [EXTRACTED]
 - [[outletPerformance()]] - `contains` [EXTRACTED]
+- [[pg.ts]] - `imports_from` [EXTRACTED]
 - [[productKeyOf()]] - `contains` [EXTRACTED]
 - [[productPerformance()]] - `contains` [EXTRACTED]
+- [[query()]] - `imports` [EXTRACTED]
+- [[queryOne()]] - `imports` [EXTRACTED]
 - [[queryRecords()]] - `contains` [EXTRACTED]
 - [[reconciliation.ts]] - `imports_from` [EXTRACTED]
 - [[rowToBatch()]] - `contains` [EXTRACTED]
@@ -67,8 +65,8 @@ tags:
 - [[shiftPerformance()]] - `contains` [EXTRACTED]
 - [[topProducts()]] - `contains` [EXTRACTED]
 - [[totalsFor()]] - `contains` [EXTRACTED]
-- [[updateStmt]] - `contains` [EXTRACTED]
 - [[upsertRecords()]] - `contains` [EXTRACTED]
 - [[wastageByReason()]] - `contains` [EXTRACTED]
+- [[withTransaction()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Schema__Migrations
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

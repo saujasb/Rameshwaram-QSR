@@ -1,21 +1,19 @@
 ---
 source_file: "shared-types/datasets.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Ramesh AI Assistant Engine"
 location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # DatasetType
 
 ## Connections
-- [[AnalysisResult]] - `references` [EXTRACTED]
 - [[AnomalyEvidence]] - `references` [EXTRACTED]
 - [[DataExplorerPage.tsx]] - `imports` [EXTRACTED]
-- [[ImportRequest]] - `references` [EXTRACTED]
 - [[RameshDataUsed]] - `references` [EXTRACTED]
 - [[RameshSlots]] - `references` [EXTRACTED]
 - [[RawRowInput]] - `references` [EXTRACTED]
@@ -40,4 +38,4 @@ tags:
 - [[shared-typesintelligence.ts]] - `imports` [EXTRACTED]
 - [[shared-typesramesh.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

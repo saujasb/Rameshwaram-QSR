@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/datasets.ts"
 type: "code"
-community: "Business Day & Sales Trend Charts"
-location: "L141"
+community: "Business Date & Settings"
+location: "L180"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # useBusinessDaySettings()
@@ -17,4 +17,4 @@ tags:
 - [[apidatasets.ts]] - `contains` [EXTRACTED]
 - [[apiGet()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

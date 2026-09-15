@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/intelligence/reconciliation.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L213"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L215"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # salesValueMetric()
@@ -17,4 +17,4 @@ tags:
 - [[totalsFor()]] - `calls` [EXTRACTED]
 - [[unavailable()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

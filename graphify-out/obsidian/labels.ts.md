@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/intelligence/labels.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Intelligence Dashboard UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Intelligence_Dashboard_UI
 ---
 
 # labels.ts
@@ -20,4 +20,4 @@ tags:
 - [[shared-typesdatasets.ts]] - `imports_from` [EXTRACTED]
 - [[shared-typesintelligence.ts]] - `re_exports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

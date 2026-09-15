@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/datasets.ts"
 type: "code"
-community: "Datasets API & Export"
+community: "Datasets & Intelligence Analytics (Postgres)"
 location: "L186"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Datasets_API__Export
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # PaginatedRecords
@@ -16,4 +16,4 @@ tags:
 - [[datasetsrepository.ts]] - `imports` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Datasets_API__Export
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

@@ -1,19 +1,18 @@
 ---
 source_file: "client/src/lib/api/datasets.ts"
 type: "code"
-community: "Datasets API & Export"
+community: "Import Center Page"
 location: "L77"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Datasets_API__Export
+  - community/Import_Center_Page
 ---
 
 # ImportFileResult
 
 ## Connections
-- [[ImportBatch]] - `references` [EXTRACTED]
 - [[ImportCenterPage.tsx]] - `imports` [EXTRACTED]
 - [[apidatasets.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Datasets_API__Export
+#graphify/code #graphify/EXTRACTED #community/Import_Center_Page

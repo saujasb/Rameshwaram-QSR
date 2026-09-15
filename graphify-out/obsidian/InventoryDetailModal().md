@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/inventory/InventoryDetailModal.tsx"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L11"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # InventoryDetailModal()
@@ -17,4 +17,4 @@ tags:
 - [[apiGet()]] - `calls` [EXTRACTED]
 - [[computeInventoryStatus()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

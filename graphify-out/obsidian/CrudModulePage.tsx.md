@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/crud/CrudModulePage.tsx"
 type: "code"
-community: "Generic CRUD Module Framework"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Generic_CRUD_Module_Framework
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # CrudModulePage.tsx
@@ -36,6 +36,8 @@ tags:
 - [[SuppliersPage.tsx]] - `imports_from` [EXTRACTED]
 - [[WastagePage.tsx]] - `imports_from` [EXTRACTED]
 - [[entities.ts]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
+- [[react-router-dom_1]] - `imports` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Module_Framework
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

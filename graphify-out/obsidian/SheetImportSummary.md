@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/datasets.ts"
 type: "code"
-community: "Import Result Types"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L126"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Result_Types
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # SheetImportSummary
@@ -20,4 +20,4 @@ tags:
 - [[pdfAdapter.ts]] - `imports` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Result_Types
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

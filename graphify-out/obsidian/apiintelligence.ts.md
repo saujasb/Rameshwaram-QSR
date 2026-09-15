@@ -1,17 +1,18 @@
 ---
 source_file: "client/src/lib/api/intelligence.ts"
 type: "code"
-community: "Business Intelligence & Anomalies"
+community: "Intelligence Dashboard UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Intelligence__Anomalies
+  - community/Intelligence_Dashboard_UI
 ---
 
 # api/intelligence.ts
 
 ## Connections
+- [[@tanstackreact-query_1]] - `imports` [EXTRACTED]
 - [[Anomaly]] - `imports` [EXTRACTED]
 - [[DatasetFilter]] - `imports` [EXTRACTED]
 - [[Insight]] - `imports` [EXTRACTED]
@@ -23,7 +24,7 @@ tags:
 - [[apiclient.ts]] - `imports_from` [EXTRACTED]
 - [[apidatasets.ts]] - `imports_from` [EXTRACTED]
 - [[apiGet()]] - `imports` [EXTRACTED]
-- [[filterToParams()_1]] - `imports` [EXTRACTED]
+- [[filterToParams()]] - `imports` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `imports_from` [EXTRACTED]
 - [[shared-typesintelligence.ts]] - `imports_from` [EXTRACTED]
 - [[useAnomalies()]] - `contains` [EXTRACTED]
@@ -31,4 +32,4 @@ tags:
 - [[useTodaysIntelligence()]] - `contains` [EXTRACTED]
 - [[useTopInsights()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Intelligence__Anomalies
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

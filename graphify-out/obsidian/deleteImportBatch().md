@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/repository.ts"
 type: "code"
-community: "Dataset Schema & Migrations"
-location: "L197"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L154"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Schema__Migrations
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # deleteImportBatch()
@@ -14,5 +14,6 @@ tags:
 ## Connections
 - [[datasetsrepository.ts]] - `contains` [EXTRACTED]
 - [[datasetsroutes.ts]] - `imports` [EXTRACTED]
+- [[withTransaction()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Schema__Migrations
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

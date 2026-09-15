@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/datasets.ts"
 type: "code"
-community: "Data Coercion Utilities"
+community: "Dataset Import Parsing & Normalization"
 location: "L119"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Data_Coercion_Utilities
+  - community/Dataset_Import_Parsing__Normalization
 ---
 
 # ColumnMapping
@@ -17,4 +17,4 @@ tags:
 - [[columnMap.ts]] - `imports` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Data_Coercion_Utilities
+#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Parsing__Normalization

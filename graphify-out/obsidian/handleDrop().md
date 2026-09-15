@@ -1,18 +1,17 @@
 ---
-source_file: "client/src/modules/import/ImportCenterPage.tsx"
+source_file: "client/src/modules/sales-analytics/SalesImportPage.tsx"
 type: "code"
-community: "Import Center Hooks"
-location: "L454"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L95"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Center_Hooks
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # handleDrop()
 
 ## Connections
-- [[ImportCenterPage()]] - `contains` [EXTRACTED]
-- [[addFiles()]] - `calls` [EXTRACTED]
+- [[SalesImportPage()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Center_Hooks
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

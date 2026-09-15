@@ -1,19 +1,18 @@
 ---
 source_file: "server/src/entities/sales/repository.ts"
 type: "code"
-community: "PDF/Format Import Adapters"
-location: "L17"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/PDF/Format_Import_Adapters
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # CandidateLineItem
 
 ## Connections
-- [[SalesChannel]] - `references` [EXTRACTED]
 - [[salesimportPipeline.ts]] - `imports` [EXTRACTED]
 - [[salesrepository.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/PDF/Format_Import_Adapters
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

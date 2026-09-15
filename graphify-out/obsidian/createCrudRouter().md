@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/shared/createCrudRouter.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Generic CRUD Router & Inventory Movement Routes"
 location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Generic_CRUD_Router__Inventory_Movement_Routes
 ---
 
 # createCrudRouter()
@@ -26,4 +26,4 @@ tags:
 - [[tasksroutes.ts]] - `imports` [EXTRACTED]
 - [[wastageroutes.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Router__Inventory_Movement_Routes

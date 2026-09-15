@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/intelligence/insights.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Datasets & Intelligence Analytics (Postgres)"
 location: "L262"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # wastageInsights()
@@ -23,4 +23,4 @@ tags:
 - [[totalsFor()]] - `calls` [EXTRACTED]
 - [[wastageByReason()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/complaints/ComplaintsPage.tsx"
 type: "code"
-community: "API Client & Complaints"
+community: "Complaints Module"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/API_Client__Complaints
+  - community/Complaints_Module
 ---
 
 # ComplaintsPage.tsx
@@ -28,4 +28,4 @@ tags:
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/API_Client__Complaints
+#graphify/code #graphify/EXTRACTED #community/Complaints_Module

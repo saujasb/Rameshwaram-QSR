@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/sales.ts"
 type: "code"
-community: "Sales Data Hooks"
-location: "L42"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L65"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # useImportSalesPdf()
@@ -15,5 +15,6 @@ tags:
 - [[SalesImportPage()]] - `calls` [EXTRACTED]
 - [[SalesImportPage.tsx]] - `imports` [EXTRACTED]
 - [[apisales.ts]] - `contains` [EXTRACTED]
+- [[uploadViaStorage()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

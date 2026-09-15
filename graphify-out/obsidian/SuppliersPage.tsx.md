@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/purchases/SuppliersPage.tsx"
 type: "code"
-community: "Suppliers Tracking"
+community: "Suppliers Module"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_Tracking
+  - community/Suppliers_Module
 ---
 
 # SuppliersPage.tsx
@@ -26,4 +26,4 @@ tags:
 - [[suppliers.ts]] - `imports_from` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_Tracking
+#graphify/code #graphify/EXTRACTED #community/Suppliers_Module

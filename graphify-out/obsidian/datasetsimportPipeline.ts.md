@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/importPipeline.ts"
 type: "code"
-community: "Dataset Import Pipeline"
+community: "Dataset Import Parsing & Normalization"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Import_Pipeline
+  - community/Dataset_Import_Parsing__Normalization
 ---
 
 # datasets/importPipeline.ts
@@ -15,7 +15,7 @@ tags:
 - [[DatasetRecord]] - `imports` [EXTRACTED]
 - [[DatasetType]] - `imports` [EXTRACTED]
 - [[ImportBatch]] - `imports` [EXTRACTED]
-- [[ImportOutcome]] - `contains` [EXTRACTED]
+- [[ImportOutcome_1]] - `contains` [EXTRACTED]
 - [[ImportRequest]] - `contains` [EXTRACTED]
 - [[ImportStatus]] - `imports` [EXTRACTED]
 - [[QualityIssue]] - `imports` [EXTRACTED]
@@ -44,4 +44,4 @@ tags:
 - [[tallyFlags()]] - `imports` [EXTRACTED]
 - [[upsertRecords()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Pipeline
+#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Parsing__Normalization

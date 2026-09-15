@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/columnMap.ts"
 type: "code"
-community: "Data Coercion Utilities"
+community: "Dataset Import Parsing & Normalization"
 location: "L92"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Data_Coercion_Utilities
+  - community/Dataset_Import_Parsing__Normalization
 ---
 
 # HeaderPlan
@@ -16,4 +16,4 @@ tags:
 - [[columnMap.ts]] - `contains` [EXTRACTED]
 - [[excel.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Data_Coercion_Utilities
+#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Parsing__Normalization

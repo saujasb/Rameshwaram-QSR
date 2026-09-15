@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/maintenance/MaintenancePage.tsx"
 type: "code"
-community: "Maintenance Tracking"
+community: "Maintenance Module"
 location: "L61"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Maintenance_Tracking
+  - community/Maintenance_Module
 ---
 
 # MaintenancePage()
@@ -15,4 +15,4 @@ tags:
 - [[MaintenancePage.tsx]] - `contains` [EXTRACTED]
 - [[routes.tsx]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Maintenance_Tracking
+#graphify/code #graphify/EXTRACTED #community/Maintenance_Module

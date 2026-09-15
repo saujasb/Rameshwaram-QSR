@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/db.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L147"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L12"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # getBusinessDayStartHour()
@@ -24,4 +24,4 @@ tags:
 - [[resolveBusinessDate()]] - `calls` [EXTRACTED]
 - [[runImport()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

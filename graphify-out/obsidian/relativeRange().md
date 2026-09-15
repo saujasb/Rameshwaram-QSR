@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/ramesh/intents.ts"
 type: "code"
-community: "Query Intent Classification"
+community: "Business Date & Settings"
 location: "L210"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Query_Intent_Classification
+  - community/Business_Date__Settings
 ---
 
 # relativeRange()
@@ -18,4 +18,4 @@ tags:
 - [[shiftDateKey()]] - `calls` [EXTRACTED]
 - [[weekStart()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Query_Intent_Classification
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

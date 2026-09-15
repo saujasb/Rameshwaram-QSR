@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/businessDate.ts"
 type: "code"
-community: "Business Day & Sales Trend Charts"
+community: "Business Date & Settings"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # businessDate.ts
@@ -47,10 +47,10 @@ tags:
 - [[isDateKey()]] - `contains` [EXTRACTED]
 - [[isWithinBusinessDay()]] - `contains` [EXTRACTED]
 - [[normalize.ts]] - `imports_from` [EXTRACTED]
-- [[pad2()]] - `contains` [EXTRACTED]
+- [[pad2()_1]] - `contains` [EXTRACTED]
 - [[reconciliation.ts]] - `imports_from` [EXTRACTED]
 - [[salesimportPipeline.ts]] - `imports_from` [EXTRACTED]
 - [[shiftDateKey()]] - `contains` [EXTRACTED]
 - [[toDateKey()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

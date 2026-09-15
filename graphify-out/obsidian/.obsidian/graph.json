@@ -1,332 +1,311 @@
 {
   "colorGroups": [
     {
-      "query": "tag:#community/Sales_Analytics_Core",
+      "query": "tag:#community/Datasets__Intelligence_Analytics_Postgres",
       "color": {
         "a": 1,
         "rgb": 5142951
       }
     },
     {
-      "query": "tag:#community/Provider_Orders__Live_Feed",
+      "query": "tag:#community/Sales_Import_Pipeline_Parsers__UI",
       "color": {
         "a": 1,
         "rgb": 15896107
       }
     },
     {
-      "query": "tag:#community/Database_Client__Seeding",
+      "query": "tag:#community/Provider_Orders_Integration_GoSelfServe/PetPooja",
       "color": {
         "a": 1,
         "rgb": 14767961
       }
     },
     {
-      "query": "tag:#community/Data_Coercion_Utilities",
+      "query": "tag:#community/Analytics_Charts__Dashboard_KPIs",
       "color": {
         "a": 1,
         "rgb": 7780274
       }
     },
     {
-      "query": "tag:#community/Generic_CRUD_Module_Framework",
+      "query": "tag:#community/Dataset_Import_Parsing__Normalization",
       "color": {
         "a": 1,
         "rgb": 5873999
       }
     },
     {
-      "query": "tag:#community/PDF/Format_Import_Adapters",
+      "query": "tag:#community/Ramesh_AI_Assistant_Engine",
       "color": {
         "a": 1,
         "rgb": 15583560
       }
     },
     {
-      "query": "tag:#community/Import_Center_Hooks",
+      "query": "tag:#community/Client__Server_Dev_Dependencies",
       "color": {
         "a": 1,
         "rgb": 11565729
       }
     },
     {
-      "query": "tag:#community/Business_Intelligence__Anomalies",
+      "query": "tag:#community/Order_Channel_Pages_Delivery/Kitchen/Front_Counter",
       "color": {
         "a": 1,
         "rgb": 16752039
       }
     },
     {
-      "query": "tag:#community/Sales_Data_Hooks",
+      "query": "tag:#community/Business_Date__Settings",
       "color": {
         "a": 1,
         "rgb": 10253663
       }
     },
     {
-      "query": "tag:#community/KPI_Scorecard__Analytics_Charts",
+      "query": "tag:#community/Intelligence_Dashboard_UI",
       "color": {
         "a": 1,
         "rgb": 12234924
       }
     },
     {
-      "query": "tag:#community/Dataset_Schema__Migrations",
+      "query": "tag:#community/Import_Center_Page",
       "color": {
         "a": 1,
         "rgb": 5142951
       }
     },
     {
-      "query": "tag:#community/App_Shell__Navigation",
+      "query": "tag:#community/Shared_Entity_Enums__Wastage",
       "color": {
         "a": 1,
         "rgb": 15896107
       }
     },
     {
-      "query": "tag:#community/Staff__Wastage_Tracking",
+      "query": "tag:#community/Generic_CRUD_UI_Components__Staff/Attendance",
       "color": {
         "a": 1,
         "rgb": 14767961
       }
     },
     {
-      "query": "tag:#community/Business_Day__Sales_Trend_Charts",
+      "query": "tag:#community/App_Shell_Global_Search__Client_API_Core",
       "color": {
         "a": 1,
         "rgb": 7780274
       }
     },
     {
-      "query": "tag:#community/Dataset_Import_Pipeline",
+      "query": "tag:#community/Client_TypeScript_Config",
       "color": {
         "a": 1,
         "rgb": 5873999
       }
     },
     {
-      "query": "tag:#community/Expense_Tracking",
+      "query": "tag:#community/Dataset_API_Hooks__Data_Explorer",
       "color": {
         "a": 1,
         "rgb": 15583560
       }
     },
     {
-      "query": "tag:#community/Query_Intent_Classification",
+      "query": "tag:#community/Inventory_Management_UI",
       "color": {
         "a": 1,
         "rgb": 11565729
       }
     },
     {
-      "query": "tag:#community/Sales_Database_Repository",
+      "query": "tag:#community/Task_Management_CRUD_Base_Record",
       "color": {
         "a": 1,
         "rgb": 16752039
       }
     },
     {
-      "query": "tag:#community/Shared_Table/Modal_UI",
+      "query": "tag:#community/Server_App_Entry__Misc_Routers",
       "color": {
         "a": 1,
         "rgb": 10253663
-      }
-    },
-    {
-      "query": "tag:#community/Client_TS_Config",
-      "color": {
-        "a": 1,
-        "rgb": 12234924
-      }
-    },
-    {
-      "query": "tag:#community/API_Client__Complaints",
-      "color": {
-        "a": 1,
-        "rgb": 5142951
-      }
-    },
-    {
-      "query": "tag:#community/Record_Form__Status_UI",
-      "color": {
-        "a": 1,
-        "rgb": 15896107
-      }
-    },
-    {
-      "query": "tag:#community/Datasets_API__Export",
-      "color": {
-        "a": 1,
-        "rgb": 14767961
-      }
-    },
-    {
-      "query": "tag:#community/Formatting_Utilities",
-      "color": {
-        "a": 1,
-        "rgb": 7780274
-      }
-    },
-    {
-      "query": "tag:#community/Chart_Components_Donut/HBar",
-      "color": {
-        "a": 1,
-        "rgb": 5873999
-      }
-    },
-    {
-      "query": "tag:#community/Server_TS_Config",
-      "color": {
-        "a": 1,
-        "rgb": 15583560
-      }
-    },
-    {
-      "query": "tag:#community/Server_Dependencies",
-      "color": {
-        "a": 1,
-        "rgb": 11565729
-      }
-    },
-    {
-      "query": "tag:#community/Top_Insights_Panel",
-      "color": {
-        "a": 1,
-        "rgb": 16752039
-      }
-    },
-    {
-      "query": "tag:#community/Server_Dev_Dependencies",
-      "color": {
-        "a": 1,
-        "rgb": 10253663
-      }
-    },
-    {
-      "query": "tag:#community/Client_Dev_Dependencies",
-      "color": {
-        "a": 1,
-        "rgb": 12234924
       }
     },
     {
       "query": "tag:#community/Action_Center",
       "color": {
         "a": 1,
+        "rgb": 12234924
+      }
+    },
+    {
+      "query": "tag:#community/Server_TypeScript_Config",
+      "color": {
+        "a": 1,
         "rgb": 5142951
       }
     },
     {
-      "query": "tag:#community/Root_Package_Scripts",
+      "query": "tag:#community/Action_Center_Purchases__Tasks_Routers",
       "color": {
         "a": 1,
         "rgb": 15896107
       }
     },
     {
-      "query": "tag:#community/Deployment__Integration_Docs",
+      "query": "tag:#community/Repository_Base_Attendance/Expenses/Staff_Routers",
       "color": {
         "a": 1,
         "rgb": 14767961
       }
     },
     {
-      "query": "tag:#community/Server_Package_Manifest",
+      "query": "tag:#community/Client_Bootstrap__Core_Dependencies_React/Router/Query",
       "color": {
         "a": 1,
         "rgb": 7780274
       }
     },
     {
-      "query": "tag:#community/Client_Runtime_Dependencies",
+      "query": "tag:#community/Todays_Intelligence_Panel",
       "color": {
         "a": 1,
         "rgb": 5873999
       }
     },
     {
-      "query": "tag:#community/Client_Package_Manifest",
+      "query": "tag:#community/Root_Workspace_Package_Config",
       "color": {
         "a": 1,
         "rgb": 15583560
       }
     },
     {
-      "query": "tag:#community/CRUD_Hook/Repository_Pattern",
+      "query": "tag:#community/Server_npm_Dependencies_Express/DB/File_libs",
       "color": {
         "a": 1,
         "rgb": 11565729
       }
     },
     {
-      "query": "tag:#community/Maintenance_Tracking",
+      "query": "tag:#community/DB_Seeding__Wastage/Inventory_Repositories",
       "color": {
         "a": 1,
         "rgb": 16752039
       }
     },
     {
-      "query": "tag:#community/Purchases_Tracking",
+      "query": "tag:#community/Generic_CRUD_Router__Inventory_Movement_Routes",
       "color": {
         "a": 1,
         "rgb": 10253663
       }
     },
     {
-      "query": "tag:#community/Suppliers_Tracking",
+      "query": "tag:#community/Expenses_Module",
       "color": {
         "a": 1,
         "rgb": 12234924
       }
     },
     {
-      "query": "tag:#community/Import_Result_Types",
+      "query": "tag:#community/File_Uploads__Vercel_Functions",
       "color": {
         "a": 1,
         "rgb": 5142951
       }
     },
     {
-      "query": "tag:#community/Vite_Env_Types",
+      "query": "tag:#community/Vercel_Deployment_Config__Entry_Point",
       "color": {
         "a": 1,
         "rgb": 15896107
       }
     },
     {
-      "query": "tag:#community/Brand_Identity",
+      "query": "tag:#community/Complaints_Module",
       "color": {
         "a": 1,
         "rgb": 14767961
       }
     },
     {
-      "query": "tag:#community/Logo_Motif_Concepts",
+      "query": "tag:#community/Maintenance_Module",
       "color": {
         "a": 1,
         "rgb": 7780274
       }
     },
     {
-      "query": "tag:#community/Brand_Assets",
+      "query": "tag:#community/Purchases_Module",
       "color": {
         "a": 1,
         "rgb": 5873999
       }
     },
     {
-      "query": "tag:#community/Vite_Config",
+      "query": "tag:#community/Suppliers_Module",
       "color": {
         "a": 1,
         "rgb": 15583560
       }
     },
     {
-      "query": "tag:#community/React_isolated",
+      "query": "tag:#community/Generic_Repository_Base_Class",
       "color": {
         "a": 1,
         "rgb": 11565729
+      }
+    },
+    {
+      "query": "tag:#community/Complaints_Repository__Routes",
+      "color": {
+        "a": 1,
+        "rgb": 16752039
+      }
+    },
+    {
+      "query": "tag:#community/Suppliers_Repository__Routes",
+      "color": {
+        "a": 1,
+        "rgb": 10253663
+      }
+    },
+    {
+      "query": "tag:#community/Client_Vite_Env_Types",
+      "color": {
+        "a": 1,
+        "rgb": 12234924
+      }
+    },
+    {
+      "query": "tag:#community/HTML_Entrypoint",
+      "color": {
+        "a": 1,
+        "rgb": 5142951
+      }
+    },
+    {
+      "query": "tag:#community/Brand_Lockup_Image",
+      "color": {
+        "a": 1,
+        "rgb": 15896107
+      }
+    },
+    {
+      "query": "tag:#community/Emblem_Image",
+      "color": {
+        "a": 1,
+        "rgb": 14767961
+      }
+    },
+    {
+      "query": "tag:#community/Favicon_Image",
+      "color": {
+        "a": 1,
+        "rgb": 7780274
       }
     }
   ]

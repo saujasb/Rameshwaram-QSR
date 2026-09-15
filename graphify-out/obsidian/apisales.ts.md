@@ -1,17 +1,18 @@
 ---
 source_file: "client/src/lib/api/sales.ts"
 type: "code"
-community: "Sales Data Hooks"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # api/sales.ts
 
 ## Connections
+- [[@tanstackreact-query_1]] - `imports` [EXTRACTED]
 - [[DashboardPage.tsx]] - `imports_from` [EXTRACTED]
 - [[ImportError]] - `contains` [EXTRACTED]
 - [[SalesAnalyticsPage.tsx]] - `imports_from` [EXTRACTED]
@@ -26,12 +27,13 @@ tags:
 - [[apiPut()]] - `imports` [EXTRACTED]
 - [[shared-typessales.ts]] - `imports_from` [EXTRACTED]
 - [[summaryKey()]] - `contains` [EXTRACTED]
-- [[useDeleteImportBatch()_1]] - `contains` [EXTRACTED]
-- [[useImportBatches()_1]] - `contains` [EXTRACTED]
+- [[uploadViaStorage()]] - `contains` [EXTRACTED]
+- [[useDeleteImportBatch()]] - `contains` [EXTRACTED]
+- [[useImportBatches()]] - `contains` [EXTRACTED]
 - [[useImportSalesPdf()]] - `contains` [EXTRACTED]
 - [[useLatestImportBatch()_1]] - `contains` [EXTRACTED]
 - [[useSalesSummary()]] - `contains` [EXTRACTED]
 - [[useSalesTarget()]] - `contains` [EXTRACTED]
 - [[useSetSalesTarget()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

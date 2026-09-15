@@ -1,18 +1,17 @@
 ---
-source_file: "client/src/modules/tasks/taskFields.ts"
+source_file: "client/src/modules/live-orders/LiveOrdersPage.tsx"
 type: "code"
-community: "Record Form & Status UI"
-location: "L17"
+community: "Provider Orders Integration (GoSelfServe/PetPooja)"
+location: "L65"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Record_Form__Status_UI
+  - community/Provider_Orders_Integration_GoSelfServe/PetPooja
 ---
 
 # STATUS_OPTIONS
 
 ## Connections
-- [[TasksPage.tsx]] - `imports` [EXTRACTED]
-- [[taskFields.ts]] - `contains` [EXTRACTED]
+- [[LiveOrdersPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Record_Form__Status_UI
+#graphify/code #graphify/EXTRACTED #community/Provider_Orders_Integration_GoSelfServe/PetPooja

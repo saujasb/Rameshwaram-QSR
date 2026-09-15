@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/wastage/repository.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "DB Seeding & Wastage/Inventory Repositories"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/DB_Seeding__Wastage/Inventory_Repositories
 ---
 
 # wastage/repository.ts
@@ -21,4 +21,4 @@ tags:
 - [[wastageroutes.ts]] - `imports_from` [EXTRACTED]
 - [[wastageRepository]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/DB_Seeding__Wastage/Inventory_Repositories

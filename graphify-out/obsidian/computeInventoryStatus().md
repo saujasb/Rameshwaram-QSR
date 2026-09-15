@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/inventoryStatus.ts"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # computeInventoryStatus()
@@ -18,8 +18,7 @@ tags:
 - [[InventoryDetailModal.tsx]] - `imports` [EXTRACTED]
 - [[InventoryPage()]] - `calls` [EXTRACTED]
 - [[InventoryPage.tsx]] - `imports` [EXTRACTED]
-- [[buildActionCenter()]] - `calls` [EXTRACTED]
 - [[inventoryStatus.ts]] - `contains` [EXTRACTED]
 - [[sharedactionCenter.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

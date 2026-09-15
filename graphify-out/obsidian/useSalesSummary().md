@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/sales.ts"
 type: "code"
-community: "Formatting Utilities"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L11"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Formatting_Utilities
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # useSalesSummary()
@@ -20,4 +20,4 @@ tags:
 - [[apiGet()]] - `calls` [EXTRACTED]
 - [[summaryKey()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Formatting_Utilities
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

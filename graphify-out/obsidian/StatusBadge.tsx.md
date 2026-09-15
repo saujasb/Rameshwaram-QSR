@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/StatusBadge.tsx"
 type: "code"
-community: "Record Form & Status UI"
+community: "Inventory Management UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Record_Form__Status_UI
+  - community/Inventory_Management_UI
 ---
 
 # StatusBadge.tsx
@@ -32,4 +32,4 @@ tags:
 - [[VegIndentPage.tsx]] - `imports_from` [EXTRACTED]
 - [[inventoryStatusUi.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Record_Form__Status_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

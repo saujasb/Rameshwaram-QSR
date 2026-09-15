@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/sales.ts"
 type: "code"
-community: "Sales Data Hooks"
-location: "L72"
+community: "Analytics Charts & Dashboard KPIs"
+location: "L105"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # useSetSalesTarget()
@@ -17,4 +17,4 @@ tags:
 - [[apiPut()]] - `calls` [EXTRACTED]
 - [[useSalesTargetWithEditor()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

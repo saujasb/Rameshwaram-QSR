@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/intelligence.ts"
 type: "code"
-community: "Top Insights Panel"
+community: "Intelligence Dashboard UI"
 location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Top_Insights_Panel
+  - community/Intelligence_Dashboard_UI
 ---
 
 # useTopInsights()
@@ -16,6 +16,6 @@ tags:
 - [[TopInsightsPanel.tsx]] - `imports` [EXTRACTED]
 - [[apiintelligence.ts]] - `contains` [EXTRACTED]
 - [[apiGet()]] - `calls` [EXTRACTED]
-- [[filterToParams()_1]] - `calls` [EXTRACTED]
+- [[filterToParams()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Top_Insights_Panel
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

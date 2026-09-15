@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/NotConnectedBanner.tsx"
 type: "code"
-community: "Generic CRUD Module Framework"
+community: "Order Channel Pages (Delivery/Kitchen/Front Counter)"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Generic_CRUD_Module_Framework
+  - community/Order_Channel_Pages_Delivery/Kitchen/Front_Counter
 ---
 
 # NotConnectedBanner.tsx
@@ -17,5 +17,6 @@ tags:
 - [[KitchenPage.tsx]] - `imports_from` [EXTRACTED]
 - [[NotConnectedBanner()]] - `contains` [EXTRACTED]
 - [[OrdersPage.tsx]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Module_Framework
+#graphify/code #graphify/EXTRACTED #community/Order_Channel_Pages_Delivery/Kitchen/Front_Counter

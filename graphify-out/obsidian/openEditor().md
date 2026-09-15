@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/dashboard/SalesTargetEditor.tsx"
 type: "code"
-community: "Sales Data Hooks"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L12"
 tags:
   - graphify/code
   - graphify/INFERRED
-  - community/Sales_Data_Hooks
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # openEditor()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[useSalesTargetWithEditor()]] - `indirect_call` [INFERRED]
 
-#graphify/code #graphify/INFERRED #community/Sales_Data_Hooks
+#graphify/code #graphify/INFERRED #community/Analytics_Charts__Dashboard_KPIs

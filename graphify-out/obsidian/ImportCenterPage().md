@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/import/ImportCenterPage.tsx"
 type: "code"
-community: "Import Center Hooks"
+community: "Import Center Page"
 location: "L436"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Center_Hooks
+  - community/Import_Center_Page
 ---
 
 # ImportCenterPage()
@@ -18,13 +18,13 @@ tags:
 - [[fileKindLabel()]] - `calls` [EXTRACTED]
 - [[fmtBytes()]] - `calls` [EXTRACTED]
 - [[getCurrentBusinessDate()]] - `calls` [EXTRACTED]
-- [[handleDrop()]] - `contains` [EXTRACTED]
+- [[handleDrop()_1]] - `contains` [EXTRACTED]
 - [[handleKeyDown()]] - `contains` [EXTRACTED]
 - [[handleSubmit()_1]] - `contains` [EXTRACTED]
 - [[importAnyway()]] - `contains` [EXTRACTED]
 - [[openPicker()]] - `contains` [EXTRACTED]
 - [[routes.tsx]] - `imports` [EXTRACTED]
 - [[useImportFiles()]] - `calls` [EXTRACTED]
-- [[useStagedProgress()]] - `calls` [EXTRACTED]
+- [[useStagedProgress()_1]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Center_Hooks
+#graphify/code #graphify/EXTRACTED #community/Import_Center_Page

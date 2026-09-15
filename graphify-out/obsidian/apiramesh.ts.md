@@ -1,17 +1,18 @@
 ---
 source_file: "client/src/lib/api/ramesh.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Ramesh AI Assistant Engine"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # api/ramesh.ts
 
 ## Connections
+- [[@tanstackreact-query_1]] - `imports` [EXTRACTED]
 - [[RameshAnswer]] - `imports` [EXTRACTED]
 - [[RameshQuery]] - `imports` [EXTRACTED]
 - [[RameshWidget.tsx]] - `imports_from` [EXTRACTED]
@@ -22,4 +23,4 @@ tags:
 - [[useAskRamesh()]] - `contains` [EXTRACTED]
 - [[useRameshSuggestions()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

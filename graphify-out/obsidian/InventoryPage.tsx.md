@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/inventory/InventoryPage.tsx"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # InventoryPage.tsx
@@ -37,9 +37,11 @@ tags:
 - [[inventoryHooks]] - `imports` [EXTRACTED]
 - [[inventoryStatus.ts]] - `imports_from` [EXTRACTED]
 - [[inventoryStatusUi.ts]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
+- [[react-router-dom_1]] - `imports` [EXTRACTED]
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[supplierHooks]] - `imports` [EXTRACTED]
 - [[suppliers.ts]] - `imports_from` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

@@ -1,14 +1,18 @@
 ---
 source_file: "client/vite.config.ts"
 type: "code"
-community: "Vite Config"
+community: "Client & Server Dev Dependencies"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Vite_Config
+  - community/Client__Server_Dev_Dependencies
 ---
 
 # vite.config.ts
 
-#graphify/code #graphify/EXTRACTED #community/Vite_Config
+## Connections
+- [[@vitejsplugin-react_1]] - `imports` [EXTRACTED]
+- [[vite_1]] - `imports` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/Client__Server_Dev_Dependencies

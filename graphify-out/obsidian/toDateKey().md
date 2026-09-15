@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/businessDate.ts"
 type: "code"
-community: "Business Day & Sales Trend Charts"
+community: "Business Date & Settings"
 location: "L22"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # toDateKey()
@@ -20,7 +20,7 @@ tags:
 - [[coerceDateKey()]] - `calls` [EXTRACTED]
 - [[coerceTimestamp()]] - `calls` [EXTRACTED]
 - [[getBusinessDate()]] - `calls` [EXTRACTED]
-- [[pad2()]] - `calls` [EXTRACTED]
+- [[pad2()_1]] - `calls` [EXTRACTED]
 - [[shiftDateKey()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/ramesh.ts"
 type: "code"
-community: "App Shell & Navigation"
+community: "Ramesh AI Assistant Engine"
 location: "L119"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/App_Shell__Navigation
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # RameshMessage
@@ -15,4 +15,4 @@ tags:
 - [[RameshWidget.tsx]] - `imports` [EXTRACTED]
 - [[shared-typesramesh.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/App_Shell__Navigation
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

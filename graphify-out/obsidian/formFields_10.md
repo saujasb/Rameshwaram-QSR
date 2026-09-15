@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/orders/OrdersPage.tsx"
 type: "code"
-community: "Generic CRUD Module Framework"
+community: "Order Channel Pages (Delivery/Kitchen/Front Counter)"
 location: "L26"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Generic_CRUD_Module_Framework
+  - community/Order_Channel_Pages_Delivery/Kitchen/Front_Counter
 ---
 
 # formFields
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[OrdersPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Module_Framework
+#graphify/code #graphify/EXTRACTED #community/Order_Channel_Pages_Delivery/Kitchen/Front_Counter

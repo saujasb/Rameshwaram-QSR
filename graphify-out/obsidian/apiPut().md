@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/client.ts"
 type: "code"
-community: "API Client & Complaints"
-location: "L26"
+community: "Dataset API Hooks & Data Explorer"
+location: "L28"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/API_Client__Complaints
+  - community/Dataset_API_Hooks__Data_Explorer
 ---
 
 # apiPut()
@@ -21,4 +21,4 @@ tags:
 - [[useSetSalesTarget()]] - `calls` [EXTRACTED]
 - [[useUpdate()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/API_Client__Complaints
+#graphify/code #graphify/EXTRACTED #community/Dataset_API_Hooks__Data_Explorer

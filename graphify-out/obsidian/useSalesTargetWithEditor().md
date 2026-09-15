@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/dashboard/SalesTargetEditor.tsx"
 type: "code"
-community: "Sales Data Hooks"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # useSalesTargetWithEditor()
@@ -22,4 +22,4 @@ tags:
 - [[useSalesTarget()]] - `calls` [EXTRACTED]
 - [[useSetSalesTarget()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

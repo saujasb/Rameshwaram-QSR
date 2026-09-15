@@ -1,18 +1,16 @@
 ---
-source_file: "client/package.json"
+source_file: "react"
 type: "code"
-community: "Client Runtime Dependencies"
-location: "L12"
+community: "Generic CRUD UI Components & Staff/Attendance"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Client_Runtime_Dependencies
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # react
 
 ## Connections
-- [[dependencies_1]] - `contains` [EXTRACTED]
-- [[react_1]] - `imports` [EXTRACTED]
+- [[react_1]] - `references` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Client_Runtime_Dependencies
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

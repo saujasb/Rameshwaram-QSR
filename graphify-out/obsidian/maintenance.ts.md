@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/maintenance.ts"
 type: "code"
-community: "Maintenance Tracking"
+community: "Maintenance Module"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Maintenance_Tracking
+  - community/Maintenance_Module
 ---
 
 # maintenance.ts
@@ -20,4 +20,4 @@ tags:
 - [[entities.ts]] - `imports_from` [EXTRACTED]
 - [[maintenanceHooks]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Maintenance_Tracking
+#graphify/code #graphify/EXTRACTED #community/Maintenance_Module

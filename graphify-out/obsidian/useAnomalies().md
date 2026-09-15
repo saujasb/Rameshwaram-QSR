@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/intelligence.ts"
 type: "code"
-community: "Business Intelligence & Anomalies"
+community: "Intelligence Dashboard UI"
 location: "L22"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Intelligence__Anomalies
+  - community/Intelligence_Dashboard_UI
 ---
 
 # useAnomalies()
@@ -16,6 +16,6 @@ tags:
 - [[IntelligencePage.tsx]] - `imports` [EXTRACTED]
 - [[apiintelligence.ts]] - `contains` [EXTRACTED]
 - [[apiGet()]] - `calls` [EXTRACTED]
-- [[filterToParams()_1]] - `calls` [EXTRACTED]
+- [[filterToParams()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Intelligence__Anomalies
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

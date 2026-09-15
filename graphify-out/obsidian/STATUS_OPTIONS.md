@@ -1,17 +1,18 @@
 ---
-source_file: "client/src/modules/live-orders/LiveOrdersPage.tsx"
+source_file: "client/src/modules/tasks/taskFields.ts"
 type: "code"
-community: "Provider Orders & Live Feed"
-location: "L65"
+community: "Task Management (CRUD Base Record)"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Provider_Orders__Live_Feed
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # STATUS_OPTIONS
 
 ## Connections
-- [[LiveOrdersPage.tsx]] - `contains` [EXTRACTED]
+- [[TasksPage.tsx]] - `imports` [EXTRACTED]
+- [[taskFields.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Provider_Orders__Live_Feed
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

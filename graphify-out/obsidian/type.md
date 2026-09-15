@@ -1,17 +1,17 @@
 ---
-source_file: "server/package.json"
+source_file: "package.json"
 type: "code"
-community: "Server Package Manifest"
+community: "Root Workspace Package Config"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Server_Package_Manifest
+  - community/Root_Workspace_Package_Config
 ---
 
 # type
 
 ## Connections
-- [[serverpackage.json]] - `contains` [EXTRACTED]
+- [[package.json]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Server_Package_Manifest
+#graphify/code #graphify/EXTRACTED #community/Root_Workspace_Package_Config

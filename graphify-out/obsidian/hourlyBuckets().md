@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/repository.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L373"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L342"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # hourlyBuckets()
@@ -19,11 +19,10 @@ tags:
 - [[datasetsrepository.ts]] - `contains` [EXTRACTED]
 - [[datasetsroutes.ts]] - `imports` [EXTRACTED]
 - [[engine.ts]] - `imports` [EXTRACTED]
-- [[formatHourBucket()]] - `calls` [EXTRACTED]
 - [[getBusinessDayStartHour()]] - `calls` [EXTRACTED]
 - [[insights.ts]] - `imports` [EXTRACTED]
 - [[intelligenceroutes.ts]] - `imports` [EXTRACTED]
 - [[peakHourInsight()]] - `calls` [EXTRACTED]
 - [[rootCause()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

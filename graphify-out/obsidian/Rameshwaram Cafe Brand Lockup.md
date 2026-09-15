@@ -1,11 +1,11 @@
 ---
 source_file: "client/public/branding/brand-lockup.png"
 type: "image"
-community: "Brand Identity"
+community: "Brand Lockup Image"
 tags:
   - graphify/image
   - graphify/INFERRED
-  - community/Brand_Identity
+  - community/Brand_Lockup_Image
 ---
 
 # Rameshwaram Cafe Brand Lockup
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[The Rameshwaram Cafe Brand Identity]] - `rationale_for` [INFERRED]
 
-#graphify/image #graphify/INFERRED #community/Brand_Identity
+#graphify/image #graphify/INFERRED #community/Brand_Lockup_Image

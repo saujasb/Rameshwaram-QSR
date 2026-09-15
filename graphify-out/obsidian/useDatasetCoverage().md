@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/datasets.ts"
 type: "code"
-community: "Top Insights Panel"
+community: "Business Date & Settings"
 location: "L54"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Top_Insights_Panel
+  - community/Business_Date__Settings
 ---
 
 # useDatasetCoverage()
@@ -19,4 +19,4 @@ tags:
 - [[apidatasets.ts]] - `contains` [EXTRACTED]
 - [[apiGet()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Top_Insights_Panel
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

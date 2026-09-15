@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/live-orders/LiveOrdersPage.tsx"
 type: "code"
-community: "Provider Orders & Live Feed"
+community: "Provider Orders Integration (GoSelfServe/PetPooja)"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Provider_Orders__Live_Feed
+  - community/Provider_Orders_Integration_GoSelfServe/PetPooja
 ---
 
 # LiveOrdersPage.tsx
@@ -23,17 +23,18 @@ tags:
 - [[ProviderOrderDetailModal.tsx]] - `imports_from` [EXTRACTED]
 - [[ProviderOrderFilter]] - `imports` [EXTRACTED]
 - [[SOURCE_OPTIONS]] - `contains` [EXTRACTED]
-- [[STATUS_OPTIONS]] - `contains` [EXTRACTED]
+- [[STATUS_OPTIONS_1]] - `contains` [EXTRACTED]
 - [[StatusBadge()]] - `imports` [EXTRACTED]
 - [[StatusBadge.tsx]] - `imports_from` [EXTRACTED]
 - [[TYPE_OPTIONS]] - `contains` [EXTRACTED]
 - [[apiproviderOrders.ts]] - `imports_from` [EXTRACTED]
-- [[columns]] - `contains` [EXTRACTED]
+- [[columns_2]] - `contains` [EXTRACTED]
 - [[itemsSummary()]] - `indirect_call` [INFERRED]
 - [[money()_3]] - `contains` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[shared-typesproviderOrders.ts]] - `imports_from` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 - [[useProviderOrders()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Provider_Orders__Live_Feed
+#graphify/code #graphify/EXTRACTED #community/Provider_Orders_Integration_GoSelfServe/PetPooja

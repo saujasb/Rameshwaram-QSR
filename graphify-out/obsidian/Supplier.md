@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "Suppliers Tracking"
+community: "Suppliers Module"
 location: "L94"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Suppliers_Tracking
+  - community/Suppliers_Module
 ---
 
 # Supplier
@@ -18,4 +18,4 @@ tags:
 - [[suppliers.ts]] - `imports` [EXTRACTED]
 - [[suppliersrepository.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Suppliers_Tracking
+#graphify/code #graphify/EXTRACTED #community/Suppliers_Module

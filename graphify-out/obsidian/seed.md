@@ -1,12 +1,12 @@
 ---
 source_file: "package.json"
 type: "code"
-community: "Root Package Scripts"
-location: "L10"
+community: "Root Workspace Package Config"
+location: "L11"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Root_Package_Scripts
+  - community/Root_Workspace_Package_Config
 ---
 
 # seed
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[scripts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Root_Package_Scripts
+#graphify/code #graphify/EXTRACTED #community/Root_Workspace_Package_Config

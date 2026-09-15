@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/datasets.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Intelligence Dashboard UI"
 location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Intelligence_Dashboard_UI
 ---
 
 # DATASET_LABELS
@@ -23,4 +23,4 @@ tags:
 - [[reconciliation.ts]] - `imports` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

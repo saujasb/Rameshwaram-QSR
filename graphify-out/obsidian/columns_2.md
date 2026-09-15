@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/modules/wastage/WastagePage.tsx"
+source_file: "client/src/modules/live-orders/LiveOrdersPage.tsx"
 type: "code"
-community: "Staff & Wastage Tracking"
-location: "L7"
+community: "Provider Orders Integration (GoSelfServe/PetPooja)"
+location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Provider_Orders_Integration_GoSelfServe/PetPooja
 ---
 
 # columns
 
 ## Connections
-- [[WastagePage.tsx]] - `contains` [EXTRACTED]
+- [[LiveOrdersPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Provider_Orders_Integration_GoSelfServe/PetPooja

@@ -1,18 +1,17 @@
 ---
-source_file: "client/src/modules/tasks/taskFields.ts"
+source_file: "client/src/modules/expenses/ExpensesPage.tsx"
 type: "code"
-community: "Record Form & Status UI"
-location: "L3"
+community: "Expenses Module"
+location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Record_Form__Status_UI
+  - community/Expenses_Module
 ---
 
 # CATEGORY_OPTIONS
 
 ## Connections
-- [[TasksPage.tsx]] - `imports` [EXTRACTED]
-- [[taskFields.ts]] - `contains` [EXTRACTED]
+- [[ExpensesPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Record_Form__Status_UI
+#graphify/code #graphify/EXTRACTED #community/Expenses_Module

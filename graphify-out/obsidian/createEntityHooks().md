@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/createEntityHooks.ts"
 type: "code"
-community: "API Client & Complaints"
+community: "Task Management (CRUD Base Record)"
 location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/API_Client__Complaints
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # createEntityHooks()
@@ -30,4 +30,4 @@ tags:
 - [[useUpdate()]] - `indirect_call` [INFERRED]
 - [[wastage.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/API_Client__Complaints
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

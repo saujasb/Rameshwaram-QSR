@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L169"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # AttendanceRecord
@@ -18,4 +18,4 @@ tags:
 - [[entities.ts]] - `contains` [EXTRACTED]
 - [[staff.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

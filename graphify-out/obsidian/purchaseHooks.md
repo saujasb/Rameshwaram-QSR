@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/purchases.ts"
 type: "code"
-community: "Purchases Tracking"
+community: "Purchases Module"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Purchases_Tracking
+  - community/Purchases_Module
 ---
 
 # purchaseHooks
@@ -16,4 +16,4 @@ tags:
 - [[PurchasesPage.tsx]] - `imports` [EXTRACTED]
 - [[purchases.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Purchases_Tracking
+#graphify/code #graphify/EXTRACTED #community/Purchases_Module

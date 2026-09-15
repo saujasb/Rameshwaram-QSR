@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/crud/types.ts"
 type: "code"
-community: "Generic CRUD Module Framework"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Generic_CRUD_Module_Framework
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # ColumnConfig
@@ -31,4 +31,4 @@ tags:
 - [[WastagePage.tsx]] - `imports` [EXTRACTED]
 - [[types.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Module_Framework
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

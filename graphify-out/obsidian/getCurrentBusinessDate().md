@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/businessDate.ts"
 type: "code"
-community: "Formatting Utilities"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L48"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Formatting_Utilities
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # getCurrentBusinessDate()
@@ -29,7 +29,6 @@ tags:
 - [[getBusinessDate()]] - `calls` [EXTRACTED]
 - [[intelligenceroutes.ts]] - `imports` [EXTRACTED]
 - [[intents.ts]] - `imports` [EXTRACTED]
-- [[resolveBusinessDate()]] - `calls` [EXTRACTED]
 - [[useLiveBusinessDate()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Formatting_Utilities
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

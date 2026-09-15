@@ -1,18 +1,18 @@
 ---
 source_file: "server/src/shared/actionCenter.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Action Center, Purchases & Tasks Routers"
 location: "L166"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Action_Center_Purchases__Tasks_Routers
 ---
 
 # actionCenterRouter
 
 ## Connections
-- [[index.ts]] - `imports` [EXTRACTED]
+- [[app.ts]] - `imports` [EXTRACTED]
 - [[sharedactionCenter.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Action_Center_Purchases__Tasks_Routers

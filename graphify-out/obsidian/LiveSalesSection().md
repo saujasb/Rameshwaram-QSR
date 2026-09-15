@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/sales-analytics/SalesAnalyticsPage.tsx"
 type: "code"
-community: "Formatting Utilities"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L43"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Formatting_Utilities
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # LiveSalesSection()
@@ -20,4 +20,4 @@ tags:
 - [[useSalesSummary()]] - `calls` [EXTRACTED]
 - [[useSalesTargetWithEditor()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Formatting_Utilities
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

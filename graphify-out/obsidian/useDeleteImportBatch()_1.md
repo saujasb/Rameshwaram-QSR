@@ -1,20 +1,20 @@
 ---
-source_file: "client/src/lib/api/sales.ts"
+source_file: "client/src/lib/api/datasets.ts"
 type: "code"
-community: "Sales Data Hooks"
-location: "L80"
+community: "Dataset API Hooks & Data Explorer"
+location: "L169"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/Dataset_API_Hooks__Data_Explorer
 ---
 
 # useDeleteImportBatch()
 
 ## Connections
-- [[SalesImportPage()]] - `calls` [EXTRACTED]
-- [[SalesImportPage.tsx]] - `imports` [EXTRACTED]
-- [[apisales.ts]] - `contains` [EXTRACTED]
-- [[apiDelete()]] - `calls` [EXTRACTED]
+- [[ImportCenterPage.tsx]] - `imports` [EXTRACTED]
+- [[ImportHistory()]] - `calls` [EXTRACTED]
+- [[apidatasets.ts]] - `contains` [EXTRACTED]
+- [[useInvalidateDataLayer()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/Dataset_API_Hooks__Data_Explorer

@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/inventoryStatus.ts"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # inventoryStatus.ts
@@ -21,4 +21,4 @@ tags:
 - [[entities.ts]] - `imports_from` [EXTRACTED]
 - [[sharedactionCenter.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/crud/types.ts"
 type: "code"
-community: "Generic CRUD Module Framework"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Generic_CRUD_Module_Framework
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # types.ts
@@ -35,4 +35,4 @@ tags:
 - [[WastagePage.tsx]] - `imports_from` [EXTRACTED]
 - [[taskFields.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Module_Framework
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

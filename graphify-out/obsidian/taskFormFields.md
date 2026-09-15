@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/tasks/taskFields.ts"
 type: "code"
-community: "Record Form & Status UI"
+community: "Task Management (CRUD Base Record)"
 location: "L40"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Record_Form__Status_UI
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # taskFormFields
@@ -16,4 +16,4 @@ tags:
 - [[TasksPage.tsx]] - `imports` [EXTRACTED]
 - [[taskFields.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Record_Form__Status_UI
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

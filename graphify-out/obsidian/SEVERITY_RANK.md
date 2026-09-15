@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/intelligence/anomalies.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L290"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L293"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # SEVERITY_RANK
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[anomalies.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

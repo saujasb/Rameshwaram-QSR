@@ -1,12 +1,12 @@
 ---
 source_file: "package.json"
 type: "concept"
-community: "Root Package Scripts"
-location: "L4"
+community: "Root Workspace Package Config"
+location: "L5"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Root_Package_Scripts
+  - community/Root_Workspace_Package_Config
 ---
 
 # client
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[workspaces]] - `extends` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Root_Package_Scripts
+#graphify/concept #graphify/EXTRACTED #community/Root_Workspace_Package_Config

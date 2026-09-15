@@ -1,12 +1,12 @@
 ---
 source_file: "client/tsconfig.json"
 type: "concept"
-community: "Client TS Config"
+community: "Client TypeScript Config"
 location: "L5"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Client_TS_Config
+  - community/Client_TypeScript_Config
 ---
 
 # DOM
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[lib]] - `extends` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Client_TS_Config
+#graphify/concept #graphify/EXTRACTED #community/Client_TypeScript_Config

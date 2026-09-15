@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/components/crud/RecordForm.tsx"
+source_file: "client/src/modules/sales-analytics/SalesImportPage.tsx"
 type: "code"
-community: "Record Form & Status UI"
-location: "L23"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L89"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Record_Form__Status_UI
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # handleSubmit()
 
 ## Connections
-- [[RecordForm()]] - `contains` [EXTRACTED]
+- [[SalesImportPage()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Record_Form__Status_UI
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/createEntityHooks.ts"
 type: "code"
-community: "API Client & Complaints"
+community: "Dataset API Hooks & Data Explorer"
 location: "L28"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/API_Client__Complaints
+  - community/Dataset_API_Hooks__Data_Explorer
 ---
 
 # useUpdate()
@@ -15,4 +15,4 @@ tags:
 - [[apiPut()]] - `calls` [EXTRACTED]
 - [[createEntityHooks()]] - `indirect_call` [INFERRED]
 
-#graphify/code #graphify/EXTRACTED #community/API_Client__Complaints
+#graphify/code #graphify/EXTRACTED #community/Dataset_API_Hooks__Data_Explorer

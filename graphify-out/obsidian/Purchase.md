@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "Purchases Tracking"
+community: "Purchases Module"
 location: "L103"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Purchases_Tracking
+  - community/Purchases_Module
 ---
 
 # Purchase
@@ -18,4 +18,4 @@ tags:
 - [[purchases.ts]] - `imports` [EXTRACTED]
 - [[purchasesrepository.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Purchases_Tracking
+#graphify/code #graphify/EXTRACTED #community/Purchases_Module

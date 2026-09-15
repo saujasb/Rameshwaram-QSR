@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/shared/repository.ts"
 type: "code"
-community: "CRUD Hook/Repository Pattern"
+community: "Generic Repository Base Class"
 location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/CRUD_Hook/Repository_Pattern
+  - community/Generic_Repository_Base_Class
 ---
 
 # .get()
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[Repository]] - `method` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/CRUD_Hook/Repository_Pattern
+#graphify/code #graphify/EXTRACTED #community/Generic_Repository_Base_Class

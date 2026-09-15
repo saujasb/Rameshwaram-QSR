@@ -1,18 +1,18 @@
 ---
-source_file: "client/src/modules/import/ImportCenterPage.tsx"
+source_file: "client/src/modules/sales-analytics/SalesImportPage.tsx"
 type: "code"
-community: "Import Center Hooks"
-location: "L29"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Center_Hooks
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # useStagedProgress()
 
 ## Connections
-- [[ImportCenterPage()]] - `calls` [EXTRACTED]
-- [[ImportCenterPage.tsx]] - `contains` [EXTRACTED]
+- [[SalesImportPage()]] - `calls` [EXTRACTED]
+- [[SalesImportPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Center_Hooks
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

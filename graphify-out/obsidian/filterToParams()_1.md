@@ -1,25 +1,18 @@
 ---
-source_file: "client/src/lib/api/datasets.ts"
+source_file: "client/src/lib/api/providerOrders.ts"
 type: "code"
-community: "Datasets API & Export"
-location: "L24"
+community: "Provider Orders Integration (GoSelfServe/PetPooja)"
+location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Datasets_API__Export
+  - community/Provider_Orders_Integration_GoSelfServe/PetPooja
 ---
 
 # filterToParams()
 
 ## Connections
-- [[apidatasets.ts]] - `contains` [EXTRACTED]
-- [[apiintelligence.ts]] - `imports` [EXTRACTED]
-- [[exportCsvUrl()]] - `calls` [EXTRACTED]
-- [[useAnomalies()]] - `calls` [EXTRACTED]
-- [[useDatasetRecords()]] - `calls` [EXTRACTED]
-- [[useDatasetSummary()]] - `calls` [EXTRACTED]
-- [[useProductPerformance()]] - `calls` [EXTRACTED]
-- [[useReconciliation()]] - `calls` [EXTRACTED]
-- [[useTopInsights()]] - `calls` [EXTRACTED]
+- [[apiproviderOrders.ts]] - `contains` [EXTRACTED]
+- [[useProviderOrders()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Datasets_API__Export
+#graphify/code #graphify/EXTRACTED #community/Provider_Orders_Integration_GoSelfServe/PetPooja

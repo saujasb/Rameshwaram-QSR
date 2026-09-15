@@ -1,12 +1,12 @@
 ---
 source_file: "client/tsconfig.json"
 type: "code"
-community: "Client TS Config"
+community: "Client TypeScript Config"
 location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Client_TS_Config
+  - community/Client_TypeScript_Config
 ---
 
 # include
@@ -16,4 +16,4 @@ tags:
 - [[clienttsconfig.json]] - `contains` [EXTRACTED]
 - [[src]] - `extends` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Client_TS_Config
+#graphify/code #graphify/EXTRACTED #community/Client_TypeScript_Config

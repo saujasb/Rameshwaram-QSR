@@ -1,18 +1,18 @@
 ---
 source_file: "server/src/entities/inventory/routes.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Generic CRUD Router & Inventory Movement Routes"
 location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Generic_CRUD_Router__Inventory_Movement_Routes
 ---
 
 # inventoryRouter
 
 ## Connections
-- [[index.ts]] - `imports` [EXTRACTED]
+- [[app.ts]] - `imports` [EXTRACTED]
 - [[inventoryroutes.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Router__Inventory_Movement_Routes

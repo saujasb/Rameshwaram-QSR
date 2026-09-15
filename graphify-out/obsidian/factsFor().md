@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/intelligence/reconciliation.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Datasets & Intelligence Analytics (Postgres)"
 location: "L71"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # factsFor()
@@ -16,4 +16,4 @@ tags:
 - [[reconciliation.ts]] - `contains` [EXTRACTED]
 - [[totalsFor()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

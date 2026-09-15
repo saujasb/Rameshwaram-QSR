@@ -1,11 +1,11 @@
 ---
 source_file: "client/public/branding/emblem.png"
 type: "concept"
-community: "Logo Motif Concepts"
+community: "Emblem Image"
 tags:
   - graphify/concept
   - graphify/INFERRED
-  - community/Logo_Motif_Concepts
+  - community/Emblem_Image
 ---
 
 # Temple Kolam / Celtic-Knot Floral Motif
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[Emblem (Kolam Mandala Logo)]] - `conceptually_related_to` [INFERRED]
 
-#graphify/concept #graphify/INFERRED #community/Logo_Motif_Concepts
+#graphify/concept #graphify/INFERRED #community/Emblem_Image

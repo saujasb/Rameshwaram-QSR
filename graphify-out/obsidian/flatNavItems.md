@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/routes.tsx"
 type: "code"
-community: "App Shell & Navigation"
+community: "Client Bootstrap & Core Dependencies (React/Router/Query)"
 location: "L114"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/App_Shell__Navigation
+  - community/Client_Bootstrap__Core_Dependencies_React/Router/Query
 ---
 
 # flatNavItems
@@ -15,4 +15,4 @@ tags:
 - [[App.tsx]] - `imports` [EXTRACTED]
 - [[routes.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/App_Shell__Navigation
+#graphify/code #graphify/EXTRACTED #community/Client_Bootstrap__Core_Dependencies_React/Router/Query

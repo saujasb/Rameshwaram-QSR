@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/modules/live-orders/LiveOrdersPage.tsx"
+source_file: "client/src/modules/wastage/WastagePage.tsx"
 type: "code"
-community: "Provider Orders & Live Feed"
-location: "L21"
+community: "Shared Entity Enums & Wastage"
+location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Provider_Orders__Live_Feed
+  - community/Shared_Entity_Enums__Wastage
 ---
 
 # columns
 
 ## Connections
-- [[LiveOrdersPage.tsx]] - `contains` [EXTRACTED]
+- [[WastagePage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Provider_Orders__Live_Feed
+#graphify/code #graphify/EXTRACTED #community/Shared_Entity_Enums__Wastage

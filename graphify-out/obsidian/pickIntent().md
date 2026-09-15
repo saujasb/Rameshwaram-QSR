@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/ramesh/intents.ts"
 type: "code"
-community: "Query Intent Classification"
+community: "Ramesh AI Assistant Engine"
 location: "L374"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Query_Intent_Classification
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # pickIntent()
@@ -15,4 +15,4 @@ tags:
 - [[classify()]] - `calls` [EXTRACTED]
 - [[intents.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Query_Intent_Classification
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

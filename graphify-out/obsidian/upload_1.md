@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/sales/routes.ts"
 type: "code"
-community: "Sales Database Repository"
-location: "L14"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Database_Repository
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # upload
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[salesroutes.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Database_Repository
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

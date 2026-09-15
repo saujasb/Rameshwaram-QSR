@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "Staff & Wastage Tracking"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L159"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # StaffMember
@@ -18,4 +18,4 @@ tags:
 - [[staff.ts]] - `imports` [EXTRACTED]
 - [[staffrepository.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

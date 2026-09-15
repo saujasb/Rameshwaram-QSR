@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/modules/intelligence/TopInsightsPanel.tsx"
+source_file: "client/src/modules/intelligence/IntelligencePage.tsx"
 type: "code"
-community: "Top Insights Panel"
-location: "L11"
+community: "Intelligence Dashboard UI"
+location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Top_Insights_Panel
+  - community/Intelligence_Dashboard_UI
 ---
 
 # SEVERITY_TONE
 
 ## Connections
-- [[TopInsightsPanel.tsx]] - `contains` [EXTRACTED]
+- [[IntelligencePage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Top_Insights_Panel
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

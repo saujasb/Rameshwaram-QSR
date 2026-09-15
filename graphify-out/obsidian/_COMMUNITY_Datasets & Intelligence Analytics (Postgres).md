@@ -1,0 +1,191 @@
+---
+type: community
+members: 151
+---
+
+# Datasets & Intelligence Analytics (Postgres)
+
+**Members:** 151 nodes
+
+## Members
+- [[ABSENT]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[ALL_DATASET_TYPES]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[AnalysisResult]] - code - server/src/entities/ramesh/analysis.ts
+- [[Candidate]] - code - server/src/entities/intelligence/anomalies.ts
+- [[Ctx]] - code - server/src/entities/ramesh/engine.ts
+- [[DatasetCoverage]] - code - shared-types/datasets.ts
+- [[DatasetFilter]] - code - shared-types/datasets.ts
+- [[DatasetTotals]] - code - server/src/entities/datasets/repository.ts
+- [[FactsByType]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[HourlyBucket]] - code - shared-types/intelligence.ts
+- [[INR]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[INR_1]] - code - server/src/entities/ramesh/engine.ts
+- [[NUM]] - code - server/src/entities/ramesh/engine.ts
+- [[PaginatedRecords]] - code - shared-types/datasets.ts
+- [[PendingFile]] - code - server/src/entities/datasets/routes.ts
+- [[ProductPerformanceRow]] - code - shared-types/intelligence.ts
+- [[SEVERITY_RANK]] - code - server/src/entities/intelligence/anomalies.ts
+- [[SegmentPerformanceRow]] - code - server/src/entities/datasets/repository.ts
+- [[TypeFacts]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[UpsertResult]] - code - server/src/entities/datasets/repository.ts
+- [[Window]] - code - server/src/entities/intelligence/insights.ts
+- [[acceptFiles()]] - code - server/src/entities/datasets/routes.ts
+- [[analysis.ts]] - code - server/src/entities/ramesh/analysis.ts
+- [[anomalies.ts]] - code - server/src/entities/intelligence/anomalies.ts
+- [[anomalyAction()]] - code - server/src/entities/intelligence/insights.ts
+- [[anomalyAnalysis()]] - code - server/src/entities/ramesh/analysis.ts
+- [[anomalyInsight()]] - code - server/src/entities/intelligence/insights.ts
+- [[anomalyToLine()]] - code - server/src/entities/ramesh/analysis.ts
+- [[answer()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerCompareDatasets()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerCompareDates()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerCoverage()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerHelp()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerPeakHour()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerRanked()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerSeries()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerTotals()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerUnsupported()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerVariance()]] - code - server/src/entities/ramesh/engine.ts
+- [[answerWastageReason()]] - code - server/src/entities/ramesh/engine.ts
+- [[buildEvidence()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[buildInsights()]] - code - server/src/entities/intelligence/insights.ts
+- [[buildRow()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[buildSuggestions()]] - code - server/src/entities/ramesh/engine.ts
+- [[buildTodaysIntelligence()]] - code - server/src/entities/intelligence/routes.ts
+- [[buildWhere()]] - code - server/src/entities/datasets/repository.ts
+- [[calculated()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[categoryTotals()]] - code - server/src/entities/datasets/repository.ts
+- [[changeAnalysis()]] - code - server/src/entities/ramesh/analysis.ts
+- [[channelTotals()]] - code - server/src/entities/datasets/repository.ts
+- [[compact()]] - code - server/src/entities/intelligence/insights.ts
+- [[computeReconciliation()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[concentrationInsight()]] - code - server/src/entities/intelligence/insights.ts
+- [[coverageEvidence()]] - code - server/src/entities/ramesh/analysis.ts
+- [[coverageOf()]] - code - server/src/entities/ramesh/engine.ts
+- [[csvCell()]] - code - server/src/entities/datasets/routes.ts
+- [[dailyTotals()]] - code - server/src/entities/datasets/repository.ts
+- [[datasetCoverage()]] - code - server/src/entities/datasets/repository.ts
+- [[datasetsrepository.ts]] - code - server/src/entities/datasets/repository.ts
+- [[datasetsroutes.ts]] - code - server/src/entities/datasets/routes.ts
+- [[datasetsRouter]] - code - server/src/entities/datasets/routes.ts
+- [[detectAnomalies()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[distinctValues()]] - code - server/src/entities/datasets/repository.ts
+- [[drill()]] - code - server/src/entities/intelligence/insights.ts
+- [[drilldown()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[drilldown()_1]] - code - server/src/entities/ramesh/engine.ts
+- [[efficiencyAnalysis()]] - code - server/src/entities/ramesh/analysis.ts
+- [[emptyRow()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[engine.ts]] - code - server/src/entities/ramesh/engine.ts
+- [[evidenceFor()]] - code - server/src/entities/intelligence/insights.ts
+- [[executiveAnalysis()]] - code - server/src/entities/ramesh/analysis.ts
+- [[exportRecords()]] - code - server/src/entities/datasets/repository.ts
+- [[factsFor()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[findBatchByFileHash()]] - code - server/src/entities/datasets/repository.ts
+- [[fromAnalysis()]] - code - server/src/entities/ramesh/engine.ts
+- [[getBusinessDayStartHour()]] - code - server/src/entities/datasets/db.ts
+- [[getImportBatch()]] - code - server/src/entities/datasets/repository.ts
+- [[hourlyBuckets()]] - code - server/src/entities/datasets/repository.ts
+- [[importQualityInsight()]] - code - server/src/entities/intelligence/insights.ts
+- [[insertImportBatch()]] - code - server/src/entities/datasets/repository.ts
+- [[insightToLine()]] - code - server/src/entities/ramesh/analysis.ts
+- [[insights.ts]] - code - server/src/entities/intelligence/insights.ts
+- [[insufficient()]] - code - server/src/entities/ramesh/engine.ts
+- [[intelligenceroutes.ts]] - code - server/src/entities/intelligence/routes.ts
+- [[latestBusinessDate()]] - code - server/src/entities/datasets/repository.ts
+- [[listImportBatches()]] - code - server/src/entities/datasets/repository.ts
+- [[mapRecord()]] - code - server/src/entities/datasets/repository.ts
+- [[mean()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[missingDataset()]] - code - server/src/entities/ramesh/engine.ts
+- [[missingDatesInsight()]] - code - server/src/entities/intelligence/insights.ts
+- [[missingNames()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[money()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[money()_1]] - code - server/src/entities/ramesh/analysis.ts
+- [[money()_2]] - code - server/src/entities/ramesh/engine.ts
+- [[movementInsight()]] - code - server/src/entities/intelligence/insights.ts
+- [[noMatch()]] - code - server/src/entities/ramesh/engine.ts
+- [[observed()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[outletPerformance()]] - code - server/src/entities/datasets/repository.ts
+- [[parseFilter()]] - code - server/src/entities/datasets/routes.ts
+- [[parseFilter()_1]] - code - server/src/entities/intelligence/routes.ts
+- [[pct()]] - code - server/src/entities/ramesh/analysis.ts
+- [[pct()_1]] - code - server/src/entities/ramesh/engine.ts
+- [[pctText()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[peakHourInsight()]] - code - server/src/entities/intelligence/insights.ts
+- [[perDateFacts()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[productAnalysis()]] - code - server/src/entities/ramesh/analysis.ts
+- [[productFocus()]] - code - server/src/entities/ramesh/engine.ts
+- [[productKeyOf()]] - code - server/src/entities/datasets/repository.ts
+- [[productPerformance()]] - code - server/src/entities/datasets/repository.ts
+- [[productStalls()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[productionVariance()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[qty()]] - code - server/src/entities/ramesh/engine.ts
+- [[qtyText()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[queryRecords()]] - code - server/src/entities/datasets/repository.ts
+- [[rangeLabel()]] - code - server/src/entities/ramesh/engine.ts
+- [[reconciliation.ts]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[reconciliationAnalysis()]] - code - server/src/entities/ramesh/analysis.ts
+- [[resolveBusinessDate()]] - code - server/src/entities/intelligence/routes.ts
+- [[rootCause()]] - code - server/src/entities/ramesh/analysis.ts
+- [[round2()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[round2()_1]] - code - server/src/entities/intelligence/insights.ts
+- [[round2()_2]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[rowToBatch()]] - code - server/src/entities/datasets/repository.ts
+- [[runImport()]] - code - server/src/entities/datasets/importPipeline.ts
+- [[salesInsights()]] - code - server/src/entities/intelligence/insights.ts
+- [[salesMovement()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[salesValueMetric()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[scopeNote()]] - code - server/src/entities/ramesh/engine.ts
+- [[segmentAnalysis()]] - code - server/src/entities/ramesh/analysis.ts
+- [[segmentPerformance()]] - code - server/src/entities/datasets/repository.ts
+- [[severityFor()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[share()]] - code - server/src/entities/intelligence/insights.ts
+- [[shell()]] - code - server/src/entities/ramesh/engine.ts
+- [[shiftPerformance()]] - code - server/src/entities/datasets/repository.ts
+- [[spanOf()]] - code - server/src/entities/ramesh/engine.ts
+- [[suggestionsForCurrentData()]] - code - server/src/entities/ramesh/engine.ts
+- [[sumExpr()]] - code - server/src/entities/ramesh/engine.ts
+- [[topProducts()]] - code - server/src/entities/datasets/repository.ts
+- [[totalsFor()]] - code - server/src/entities/datasets/repository.ts
+- [[unavailable()]] - code - server/src/entities/intelligence/reconciliation.ts
+- [[units()]] - code - server/src/entities/ramesh/analysis.ts
+- [[units()_1]] - code - server/src/entities/ramesh/engine.ts
+- [[upload]] - code - server/src/entities/datasets/routes.ts
+- [[uploadFiles()]] - code - server/src/entities/datasets/routes.ts
+- [[upsertRecords()]] - code - server/src/entities/datasets/repository.ts
+- [[used()]] - code - server/src/entities/ramesh/engine.ts
+- [[wastageByReason()]] - code - server/src/entities/datasets/repository.ts
+- [[wastageInsights()]] - code - server/src/entities/intelligence/insights.ts
+- [[wastageSurges()]] - code - server/src/entities/intelligence/anomalies.ts
+- [[whereLabel()]] - code - server/src/entities/intelligence/insights.ts
+- [[windowFor()]] - code - server/src/entities/intelligence/insights.ts
+
+## Live Query (requires Dataview plugin)
+
+```dataview
+TABLE source_file, type FROM #community/Datasets__Intelligence_Analytics_Postgres
+SORT file.name ASC
+```
+
+## Connections to other communities
+- 28 edges to [[_COMMUNITY_Ramesh AI Assistant Engine]]
+- 25 edges to [[_COMMUNITY_Intelligence Dashboard UI]]
+- 21 edges to [[_COMMUNITY_Dataset Import Parsing & Normalization]]
+- 14 edges to [[_COMMUNITY_Provider Orders Integration (GoSelfServePetPooja)]]
+- 11 edges to [[_COMMUNITY_Dataset API Hooks & Data Explorer]]
+- 10 edges to [[_COMMUNITY_Business Date & Settings]]
+- 5 edges to [[_COMMUNITY_App Shell, Global Search & Client API Core]]
+- 4 edges to [[_COMMUNITY_Sales Import Pipeline, Parsers & UI]]
+- 4 edges to [[_COMMUNITY_Server App Entry & Misc Routers]]
+- 2 edges to [[_COMMUNITY_File Uploads & Vercel Functions]]
+- 2 edges to [[_COMMUNITY_Action Center, Purchases & Tasks Routers]]
+- 1 edge to [[_COMMUNITY_Today's Intelligence Panel]]
+- 1 edge to [[_COMMUNITY_Analytics Charts & Dashboard KPIs]]
+- 1 edge to [[_COMMUNITY_Server npm Dependencies (ExpressDBFile libs)]]
+
+## Top bridge nodes
+- [[intelligenceroutes.ts]] - degree 29, connects to 9 communities
+- [[datasetsroutes.ts]] - degree 36, connects to 8 communities
+- [[datasetsrepository.ts]] - degree 56, connects to 7 communities
+- [[engine.ts]] - degree 75, connects to 6 communities
+- [[insights.ts]] - degree 48, connects to 6 communities

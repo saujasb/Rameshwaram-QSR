@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/db.ts"
 type: "code"
-community: "Dataset Schema & Migrations"
+community: "Provider Orders Integration (GoSelfServe/PetPooja)"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Schema__Migrations
+  - community/Provider_Orders_Integration_GoSelfServe/PetPooja
 ---
 
 # datasets/db.ts
@@ -14,14 +14,11 @@ tags:
 ## Connections
 - [[datasetsrepository.ts]] - `re_exports` [EXTRACTED]
 - [[datasetsroutes.ts]] - `imports_from` [EXTRACTED]
-- [[db]] - `imports` [EXTRACTED]
-- [[dbclient.ts]] - `imports_from` [EXTRACTED]
-- [[ensureDatasetTables()]] - `contains` [EXTRACTED]
 - [[getBusinessDayStartHour()]] - `contains` [EXTRACTED]
 - [[intelligenceroutes.ts]] - `imports_from` [EXTRACTED]
-- [[migrateLegacySalesLineItems()]] - `contains` [EXTRACTED]
-- [[salesrepository.ts]] - `imports_from` [EXTRACTED]
+- [[pg.ts]] - `imports_from` [EXTRACTED]
+- [[query()]] - `imports` [EXTRACTED]
+- [[queryOne()]] - `imports` [EXTRACTED]
 - [[setBusinessDayStartHour()]] - `contains` [EXTRACTED]
-- [[tableExists()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Schema__Migrations
+#graphify/code #graphify/EXTRACTED #community/Provider_Orders_Integration_GoSelfServe/PetPooja

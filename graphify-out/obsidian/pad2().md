@@ -1,19 +1,18 @@
 ---
-source_file: "shared-types/businessDate.ts"
+source_file: "server/src/entities/ramesh/intents.ts"
 type: "code"
-community: "Business Day & Sales Trend Charts"
-location: "L18"
+community: "Ramesh AI Assistant Engine"
+location: "L137"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # pad2()
 
 ## Connections
-- [[businessDate.ts]] - `contains` [EXTRACTED]
-- [[getBusinessDayBounds()]] - `calls` [EXTRACTED]
-- [[toDateKey()]] - `calls` [EXTRACTED]
+- [[intents.ts]] - `contains` [EXTRACTED]
+- [[makeKey()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

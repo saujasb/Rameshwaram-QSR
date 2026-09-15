@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/modules/sales-analytics/SalesImportPage.tsx"
+source_file: "client/src/components/crud/RecordForm.tsx"
 type: "code"
-community: "Sales Data Hooks"
-location: "L89"
+community: "Task Management (CRUD Base Record)"
+location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # handleSubmit()
 
 ## Connections
-- [[SalesImportPage()]] - `contains` [EXTRACTED]
+- [[RecordForm()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

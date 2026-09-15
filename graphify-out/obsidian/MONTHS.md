@@ -1,17 +1,17 @@
 ---
-source_file: "server/src/entities/ramesh/intents.ts"
+source_file: "server/src/entities/datasets/coerce.ts"
 type: "code"
-community: "Query Intent Classification"
-location: "L129"
+community: "Dataset Import Parsing & Normalization"
+location: "L45"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Query_Intent_Classification
+  - community/Dataset_Import_Parsing__Normalization
 ---
 
 # MONTHS
 
 ## Connections
-- [[intents.ts]] - `contains` [EXTRACTED]
+- [[coerce.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Query_Intent_Classification
+#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Parsing__Normalization

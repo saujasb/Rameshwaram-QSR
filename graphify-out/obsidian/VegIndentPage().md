@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/sales-analytics/VegIndentPage.tsx"
 type: "code"
-community: "KPI Scorecard & Analytics Charts"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L14"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/KPI_Scorecard__Analytics_Charts
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # VegIndentPage()
@@ -18,4 +18,4 @@ tags:
 - [[toneFor()]] - `calls` [EXTRACTED]
 - [[useAnalyticsSnapshot()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/KPI_Scorecard__Analytics_Charts
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

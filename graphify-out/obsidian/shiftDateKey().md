@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/businessDate.ts"
 type: "code"
-community: "Business Day & Sales Trend Charts"
+community: "Business Date & Settings"
 location: "L26"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # shiftDateKey()
@@ -25,9 +25,8 @@ tags:
 - [[getBusinessDate()]] - `calls` [EXTRACTED]
 - [[getBusinessDayBounds()]] - `calls` [EXTRACTED]
 - [[intents.ts]] - `imports` [EXTRACTED]
-- [[productStalls()]] - `calls` [EXTRACTED]
 - [[relativeRange()]] - `calls` [EXTRACTED]
 - [[toDateKey()]] - `calls` [EXTRACTED]
 - [[weekStart()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

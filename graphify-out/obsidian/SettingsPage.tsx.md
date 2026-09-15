@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/settings/SettingsPage.tsx"
 type: "code"
-community: "Business Day & Sales Trend Charts"
+community: "Business Date & Settings"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # SettingsPage.tsx
@@ -25,6 +25,7 @@ tags:
 - [[formatBusinessDateShort()]] - `imports` [EXTRACTED]
 - [[getBusinessDate()]] - `imports` [EXTRACTED]
 - [[hourLabel()]] - `contains` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `imports_from` [EXTRACTED]
 - [[toDateKey()]] - `imports` [EXTRACTED]
@@ -32,4 +33,4 @@ tags:
 - [[useDatasetCoverage()]] - `imports` [EXTRACTED]
 - [[useSetBusinessDayStartHour()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

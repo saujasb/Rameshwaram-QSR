@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/shared/actionCenter.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Action Center, Purchases & Tasks Routers"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Action_Center_Purchases__Tasks_Routers
 ---
 
 # shared/actionCenter.ts
@@ -14,12 +14,13 @@ tags:
 ## Connections
 - [[ActionCenterItem]] - `imports` [EXTRACTED]
 - [[actionCenterRouter]] - `contains` [EXTRACTED]
+- [[app.ts]] - `imports_from` [EXTRACTED]
 - [[buildActionCenter()]] - `contains` [EXTRACTED]
 - [[complaintRepository]] - `imports` [EXTRACTED]
 - [[complaintsrepository.ts]] - `imports_from` [EXTRACTED]
 - [[computeInventoryStatus()]] - `imports` [EXTRACTED]
 - [[entities.ts]] - `imports_from` [EXTRACTED]
-- [[index.ts]] - `imports_from` [EXTRACTED]
+- [[express_1]] - `imports` [EXTRACTED]
 - [[inventoryrepository.ts]] - `imports_from` [EXTRACTED]
 - [[inventoryRepository]] - `imports` [EXTRACTED]
 - [[inventoryStatus.ts]] - `imports_from` [EXTRACTED]
@@ -32,4 +33,4 @@ tags:
 - [[wastagerepository.ts]] - `imports_from` [EXTRACTED]
 - [[wastageRepository]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Action_Center_Purchases__Tasks_Routers

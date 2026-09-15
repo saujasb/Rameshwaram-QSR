@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/table/DataTable.tsx"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # DataTable()
@@ -20,4 +20,4 @@ tags:
 - [[defaultSortValue()]] - `calls` [EXTRACTED]
 - [[toggleSort()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

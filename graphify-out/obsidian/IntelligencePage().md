@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/intelligence/IntelligencePage.tsx"
 type: "code"
-community: "Business Intelligence & Anomalies"
+community: "Intelligence Dashboard UI"
 location: "L57"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Intelligence__Anomalies
+  - community/Intelligence_Dashboard_UI
 ---
 
 # IntelligencePage()
@@ -18,4 +18,4 @@ tags:
 - [[useAnomalies()]] - `calls` [EXTRACTED]
 - [[useReconciliation()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Intelligence__Anomalies
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

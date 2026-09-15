@@ -1,17 +1,17 @@
 ---
-source_file: "server/src/entities/datasets/coerce.ts"
+source_file: "server/src/entities/ramesh/intents.ts"
 type: "code"
-community: "Data Coercion Utilities"
-location: "L45"
+community: "Ramesh AI Assistant Engine"
+location: "L129"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Data_Coercion_Utilities
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # MONTHS
 
 ## Connections
-- [[coerce.ts]] - `contains` [EXTRACTED]
+- [[intents.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Data_Coercion_Utilities
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

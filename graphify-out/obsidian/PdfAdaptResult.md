@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/pdfAdapter.ts"
 type: "code"
-community: "Import Result Types"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Result_Types
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # PdfAdaptResult
@@ -16,4 +16,4 @@ tags:
 - [[SheetImportSummary]] - `references` [EXTRACTED]
 - [[pdfAdapter.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Result_Types
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

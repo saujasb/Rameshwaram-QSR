@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/import/ImportCenterPage.tsx"
 type: "code"
-community: "Import Center Hooks"
+community: "Import Center Page"
 location: "L315"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Center_Hooks
+  - community/Import_Center_Page
 ---
 
 # FailureCard()
@@ -15,4 +15,4 @@ tags:
 - [[ImportCenterPage.tsx]] - `contains` [EXTRACTED]
 - [[dateRange()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Center_Hooks
+#graphify/code #graphify/EXTRACTED #community/Import_Center_Page

@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/import/ImportCenterPage.tsx"
 type: "code"
-community: "Import Center Hooks"
+community: "Import Center Page"
 location: "L360"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Center_Hooks
+  - community/Import_Center_Page
 ---
 
 # ImportHistory()
@@ -15,7 +15,7 @@ tags:
 - [[ImportCenterPage.tsx]] - `contains` [EXTRACTED]
 - [[dateRange()]] - `calls` [EXTRACTED]
 - [[statusTone()]] - `calls` [EXTRACTED]
-- [[useDeleteImportBatch()]] - `calls` [EXTRACTED]
-- [[useImportBatches()]] - `calls` [EXTRACTED]
+- [[useDeleteImportBatch()_1]] - `calls` [EXTRACTED]
+- [[useImportBatches()_1]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Center_Hooks
+#graphify/code #graphify/EXTRACTED #community/Import_Center_Page

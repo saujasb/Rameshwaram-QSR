@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/inventory.ts"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # inventory.ts
@@ -23,4 +23,4 @@ tags:
 - [[inventoryHooks]] - `contains` [EXTRACTED]
 - [[inventoryMovementHooks]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

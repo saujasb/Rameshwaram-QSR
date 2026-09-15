@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/complaints.ts"
 type: "code"
-community: "API Client & Complaints"
+community: "Complaints Module"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/API_Client__Complaints
+  - community/Complaints_Module
 ---
 
 # complaints.ts
@@ -20,4 +20,4 @@ tags:
 - [[createEntityHooks.ts]] - `imports_from` [EXTRACTED]
 - [[entities.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/API_Client__Complaints
+#graphify/code #graphify/EXTRACTED #community/Complaints_Module

@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "Maintenance Tracking"
+community: "Maintenance Module"
 location: "L120"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Maintenance_Tracking
+  - community/Maintenance_Module
 ---
 
 # MaintenanceIssue
@@ -18,4 +18,4 @@ tags:
 - [[maintenance.ts]] - `imports` [EXTRACTED]
 - [[maintenancerepository.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Maintenance_Tracking
+#graphify/code #graphify/EXTRACTED #community/Maintenance_Module

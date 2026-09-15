@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "Expense Tracking"
+community: "Shared Entity Enums & Wastage"
 location: "L34"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Expense_Tracking
+  - community/Shared_Entity_Enums__Wastage
 ---
 
 # TaskPriority
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[entities.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Expense_Tracking
+#graphify/code #graphify/EXTRACTED #community/Shared_Entity_Enums__Wastage

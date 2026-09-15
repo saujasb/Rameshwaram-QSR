@@ -1,17 +1,18 @@
 ---
 source_file: "client/src/lib/createEntityHooks.ts"
 type: "code"
-community: "API Client & Complaints"
+community: "Task Management (CRUD Base Record)"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/API_Client__Complaints
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # createEntityHooks.ts
 
 ## Connections
+- [[@tanstackreact-query_1]] - `imports` [EXTRACTED]
 - [[BaseRecord]] - `imports` [EXTRACTED]
 - [[apiclient.ts]] - `imports_from` [EXTRACTED]
 - [[apiDelete()]] - `imports` [EXTRACTED]
@@ -31,4 +32,4 @@ tags:
 - [[tasks.ts]] - `imports_from` [EXTRACTED]
 - [[wastage.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/API_Client__Complaints
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

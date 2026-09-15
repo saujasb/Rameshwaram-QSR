@@ -1,26 +1,20 @@
 ---
 source_file: "server/src/db/client.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Repository Base, Attendance/Expenses/Staff Routers"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Repository_Base_Attendance/Expenses/Staff_Routers
 ---
 
 # db/client.ts
 
 ## Connections
-- [[__dirname]] - `contains` [EXTRACTED]
-- [[datasetsdb.ts]] - `imports_from` [EXTRACTED]
-- [[datasetsrepository.ts]] - `imports_from` [EXTRACTED]
-- [[db]] - `contains` [EXTRACTED]
-- [[ensureTable()]] - `contains` [EXTRACTED]
-- [[provider-ordersdb.ts]] - `imports_from` [EXTRACTED]
-- [[provider-ordersrepository.ts]] - `imports_from` [EXTRACTED]
-- [[salesdb.ts]] - `imports_from` [EXTRACTED]
-- [[salesrepository.ts]] - `imports_from` [EXTRACTED]
+- [[@supabasesupabase-js_1]] - `imports` [EXTRACTED]
 - [[sharedrepository.ts]] - `imports_from` [EXTRACTED]
+- [[supabase]] - `contains` [EXTRACTED]
+- [[uploads.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Repository_Base_Attendance/Expenses/Staff_Routers

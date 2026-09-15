@@ -1,19 +1,18 @@
 ---
 source_file: "server/src/entities/intelligence/routes.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L37"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L38"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # buildTodaysIntelligence()
 
 ## Connections
 - [[calculated()]] - `calls` [EXTRACTED]
-- [[formatHourBucket()]] - `calls` [EXTRACTED]
 - [[getBusinessDayStartHour()]] - `calls` [EXTRACTED]
 - [[hourlyBuckets()]] - `calls` [EXTRACTED]
 - [[intelligenceroutes.ts]] - `contains` [EXTRACTED]
@@ -21,4 +20,4 @@ tags:
 - [[totalsFor()]] - `calls` [EXTRACTED]
 - [[unavailable()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/layout/AppShell.tsx"
 type: "code"
-community: "App Shell & Navigation"
+community: "App Shell, Global Search & Client API Core"
 location: "L28"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/App_Shell__Navigation
+  - community/App_Shell_Global_Search__Client_API_Core
 ---
 
 # OpsStatusStrip()
@@ -18,4 +18,4 @@ tags:
 - [[useLatestImportBatch()]] - `calls` [EXTRACTED]
 - [[useLiveBusinessDate()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/App_Shell__Navigation
+#graphify/code #graphify/EXTRACTED #community/App_Shell_Global_Search__Client_API_Core

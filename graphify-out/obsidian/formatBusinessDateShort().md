@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/businessDate.ts"
 type: "code"
-community: "Business Day & Sales Trend Charts"
+community: "Business Date & Settings"
 location: "L104"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # formatBusinessDateShort()
@@ -20,4 +20,4 @@ tags:
 - [[SettingsPage.tsx]] - `imports` [EXTRACTED]
 - [[businessDate.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

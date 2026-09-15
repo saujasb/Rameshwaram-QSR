@@ -1,18 +1,18 @@
 ---
 source_file: "server/package.json"
 type: "code"
-community: "Server Dependencies"
-location: "L19"
+community: "Server npm Dependencies (Express/DB/File libs)"
+location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Server_Dependencies
+  - community/Server_npm_Dependencies_Express/DB/File_libs
 ---
 
 # xlsx
 
 ## Connections
-- [[dependencies]] - `contains` [EXTRACTED]
+- [[dependencies_1]] - `contains` [EXTRACTED]
 - [[xlsx_1]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Server_Dependencies
+#graphify/code #graphify/EXTRACTED #community/Server_npm_Dependencies_Express/DB/File_libs

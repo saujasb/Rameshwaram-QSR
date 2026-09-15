@@ -1,20 +1,20 @@
 ---
-source_file: "client/src/lib/api/sales.ts"
+source_file: "client/src/lib/api/datasets.ts"
 type: "code"
-community: "Sales Data Hooks"
-location: "L22"
+community: "App Shell, Global Search & Client API Core"
+location: "L65"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Data_Hooks
+  - community/App_Shell_Global_Search__Client_API_Core
 ---
 
 # useImportBatches()
 
 ## Connections
-- [[SalesImportPage()]] - `calls` [EXTRACTED]
-- [[SalesImportPage.tsx]] - `imports` [EXTRACTED]
-- [[apisales.ts]] - `contains` [EXTRACTED]
+- [[ImportCenterPage.tsx]] - `imports` [EXTRACTED]
+- [[ImportHistory()]] - `calls` [EXTRACTED]
+- [[apidatasets.ts]] - `contains` [EXTRACTED]
 - [[apiGet()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Data_Hooks
+#graphify/code #graphify/EXTRACTED #community/App_Shell_Global_Search__Client_API_Core

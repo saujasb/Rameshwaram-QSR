@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/ramesh/engine.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L919"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L928"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # suggestionsForCurrentData()
@@ -17,4 +17,4 @@ tags:
 - [[engine.ts]] - `contains` [EXTRACTED]
 - [[rameshroutes.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

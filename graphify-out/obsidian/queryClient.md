@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/main.tsx"
 type: "code"
-community: "App Shell & Navigation"
+community: "Client Bootstrap & Core Dependencies (React/Router/Query)"
 location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/App_Shell__Navigation
+  - community/Client_Bootstrap__Core_Dependencies_React/Router/Query
 ---
 
 # queryClient
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[main.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/App_Shell__Navigation
+#graphify/code #graphify/EXTRACTED #community/Client_Bootstrap__Core_Dependencies_React/Router/Query

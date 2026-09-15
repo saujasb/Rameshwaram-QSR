@@ -1,17 +1,18 @@
 ---
-source_file: "client/src/modules/expenses/ExpensesPage.tsx"
+source_file: "client/src/modules/tasks/taskFields.ts"
 type: "code"
-community: "Expense Tracking"
-location: "L6"
+community: "Task Management (CRUD Base Record)"
+location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Expense_Tracking
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # CATEGORY_OPTIONS
 
 ## Connections
-- [[ExpensesPage.tsx]] - `contains` [EXTRACTED]
+- [[TasksPage.tsx]] - `imports` [EXTRACTED]
+- [[taskFields.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Expense_Tracking
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

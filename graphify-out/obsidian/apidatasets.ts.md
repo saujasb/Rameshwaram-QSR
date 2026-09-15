@@ -1,17 +1,18 @@
 ---
 source_file: "client/src/lib/api/datasets.ts"
 type: "code"
-community: "Datasets API & Export"
+community: "Dataset API Hooks & Data Explorer"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Datasets_API__Export
+  - community/Dataset_API_Hooks__Data_Explorer
 ---
 
 # api/datasets.ts
 
 ## Connections
+- [[@tanstackreact-query_1]] - `imports` [EXTRACTED]
 - [[AppShell.tsx]] - `imports_from` [EXTRACTED]
 - [[DataExplorerPage.tsx]] - `imports_from` [EXTRACTED]
 - [[DatasetCoverage]] - `imports` [EXTRACTED]
@@ -31,20 +32,21 @@ tags:
 - [[apiGet()]] - `imports` [EXTRACTED]
 - [[apiPut()]] - `imports` [EXTRACTED]
 - [[exportCsvUrl()]] - `contains` [EXTRACTED]
-- [[filterToParams()_1]] - `contains` [EXTRACTED]
+- [[filterToParams()]] - `contains` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `imports_from` [EXTRACTED]
 - [[shared-typesintelligence.ts]] - `imports_from` [EXTRACTED]
+- [[uploadFileViaStorage()]] - `contains` [EXTRACTED]
 - [[useBusinessDaySettings()]] - `contains` [EXTRACTED]
 - [[useDatasetCoverage()]] - `contains` [EXTRACTED]
 - [[useDatasetFacets()]] - `contains` [EXTRACTED]
 - [[useDatasetRecords()]] - `contains` [EXTRACTED]
 - [[useDatasetSummary()]] - `contains` [EXTRACTED]
-- [[useDeleteImportBatch()]] - `contains` [EXTRACTED]
-- [[useImportBatches()]] - `contains` [EXTRACTED]
+- [[useDeleteImportBatch()_1]] - `contains` [EXTRACTED]
+- [[useImportBatches()_1]] - `contains` [EXTRACTED]
 - [[useImportFiles()]] - `contains` [EXTRACTED]
 - [[useInvalidateDataLayer()]] - `contains` [EXTRACTED]
 - [[useLatestImportBatch()]] - `contains` [EXTRACTED]
 - [[useProductPerformance()]] - `contains` [EXTRACTED]
 - [[useSetBusinessDayStartHour()]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Datasets_API__Export
+#graphify/code #graphify/EXTRACTED #community/Dataset_API_Hooks__Data_Explorer

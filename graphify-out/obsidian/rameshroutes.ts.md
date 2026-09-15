@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/ramesh/routes.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Ramesh AI Assistant Engine"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # ramesh/routes.ts
@@ -14,12 +14,13 @@ tags:
 ## Connections
 - [[RameshQuery]] - `imports` [EXTRACTED]
 - [[answer()]] - `imports` [EXTRACTED]
+- [[app.ts]] - `imports_from` [EXTRACTED]
 - [[engine.ts]] - `imports_from` [EXTRACTED]
+- [[express_1]] - `imports` [EXTRACTED]
 - [[hits]] - `contains` [EXTRACTED]
-- [[index.ts]] - `imports_from` [EXTRACTED]
 - [[rameshRouter]] - `contains` [EXTRACTED]
 - [[rateLimited()]] - `contains` [EXTRACTED]
 - [[shared-typesramesh.ts]] - `imports_from` [EXTRACTED]
 - [[suggestionsForCurrentData()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

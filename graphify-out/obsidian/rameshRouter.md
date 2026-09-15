@@ -1,18 +1,18 @@
 ---
 source_file: "server/src/entities/ramesh/routes.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Ramesh AI Assistant Engine"
 location: "L5"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # rameshRouter
 
 ## Connections
-- [[index.ts]] - `imports` [EXTRACTED]
+- [[app.ts]] - `imports` [EXTRACTED]
 - [[rameshroutes.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

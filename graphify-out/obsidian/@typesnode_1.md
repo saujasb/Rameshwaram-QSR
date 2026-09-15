@@ -1,12 +1,12 @@
 ---
 source_file: "server/package.json"
 type: "concept"
-community: "Server Dev Dependencies"
-location: "L26"
+community: "Client & Server Dev Dependencies"
+location: "L27"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Server_Dev_Dependencies
+  - community/Client__Server_Dev_Dependencies
 ---
 
 # @types/node
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[@typesnode]] - `imports` [EXTRACTED]
 
-#graphify/concept #graphify/EXTRACTED #community/Server_Dev_Dependencies
+#graphify/concept #graphify/EXTRACTED #community/Client__Server_Dev_Dependencies

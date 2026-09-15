@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/client.ts"
 type: "code"
-community: "API Client & Complaints"
+community: "App Shell, Global Search & Client API Core"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/API_Client__Complaints
+  - community/App_Shell_Global_Search__Client_API_Core
 ---
 
 # api/client.ts
@@ -29,4 +29,4 @@ tags:
 - [[handle()]] - `contains` [EXTRACTED]
 - [[system.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/API_Client__Complaints
+#graphify/code #graphify/EXTRACTED #community/App_Shell_Global_Search__Client_API_Core

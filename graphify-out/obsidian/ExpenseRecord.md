@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "Expense Tracking"
+community: "Expenses Module"
 location: "L189"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Expense_Tracking
+  - community/Expenses_Module
 ---
 
 # ExpenseRecord
@@ -18,4 +18,4 @@ tags:
 - [[expenses.ts]] - `imports` [EXTRACTED]
 - [[expensesrepository.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Expense_Tracking
+#graphify/code #graphify/EXTRACTED #community/Expenses_Module

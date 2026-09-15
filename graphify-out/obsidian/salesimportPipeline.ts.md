@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/sales/importPipeline.ts"
 type: "code"
-community: "PDF/Format Import Adapters"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/PDF/Format_Import_Adapters
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # sales/importPipeline.ts
@@ -14,7 +14,7 @@ tags:
 ## Connections
 - [[CandidateLineItem]] - `imports` [EXTRACTED]
 - [[ImportOptions]] - `contains` [EXTRACTED]
-- [[ImportOutcome_1]] - `contains` [EXTRACTED]
+- [[ImportOutcome]] - `contains` [EXTRACTED]
 - [[ImportValidationStatus]] - `imports` [EXTRACTED]
 - [[SalesImportBatch]] - `imports` [EXTRACTED]
 - [[approxEqual()]] - `imports` [EXTRACTED]
@@ -38,4 +38,4 @@ tags:
 - [[sumItems()]] - `imports` [EXTRACTED]
 - [[upsertLineItems()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/PDF/Format_Import_Adapters
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

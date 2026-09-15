@@ -1,17 +1,17 @@
 ---
-source_file: "server/src/entities/datasets/routes.ts"
+source_file: "server/src/entities/intelligence/routes.ts"
 type: "code"
-community: "Dataset Schema & Migrations"
-location: "L35"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Schema__Migrations
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # parseFilter()
 
 ## Connections
-- [[datasetsroutes.ts]] - `contains` [EXTRACTED]
+- [[intelligenceroutes.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Schema__Migrations
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/repository.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L318"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L280"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # dailyTotals()
@@ -34,4 +34,4 @@ tags:
 - [[spanOf()]] - `calls` [EXTRACTED]
 - [[wastageSurges()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

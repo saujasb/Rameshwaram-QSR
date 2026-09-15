@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/ramesh/analysis.ts"
 type: "code"
-community: "Sales Analytics Core"
-location: "L653"
+community: "Datasets & Intelligence Analytics (Postgres)"
+location: "L660"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Datasets__Intelligence_Analytics_Postgres
 ---
 
 # anomalyAnalysis()
@@ -19,4 +19,4 @@ tags:
 - [[detectAnomalies()]] - `calls` [EXTRACTED]
 - [[engine.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Datasets__Intelligence_Analytics_Postgres

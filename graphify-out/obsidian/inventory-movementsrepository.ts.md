@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/inventory-movements/repository.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Generic CRUD Router & Inventory Movement Routes"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Generic_CRUD_Router__Inventory_Movement_Routes
 ---
 
 # inventory-movements/repository.ts
@@ -20,4 +20,4 @@ tags:
 - [[inventoryMovementRepository]] - `contains` [EXTRACTED]
 - [[sharedrepository.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_Router__Inventory_Movement_Routes

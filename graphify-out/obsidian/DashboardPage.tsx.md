@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/dashboard/DashboardPage.tsx"
 type: "code"
-community: "Formatting Utilities"
+community: "Action Center"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Formatting_Utilities
+  - community/Action_Center
 ---
 
 # DashboardPage.tsx
@@ -25,7 +25,7 @@ tags:
 - [[SalesTargetEditor.tsx]] - `imports_from` [EXTRACTED]
 - [[SalesTrendChart()]] - `imports` [EXTRACTED]
 - [[SalesTrendChart.tsx]] - `imports_from` [EXTRACTED]
-- [[Tone]] - `contains` [EXTRACTED]
+- [[Tone_1]] - `contains` [EXTRACTED]
 - [[apiactionCenter.ts]] - `imports_from` [EXTRACTED]
 - [[apianalytics.ts]] - `imports_from` [EXTRACTED]
 - [[apisales.ts]] - `imports_from` [EXTRACTED]
@@ -50,6 +50,8 @@ tags:
 - [[orders.ts]] - `imports_from` [EXTRACTED]
 - [[purchaseHooks]] - `imports` [EXTRACTED]
 - [[purchases.ts]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
+- [[react-router-dom_1]] - `imports` [EXTRACTED]
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[shiftDateKey()]] - `imports` [EXTRACTED]
 - [[staff.ts]] - `imports_from` [EXTRACTED]
@@ -64,4 +66,4 @@ tags:
 - [[wastage.ts]] - `imports_from` [EXTRACTED]
 - [[wastageHooks]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Formatting_Utilities
+#graphify/code #graphify/EXTRACTED #community/Action_Center

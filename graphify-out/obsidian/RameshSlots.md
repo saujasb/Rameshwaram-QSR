@@ -1,20 +1,19 @@
 ---
 source_file: "server/src/entities/ramesh/intents.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Ramesh AI Assistant Engine"
 location: "L15"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # RameshSlots
 
 ## Connections
-- [[Ctx]] - `references` [EXTRACTED]
 - [[DatasetType]] - `references` [EXTRACTED]
 - [[engine.ts]] - `imports` [EXTRACTED]
 - [[intents.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

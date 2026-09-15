@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/shared/repository.ts"
 type: "code"
-community: "Database Client & Seeding"
-location: "L13"
+community: "Repository Base, Attendance/Expenses/Staff Routers"
+location: "L21"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Repository_Base_Attendance/Expenses/Staff_Routers
 ---
 
 # createRepository()
@@ -14,7 +14,6 @@ tags:
 ## Connections
 - [[attendancerepository.ts]] - `imports` [EXTRACTED]
 - [[complaintsrepository.ts]] - `imports` [EXTRACTED]
-- [[ensureTable()]] - `calls` [EXTRACTED]
 - [[expensesrepository.ts]] - `imports` [EXTRACTED]
 - [[inventory-movementsrepository.ts]] - `imports` [EXTRACTED]
 - [[inventoryrepository.ts]] - `imports` [EXTRACTED]
@@ -27,4 +26,4 @@ tags:
 - [[tasksrepository.ts]] - `imports` [EXTRACTED]
 - [[wastagerepository.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Repository_Base_Attendance/Expenses/Staff_Routers

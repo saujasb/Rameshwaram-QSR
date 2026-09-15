@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/crud/CrudModulePage.tsx"
 type: "code"
-community: "CRUD Hook/Repository Pattern"
+community: "Task Management (CRUD Base Record)"
 location: "L10"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/CRUD_Hook/Repository_Pattern
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # CrudHooks
@@ -15,4 +15,4 @@ tags:
 - [[BaseRecord]] - `references` [EXTRACTED]
 - [[CrudModulePage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/CRUD_Hook/Repository_Pattern
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

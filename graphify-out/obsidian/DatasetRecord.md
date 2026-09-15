@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/datasets.ts"
 type: "code"
-community: "Dataset Schema & Migrations"
+community: "Dataset Import Parsing & Normalization"
 location: "L47"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Schema__Migrations
+  - community/Dataset_Import_Parsing__Normalization
 ---
 
 # DatasetRecord
@@ -18,4 +18,4 @@ tags:
 - [[normalize.ts]] - `imports` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Schema__Migrations
+#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Parsing__Normalization

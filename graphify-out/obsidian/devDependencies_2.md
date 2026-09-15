@@ -1,18 +1,24 @@
 ---
-source_file: "package.json"
+source_file: "server/package.json"
 type: "code"
-community: "Root Package Scripts"
-location: "L12"
+community: "Client & Server Dev Dependencies"
+location: "L23"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Root_Package_Scripts
+  - community/Client__Server_Dev_Dependencies
 ---
 
 # devDependencies
 
 ## Connections
-- [[concurrently]] - `contains` [EXTRACTED]
-- [[package.json]] - `contains` [EXTRACTED]
+- [[@typescors]] - `contains` [EXTRACTED]
+- [[@typesexpress]] - `contains` [EXTRACTED]
+- [[@typesmulter]] - `contains` [EXTRACTED]
+- [[@typesnode]] - `contains` [EXTRACTED]
+- [[@typespg]] - `contains` [EXTRACTED]
+- [[serverpackage.json]] - `contains` [EXTRACTED]
+- [[tsx]] - `contains` [EXTRACTED]
+- [[typescript_1]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Root_Package_Scripts
+#graphify/code #graphify/EXTRACTED #community/Client__Server_Dev_Dependencies

@@ -1,17 +1,16 @@
 ---
 source_file: "client/index.html"
 type: "concept"
-community: "Deployment & Integration Docs"
+community: "HTML Entrypoint"
 tags:
   - graphify/concept
   - graphify/EXTRACTED
-  - community/Deployment__Integration_Docs
+  - community/HTML_Entrypoint
 ---
 
 # Rameshwaram — Master Tracking Command Centre
 
 ## Connections
 - [[Client HTML Entry Point (ViteReact root)]] - `references` [EXTRACTED]
-- [[rameshwaram-qsr-server (Render web service)]] - `conceptually_related_to` [INFERRED]
 
-#graphify/concept #graphify/EXTRACTED #community/Deployment__Integration_Docs
+#graphify/concept #graphify/EXTRACTED #community/HTML_Entrypoint

@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/wastage.ts"
 type: "code"
-community: "Staff & Wastage Tracking"
+community: "Shared Entity Enums & Wastage"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Shared_Entity_Enums__Wastage
 ---
 
 # wastageHooks
@@ -17,4 +17,4 @@ tags:
 - [[WastagePage.tsx]] - `imports` [EXTRACTED]
 - [[wastage.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Shared_Entity_Enums__Wastage

@@ -1,17 +1,18 @@
 ---
 source_file: "client/src/modules/inventory/InventoryDetailModal.tsx"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # InventoryDetailModal.tsx
 
 ## Connections
+- [[@tanstackreact-query_1]] - `imports` [EXTRACTED]
 - [[INVENTORY_STATUS_LABEL]] - `imports` [EXTRACTED]
 - [[INVENTORY_STATUS_TONE]] - `imports` [EXTRACTED]
 - [[InventoryDetailModal()]] - `contains` [EXTRACTED]
@@ -30,5 +31,6 @@ tags:
 - [[inventoryHooks]] - `imports` [EXTRACTED]
 - [[inventoryStatus.ts]] - `imports_from` [EXTRACTED]
 - [[inventoryStatusUi.ts]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

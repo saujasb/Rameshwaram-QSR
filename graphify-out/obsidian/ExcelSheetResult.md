@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/excel.ts"
 type: "code"
-community: "Import Result Types"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Import_Result_Types
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # ExcelSheetResult
@@ -16,4 +16,4 @@ tags:
 - [[SheetImportSummary]] - `references` [EXTRACTED]
 - [[excel.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Import_Result_Types
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

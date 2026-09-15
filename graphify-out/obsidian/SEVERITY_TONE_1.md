@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/modules/intelligence/IntelligencePage.tsx"
+source_file: "client/src/modules/intelligence/TopInsightsPanel.tsx"
 type: "code"
-community: "Business Intelligence & Anomalies"
-location: "L9"
+community: "Intelligence Dashboard UI"
+location: "L11"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Intelligence__Anomalies
+  - community/Intelligence_Dashboard_UI
 ---
 
 # SEVERITY_TONE
 
 ## Connections
-- [[IntelligencePage.tsx]] - `contains` [EXTRACTED]
+- [[TopInsightsPanel.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Intelligence__Anomalies
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

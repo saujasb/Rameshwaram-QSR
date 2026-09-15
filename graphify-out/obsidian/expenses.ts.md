@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/expenses.ts"
 type: "code"
-community: "Expense Tracking"
+community: "Expenses Module"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Expense_Tracking
+  - community/Expenses_Module
 ---
 
 # expenses.ts
@@ -19,4 +19,4 @@ tags:
 - [[entities.ts]] - `imports_from` [EXTRACTED]
 - [[expenseHooks]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Expense_Tracking
+#graphify/code #graphify/EXTRACTED #community/Expenses_Module

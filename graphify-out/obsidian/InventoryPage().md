@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/inventory/InventoryPage.tsx"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # InventoryPage()
@@ -16,4 +16,4 @@ tags:
 - [[computeInventoryStatus()]] - `calls` [EXTRACTED]
 - [[routes.tsx]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

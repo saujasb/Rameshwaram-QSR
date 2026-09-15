@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/businessDate.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Business Date & Settings"
 location: "L110"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Business_Date__Settings
 ---
 
 # businessDateRange()
@@ -14,8 +14,6 @@ tags:
 ## Connections
 - [[businessDate.ts]] - `contains` [EXTRACTED]
 - [[insights.ts]] - `imports` [EXTRACTED]
-- [[missingDatesInsight()]] - `calls` [EXTRACTED]
-- [[movementInsight()]] - `calls` [EXTRACTED]
 - [[shiftDateKey()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

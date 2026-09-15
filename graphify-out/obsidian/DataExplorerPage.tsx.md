@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/explorer/DataExplorerPage.tsx"
 type: "code"
-community: "Datasets API & Export"
+community: "Dataset API Hooks & Data Explorer"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Datasets_API__Export
+  - community/Dataset_API_Hooks__Data_Explorer
 ---
 
 # DataExplorerPage.tsx
@@ -25,10 +25,12 @@ tags:
 - [[businessDate.ts]] - `imports_from` [EXTRACTED]
 - [[exportCsvUrl()]] - `imports` [EXTRACTED]
 - [[formatHourBucket()]] - `imports` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
+- [[react-router-dom_1]] - `imports` [EXTRACTED]
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[shared-typesdatasets.ts]] - `imports_from` [EXTRACTED]
 - [[sourceLabel()]] - `contains` [EXTRACTED]
 - [[useDatasetFacets()]] - `imports` [EXTRACTED]
 - [[useDatasetRecords()]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Datasets_API__Export
+#graphify/code #graphify/EXTRACTED #community/Dataset_API_Hooks__Data_Explorer

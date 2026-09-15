@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/provider-orders/providers/petpooja.ts"
 type: "code"
-community: "Provider Orders & Live Feed"
+community: "Provider Orders Integration (GoSelfServe/PetPooja)"
 location: "L98"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Provider_Orders__Live_Feed
+  - community/Provider_Orders_Integration_GoSelfServe/PetPooja
 ---
 
 # normalizePetpoojaPayload()
@@ -24,4 +24,4 @@ tags:
 - [[providerspetpooja.ts]] - `contains` [EXTRACTED]
 - [[webhook.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Provider_Orders__Live_Feed
+#graphify/code #graphify/EXTRACTED #community/Provider_Orders_Integration_GoSelfServe/PetPooja

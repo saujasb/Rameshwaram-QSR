@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/sales-analytics/vegIndentCompute.ts"
 type: "code"
-community: "KPI Scorecard & Analytics Charts"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/KPI_Scorecard__Analytics_Charts
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # computeVegIndent()
@@ -16,4 +16,4 @@ tags:
 - [[VegIndentPage.tsx]] - `imports` [EXTRACTED]
 - [[vegIndentCompute.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/KPI_Scorecard__Analytics_Charts
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

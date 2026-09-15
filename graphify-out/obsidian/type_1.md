@@ -1,12 +1,12 @@
 ---
 source_file: "client/package.json"
 type: "code"
-community: "Client Package Manifest"
+community: "Client & Server Dev Dependencies"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Client_Package_Manifest
+  - community/Client__Server_Dev_Dependencies
 ---
 
 # type
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[clientpackage.json]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Client_Package_Manifest
+#graphify/code #graphify/EXTRACTED #community/Client__Server_Dev_Dependencies

@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/settings/SettingsPage.tsx"
 type: "code"
-community: "Business Day & Sales Trend Charts"
+community: "Business Date & Settings"
 location: "L22"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # BusinessDayExamples()
@@ -19,4 +19,4 @@ tags:
 - [[hourLabel()]] - `calls` [EXTRACTED]
 - [[toDateKey()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

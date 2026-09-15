@@ -1,17 +1,17 @@
 ---
-source_file: "server/src/entities/sales/importPipeline.ts"
+source_file: "server/src/entities/datasets/importPipeline.ts"
 type: "code"
-community: "PDF/Format Import Adapters"
-location: "L22"
+community: "Dataset Import Parsing & Normalization"
+location: "L29"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/PDF/Format_Import_Adapters
+  - community/Dataset_Import_Parsing__Normalization
 ---
 
 # ImportOutcome
 
 ## Connections
-- [[salesimportPipeline.ts]] - `contains` [EXTRACTED]
+- [[datasetsimportPipeline.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/PDF/Format_Import_Adapters
+#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Parsing__Normalization

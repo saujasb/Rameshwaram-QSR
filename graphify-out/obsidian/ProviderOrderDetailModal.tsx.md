@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/live-orders/ProviderOrderDetailModal.tsx"
 type: "code"
-community: "Provider Orders & Live Feed"
+community: "Provider Orders Integration (GoSelfServe/PetPooja)"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Provider_Orders__Live_Feed
+  - community/Provider_Orders_Integration_GoSelfServe/PetPooja
 ---
 
 # ProviderOrderDetailModal.tsx
@@ -26,4 +26,4 @@ tags:
 - [[money()_4]] - `contains` [EXTRACTED]
 - [[shared-typesproviderOrders.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Provider_Orders__Live_Feed
+#graphify/code #graphify/EXTRACTED #community/Provider_Orders_Integration_GoSelfServe/PetPooja

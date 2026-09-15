@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/datasets/pdfAdapter.ts"
 type: "code"
-community: "PDF/Format Import Adapters"
+community: "Sales Import Pipeline, Parsers & UI"
 location: "L33"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/PDF/Format_Import_Adapters
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # adaptPdf()
@@ -18,7 +18,6 @@ tags:
 - [[parseKiosk()]] - `calls` [EXTRACTED]
 - [[parsePetpooja()]] - `calls` [EXTRACTED]
 - [[pdfAdapter.ts]] - `contains` [EXTRACTED]
-- [[runImport()]] - `calls` [EXTRACTED]
 - [[sumItems()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/PDF/Format_Import_Adapters
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI

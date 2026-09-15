@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/maintenance.ts"
 type: "code"
-community: "Maintenance Tracking"
+community: "Maintenance Module"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Maintenance_Tracking
+  - community/Maintenance_Module
 ---
 
 # maintenanceHooks
@@ -16,4 +16,4 @@ tags:
 - [[MaintenancePage.tsx]] - `imports` [EXTRACTED]
 - [[maintenance.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Maintenance_Tracking
+#graphify/code #graphify/EXTRACTED #community/Maintenance_Module

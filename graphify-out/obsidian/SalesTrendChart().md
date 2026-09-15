@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/charts/SalesTrendChart.tsx"
 type: "code"
-community: "Business Day & Sales Trend Charts"
+community: "Business Date & Settings"
 location: "L20"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Day__Sales_Trend_Charts
+  - community/Business_Date__Settings
 ---
 
 # SalesTrendChart()
@@ -17,4 +17,4 @@ tags:
 - [[SalesTrendChart.tsx]] - `contains` [EXTRACTED]
 - [[formatBusinessDateShort()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Day__Sales_Trend_Charts
+#graphify/code #graphify/EXTRACTED #community/Business_Date__Settings

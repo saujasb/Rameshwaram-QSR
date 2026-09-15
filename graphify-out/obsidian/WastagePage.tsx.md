@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/wastage/WastagePage.tsx"
 type: "code"
-community: "Staff & Wastage Tracking"
+community: "Shared Entity Enums & Wastage"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Shared_Entity_Enums__Wastage
 ---
 
 # WastagePage.tsx
@@ -20,12 +20,12 @@ tags:
 - [[HBarChart.tsx]] - `imports_from` [EXTRACTED]
 - [[WastageEntry]] - `imports` [EXTRACTED]
 - [[WastagePage()]] - `contains` [EXTRACTED]
-- [[columns_2]] - `contains` [EXTRACTED]
+- [[columns]] - `contains` [EXTRACTED]
 - [[entities.ts]] - `imports_from` [EXTRACTED]
-- [[formFields_1]] - `contains` [EXTRACTED]
+- [[formFields]] - `contains` [EXTRACTED]
 - [[routes.tsx]] - `imports_from` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 - [[wastage.ts]] - `imports_from` [EXTRACTED]
 - [[wastageHooks]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Shared_Entity_Enums__Wastage

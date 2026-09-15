@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/staff/StaffPage.tsx"
 type: "code"
-community: "Staff & Wastage Tracking"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L18"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # columns
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[StaffPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

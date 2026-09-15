@@ -1,18 +1,17 @@
 ---
 source_file: "shared-types/intelligence.ts"
 type: "code"
-community: "Sales Analytics Core"
+community: "Ramesh AI Assistant Engine"
 location: "L94"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Analytics_Core
+  - community/Ramesh_AI_Assistant_Engine
 ---
 
 # AnomalyEvidence
 
 ## Connections
-- [[AnalysisResult]] - `references` [EXTRACTED]
 - [[DatasetType]] - `references` [EXTRACTED]
 - [[RameshAnswer]] - `references` [EXTRACTED]
 - [[RameshInsightLine]] - `references` [EXTRACTED]
@@ -23,4 +22,4 @@ tags:
 - [[shared-typesintelligence.ts]] - `contains` [EXTRACTED]
 - [[shared-typesramesh.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Analytics_Core
+#graphify/code #graphify/EXTRACTED #community/Ramesh_AI_Assistant_Engine

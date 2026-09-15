@@ -1,12 +1,12 @@
 ---
 source_file: "shared-types/intelligence.ts"
 type: "code"
-community: "Business Intelligence & Anomalies"
+community: "Intelligence Dashboard UI"
 location: "L70"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Intelligence__Anomalies
+  - community/Intelligence_Dashboard_UI
 ---
 
 # Anomaly
@@ -19,4 +19,4 @@ tags:
 - [[insights.ts]] - `imports` [EXTRACTED]
 - [[shared-typesintelligence.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Intelligence__Anomalies
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

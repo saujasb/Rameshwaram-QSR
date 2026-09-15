@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/expenses/ExpensesPage.tsx"
 type: "code"
-community: "Expense Tracking"
+community: "Expenses Module"
 location: "L16"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Expense_Tracking
+  - community/Expenses_Module
 ---
 
 # columns
@@ -14,4 +14,4 @@ tags:
 ## Connections
 - [[ExpensesPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Expense_Tracking
+#graphify/code #graphify/EXTRACTED #community/Expenses_Module

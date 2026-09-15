@@ -1,19 +1,17 @@
 ---
 source_file: "shared-types/entities.ts"
 type: "code"
-community: "CRUD Hook/Repository Pattern"
+community: "Task Management (CRUD Base Record)"
 location: "L3"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/CRUD_Hook/Repository_Pattern
+  - community/Task_Management_CRUD_Base_Record
 ---
 
 # BaseRecord
 
 ## Connections
-- [[dot-create()]] - `references` [EXTRACTED]
-- [[dot-update()]] - `references` [EXTRACTED]
 - [[AttendanceRecord]] - `inherits` [EXTRACTED]
 - [[ComplaintRecord]] - `inherits` [EXTRACTED]
 - [[CrudHooks]] - `references` [EXTRACTED]
@@ -41,4 +39,4 @@ tags:
 - [[shared-typessales.ts]] - `imports` [EXTRACTED]
 - [[sharedrepository.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/CRUD_Hook/Repository_Pattern
+#graphify/code #graphify/EXTRACTED #community/Task_Management_CRUD_Base_Record

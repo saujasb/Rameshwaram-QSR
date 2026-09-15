@@ -1,18 +1,18 @@
 ---
-source_file: "server/src/entities/sales/repository.ts"
+source_file: "server/src/entities/datasets/normalize.ts"
 type: "code"
-community: "Sales Database Repository"
-location: "L41"
+community: "Dataset Import Parsing & Normalization"
+location: "L149"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Sales_Database_Repository
+  - community/Dataset_Import_Parsing__Normalization
 ---
 
 # fingerprintFor()
 
 ## Connections
-- [[salesrepository.ts]] - `contains` [EXTRACTED]
-- [[upsertLineItems()]] - `calls` [EXTRACTED]
+- [[buildRecord()]] - `calls` [EXTRACTED]
+- [[normalize.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Sales_Database_Repository
+#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Parsing__Normalization

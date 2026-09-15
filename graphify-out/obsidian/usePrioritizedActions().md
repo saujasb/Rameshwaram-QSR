@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/lib/api/analytics.ts"
 type: "code"
-community: "Chart Components (Donut/HBar)"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L9"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Chart_Components_Donut/HBar
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # usePrioritizedActions()
@@ -17,4 +17,4 @@ tags:
 - [[apianalytics.ts]] - `contains` [EXTRACTED]
 - [[apiGet()]] - `calls` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Chart_Components_Donut/HBar
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

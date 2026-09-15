@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/modules/staff/StaffPage.tsx"
+source_file: "client/src/modules/wastage/WastagePage.tsx"
 type: "code"
-community: "Staff & Wastage Tracking"
-location: "L30"
+community: "Shared Entity Enums & Wastage"
+location: "L17"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Shared_Entity_Enums__Wastage
 ---
 
 # formFields
 
 ## Connections
-- [[StaffPage.tsx]] - `contains` [EXTRACTED]
+- [[WastagePage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Shared_Entity_Enums__Wastage

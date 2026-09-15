@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/suppliers/repository.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Suppliers Repository & Routes"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Suppliers_Repository__Routes
 ---
 
 # suppliers/repository.ts
@@ -19,4 +19,4 @@ tags:
 - [[supplierRepository]] - `contains` [EXTRACTED]
 - [[suppliersroutes.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Suppliers_Repository__Routes

@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/analytics/data.ts"
 type: "code"
-community: "KPI Scorecard & Analytics Charts"
+community: "Analytics Charts & Dashboard KPIs"
 location: "L6"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/KPI_Scorecard__Analytics_Charts
+  - community/Analytics_Charts__Dashboard_KPIs
 ---
 
 # analyticsSnapshot
@@ -16,4 +16,4 @@ tags:
 - [[data.ts]] - `contains` [EXTRACTED]
 - [[run.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/KPI_Scorecard__Analytics_Charts
+#graphify/code #graphify/EXTRACTED #community/Analytics_Charts__Dashboard_KPIs

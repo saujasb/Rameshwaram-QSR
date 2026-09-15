@@ -1,11 +1,11 @@
 ---
 source_file: "client/index.html"
 type: "code"
-community: "Deployment & Integration Docs"
+community: "HTML Entrypoint"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Deployment__Integration_Docs
+  - community/HTML_Entrypoint
 ---
 
 # Client HTML Entry Point (Vite/React root)
@@ -13,4 +13,4 @@ tags:
 ## Connections
 - [[Rameshwaram — Master Tracking Command Centre]] - `references` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Deployment__Integration_Docs
+#graphify/code #graphify/EXTRACTED #community/HTML_Entrypoint

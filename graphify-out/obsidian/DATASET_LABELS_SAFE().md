@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/modules/intelligence/labels.ts"
 type: "code"
-community: "Business Intelligence & Anomalies"
+community: "Intelligence Dashboard UI"
 location: "L7"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Business_Intelligence__Anomalies
+  - community/Intelligence_Dashboard_UI
 ---
 
 # DATASET_LABELS_SAFE()
@@ -17,4 +17,4 @@ tags:
 - [[IntelligencePage.tsx]] - `imports` [EXTRACTED]
 - [[labels.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Business_Intelligence__Anomalies
+#graphify/code #graphify/EXTRACTED #community/Intelligence_Dashboard_UI

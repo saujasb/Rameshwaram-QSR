@@ -1,12 +1,12 @@
 ---
 source_file: "server/src/entities/tasks/repository.ts"
 type: "code"
-community: "Database Client & Seeding"
+community: "Action Center, Purchases & Tasks Routers"
 location: "L4"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Database_Client__Seeding
+  - community/Action_Center_Purchases__Tasks_Routers
 ---
 
 # taskRepository
@@ -17,4 +17,4 @@ tags:
 - [[tasksrepository.ts]] - `contains` [EXTRACTED]
 - [[tasksroutes.ts]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Database_Client__Seeding
+#graphify/code #graphify/EXTRACTED #community/Action_Center_Purchases__Tasks_Routers

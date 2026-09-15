@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/crud/RecordForm.tsx"
 type: "code"
-community: "Record Form & Status UI"
+community: "Generic CRUD UI Components & Staff/Attendance"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Record_Form__Status_UI
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # RecordForm.tsx
@@ -18,6 +18,7 @@ tags:
 - [[RecordForm()]] - `contains` [EXTRACTED]
 - [[TaskDetailModal.tsx]] - `imports_from` [EXTRACTED]
 - [[TasksPage.tsx]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
 - [[types.ts]] - `imports_from` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Record_Form__Status_UI
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

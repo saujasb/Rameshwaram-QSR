@@ -1,17 +1,17 @@
 ---
-source_file: "client/src/modules/wastage/WastagePage.tsx"
+source_file: "client/src/modules/staff/StaffPage.tsx"
 type: "code"
-community: "Staff & Wastage Tracking"
-location: "L17"
+community: "Generic CRUD UI Components & Staff/Attendance"
+location: "L30"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Staff__Wastage_Tracking
+  - community/Generic_CRUD_UI_Components__Staff/Attendance
 ---
 
 # formFields
 
 ## Connections
-- [[WastagePage.tsx]] - `contains` [EXTRACTED]
+- [[StaffPage.tsx]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Staff__Wastage_Tracking
+#graphify/code #graphify/EXTRACTED #community/Generic_CRUD_UI_Components__Staff/Attendance

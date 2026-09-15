@@ -1,12 +1,12 @@
 ---
 source_file: "client/src/components/Modal.tsx"
 type: "code"
-community: "Shared Table/Modal UI"
+community: "Inventory Management UI"
 location: "L1"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Shared_Table/Modal_UI
+  - community/Inventory_Management_UI
 ---
 
 # Modal.tsx
@@ -21,5 +21,6 @@ tags:
 - [[SalesTargetEditor.tsx]] - `imports_from` [EXTRACTED]
 - [[TaskDetailModal.tsx]] - `imports_from` [EXTRACTED]
 - [[TasksPage.tsx]] - `imports_from` [EXTRACTED]
+- [[react_1]] - `imports` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Shared_Table/Modal_UI
+#graphify/code #graphify/EXTRACTED #community/Inventory_Management_UI

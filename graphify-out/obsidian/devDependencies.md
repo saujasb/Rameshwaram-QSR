@@ -1,24 +1,18 @@
 ---
-source_file: "server/package.json"
+source_file: "package.json"
 type: "code"
-community: "Server Dev Dependencies"
-location: "L21"
+community: "Root Workspace Package Config"
+location: "L13"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Server_Dev_Dependencies
+  - community/Root_Workspace_Package_Config
 ---
 
 # devDependencies
 
 ## Connections
-- [[@typesbetter-sqlite3]] - `contains` [EXTRACTED]
-- [[@typescors]] - `contains` [EXTRACTED]
-- [[@typesexpress]] - `contains` [EXTRACTED]
-- [[@typesmulter]] - `contains` [EXTRACTED]
-- [[@typesnode]] - `contains` [EXTRACTED]
-- [[serverpackage.json]] - `contains` [EXTRACTED]
-- [[tsx]] - `contains` [EXTRACTED]
-- [[typescript_1]] - `contains` [EXTRACTED]
+- [[concurrently]] - `contains` [EXTRACTED]
+- [[package.json]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Server_Dev_Dependencies
+#graphify/code #graphify/EXTRACTED #community/Root_Workspace_Package_Config

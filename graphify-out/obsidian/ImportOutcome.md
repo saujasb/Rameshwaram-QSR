@@ -1,17 +1,17 @@
 ---
-source_file: "server/src/entities/datasets/importPipeline.ts"
+source_file: "server/src/entities/sales/importPipeline.ts"
 type: "code"
-community: "Dataset Import Pipeline"
-location: "L29"
+community: "Sales Import Pipeline, Parsers & UI"
+location: "L22"
 tags:
   - graphify/code
   - graphify/EXTRACTED
-  - community/Dataset_Import_Pipeline
+  - community/Sales_Import_Pipeline_Parsers__UI
 ---
 
 # ImportOutcome
 
 ## Connections
-- [[datasetsimportPipeline.ts]] - `contains` [EXTRACTED]
+- [[salesimportPipeline.ts]] - `contains` [EXTRACTED]
 
-#graphify/code #graphify/EXTRACTED #community/Dataset_Import_Pipeline
+#graphify/code #graphify/EXTRACTED #community/Sales_Import_Pipeline_Parsers__UI
