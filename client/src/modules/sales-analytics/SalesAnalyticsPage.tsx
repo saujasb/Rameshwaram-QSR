@@ -7,10 +7,13 @@ import { SalesTrendChart } from "../../components/charts/SalesTrendChart";
 import { DataFreshnessBadge } from "../../components/DataFreshnessBadge";
 import { useAnalyticsSnapshot, usePrioritizedActions } from "../../lib/api/analytics";
 import { useSalesSummary, useLatestImportBatch } from "../../lib/api/sales";
+import { useProviderOrdersRealtime } from "../../lib/api/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import { formatInrCompact } from "../../lib/format";
 import { SALES_CHANNEL_LABELS } from "@shared/sales";
 import { useSalesTargetWithEditor } from "../dashboard/SalesTargetEditor";
+import { LiveSalesFeed } from "./LiveSalesFeed";
+import { SalesAmountTab } from "./SalesAmountTab";
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "var(--critical)",
@@ -62,7 +65,14 @@ function LiveSalesSection() {
 
   return (
     <>
-      <h2 style={{ fontSize: 15, margin: "0 0 10px", color: "var(--ink-2)" }}>Live sales — from imported reports</h2>
+      <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>
+        <span className="tag neutral" style={{ fontSize: 10, marginRight: 8, verticalAlign: 1 }}>📄 BACKUP / MANUAL</span>
+        Overview — from imported PDF reports
+      </h2>
+      <p className="page-desc" style={{ margin: "0 0 10px" }}>
+        For live, automatically-updating figures see the <b>Live Feed</b> and <b>Sales Amount</b> tabs above — those come
+        straight from Petpooja, no upload required.
+      </p>
       <div className="filters-bar">
         <select value={preset} onChange={(e) => setPreset(e.target.value as RangePreset)}>
           <option value="today">Today</option>
@@ -190,10 +200,20 @@ function LiveSalesSection() {
   );
 }
 
+type SalesTab = "overview" | "live" | "amount";
+
+const TAB_LABELS: Record<SalesTab, string> = {
+  overview: "Overview",
+  live: "🟢 Live Feed",
+  amount: "Sales Amount",
+};
+
 export function SalesAnalyticsPage() {
   const { data: snap, isLoading } = useAnalyticsSnapshot();
   const { data: actions } = usePrioritizedActions();
   const { data: latestBatch } = useLatestImportBatch();
+  const connection = useProviderOrdersRealtime();
+  const [tab, setTab] = useState<SalesTab>("overview");
 
   if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
 
@@ -203,13 +223,31 @@ export function SalesAnalyticsPage() {
         <div>
           <h1>Sales & Revenue</h1>
           <p className="page-desc">
-            Live sales below come from PDF reports you've imported (Kiosk, PetPooja counter, PetPooja Online). Further
-            down, a read-only one-day operations snapshot from <b>{snap.reportDate}</b> covers production/wastage
-            variance — a separate, one-time report, not the live feed.
+            <b>Live Feed</b> and <b>Sales Amount</b> stream straight from Petpooja (primary source) the moment an order
+            is billed. <b>Overview</b> holds the PDF-import figures (backup / manual source) plus the one-day
+            operations snapshot from <b>{snap.reportDate}</b> — a separate, one-time report.
           </p>
         </div>
         <DataFreshnessBadge lastSyncedAt={latestBatch?.createdAt ?? null} />
       </div>
+
+      <div className="filters-bar" style={{ marginBottom: 18 }}>
+        {(Object.keys(TAB_LABELS) as SalesTab[]).map((t) => (
+          <button
+            key={t}
+            className="btn small"
+            onClick={() => setTab(t)}
+            style={tab === t ? { background: "var(--brand)", color: "var(--on-brand, #fff)", borderColor: "var(--brand)" } : undefined}
+          >
+            {TAB_LABELS[t]}
+          </button>
+        ))}
+      </div>
+
+      {tab === "live" && <LiveSalesFeed connection={connection} />}
+      {tab === "amount" && <SalesAmountTab connection={connection} />}
+      {tab === "overview" && (
+      <>
 
       <LiveSalesSection />
 
@@ -290,6 +328,8 @@ export function SalesAnalyticsPage() {
             </div>
           ))}
         </div>
+      )}
+      </>
       )}
     </div>
   );

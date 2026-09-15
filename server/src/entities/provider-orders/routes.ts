@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { getProviderOrder, listProviderOrders } from "./repository.js";
-import type { ProviderOrderFilter } from "../../../../shared-types/providerOrders.js";
+import { getProviderOrder, getProviderOrderSalesSummary, listProviderOrders } from "./repository.js";
+import type { ProviderOrderFilter, ProviderOrderSalesFilter } from "../../../../shared-types/providerOrders.js";
 
 export const providerOrdersRouter: Router = Router();
 
@@ -17,6 +17,17 @@ providerOrdersRouter.get("/", async (req, res) => {
     search: str(req.query.search),
   };
   res.json(await listProviderOrders(filter));
+});
+
+// Must be registered before "/:id" so "sales-summary" isn't swallowed as an id.
+providerOrdersRouter.get("/sales-summary", async (req, res) => {
+  const filter: ProviderOrderSalesFilter = {
+    from: str(req.query.from),
+    to: str(req.query.to),
+    provider: str(req.query.provider) as ProviderOrderSalesFilter["provider"],
+    restaurantId: str(req.query.restaurantId),
+  };
+  res.json(await getProviderOrderSalesSummary(filter));
 });
 
 providerOrdersRouter.get("/:id", async (req, res) => {

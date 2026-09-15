@@ -110,3 +110,35 @@ export const PROVIDER_ORDER_SOURCE_LABELS: Record<ProviderOrderSource, string> =
   swiggy: "Swiggy",
   other: "Aggregator",
 };
+
+// Sales Amount tab (dashboard Sales & Revenue page) -- aggregated straight from
+// provider_orders (status = 'success' only), the same source of truth as the
+// Live Feed. Never mixed with PDF-import figures.
+export interface ProviderOrderTypeTotal {
+  orderType: ProviderOrderType;
+  quantity: number;
+  amount: number;
+}
+
+export interface ProviderOrderDailyTotal {
+  businessDate: string;
+  quantity: number;
+  amount: number;
+}
+
+export interface ProviderOrderSalesSummary {
+  businessDateFrom: string | null;
+  businessDateTo: string | null;
+  totalOrders: number;
+  totalAmount: number;
+  averageOrderValue: number;
+  byOrderType: ProviderOrderTypeTotal[];
+  dailyTrend: ProviderOrderDailyTotal[];
+}
+
+export interface ProviderOrderSalesFilter {
+  from?: string;
+  to?: string;
+  provider?: ProviderName;
+  restaurantId?: string;
+}

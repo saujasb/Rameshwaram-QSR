@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { query, queryOne } from "../../db/pg.js";
+import { aggregateProviderOrderSales, type ProviderOrderSalesRow } from "./salesAggregation.js";
 import type {
   ProviderName,
   ProviderOrder,
@@ -8,6 +9,8 @@ import type {
   ProviderOrderFilter,
   ProviderOrderItem,
   ProviderOrderPartPayment,
+  ProviderOrderSalesFilter,
+  ProviderOrderSalesSummary,
   ProviderOrderSource,
   ProviderOrderStatus,
   ProviderOrderTax,
@@ -241,6 +244,33 @@ function redactTokens(value: unknown): unknown {
     return out;
   }
   return value;
+}
+
+/**
+ * Sales Amount tab source of truth: aggregates directly from provider_orders,
+ * status = 'success' only (cancelled/pending excluded, never invented). Row
+ * volume for a single-outlet dashboard is small enough that bucketing in JS
+ * (rather than duplicating business-day math in SQL) is the simpler,
+ * less error-prone option.
+ */
+export async function getProviderOrderSalesSummary(filter: ProviderOrderSalesFilter): Promise<ProviderOrderSalesSummary> {
+  const conditions: string[] = [`status = 'success'`];
+  const params: unknown[] = [];
+  const next = () => `$${params.length + 1}`;
+  if (filter.provider) {
+    conditions.push(`provider = ${next()}`);
+    params.push(filter.provider);
+  }
+  if (filter.restaurantId) {
+    conditions.push(`"restaurantId" = ${next()}`);
+    params.push(filter.restaurantId);
+  }
+  const where = `WHERE ${conditions.join(" AND ")}`;
+  const rows = await query<ProviderOrderSalesRow>(
+    `SELECT "orderType", "totalAmount", "itemCount", "providerCreatedAt" FROM provider_orders ${where} ORDER BY "providerCreatedAt" ASC LIMIT 20000`,
+    params
+  );
+  return aggregateProviderOrderSales(rows, filter);
 }
 
 export async function recordWebhookEvent(input: {
