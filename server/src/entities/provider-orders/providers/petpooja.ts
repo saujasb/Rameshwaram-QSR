@@ -28,12 +28,29 @@ function num(v: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
+// Real POS traffic (2026-09-15 incident) sends "Pickup" and "Self service" --
+// neither is in the Global API Documentation.pdf sample payload, which only
+// showed "Dine In" / "Pick Up" / "Delivery". Exact-string matching silently
+// rejected every live order of those types (124 dropped 2026-09-15
+// 11:42-14:26), so this maps known spellings (case/whitespace-normalized)
+// explicitly rather than keyword-matching -- a substring match like
+// includes("pick") would silently misclassify some future unrelated value
+// (e.g. "Self Pickup Counter") as pick_up instead of surfacing it as "other"
+// for review. "Self service" isn't dine-in, pick-up, or delivery, so it maps
+// to "other" rather than being guessed into one of them.
+// ponytail: fixed lookup table, ceiling = a new Petpooja order_type spelling
+// not listed here lands in "other" until someone adds it. Acceptable --
+// "other" is a safe, visible fallback, never a crash.
+const ORDER_TYPE_MAP: Record<string, ProviderOrderType> = {
+  "dine in": "dine_in",
+  pickup: "pick_up",
+  "pick up": "pick_up",
+  delivery: "delivery",
+};
+
 function mapOrderType(raw: string): ProviderOrderType {
-  const v = raw.trim().toLowerCase();
-  if (v === "dine in") return "dine_in";
-  if (v === "pick up") return "pick_up";
-  if (v === "delivery") return "delivery";
-  throw new PetpoojaPayloadError(`Order.order_type: unrecognized value ${JSON.stringify(raw)}`);
+  const v = raw.trim().toLowerCase().replace(/\s+/g, " ");
+  return ORDER_TYPE_MAP[v] ?? "other";
 }
 
 function mapOrderFrom(raw: string): ProviderOrderSource {
