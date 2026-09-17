@@ -14,6 +14,8 @@ import { SALES_CHANNEL_LABELS } from "@shared/sales";
 import { useSalesTargetWithEditor } from "../dashboard/SalesTargetEditor";
 import { LiveSalesFeed } from "./LiveSalesFeed";
 import { SalesAmountTab } from "./SalesAmountTab";
+import { OnlineSourcePlaceholder } from "./OnlineSourcePlaceholder";
+import { SALES_SOURCES, SALES_SOURCE_LABELS, isLiveSalesSource, type SalesSource } from "./salesSource";
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "var(--critical)",
@@ -214,6 +216,7 @@ export function SalesAnalyticsPage() {
   const { data: latestBatch } = useLatestImportBatch();
   const connection = useProviderOrdersRealtime();
   const [tab, setTab] = useState<SalesTab>("overview");
+  const [source, setSource] = useState<SalesSource>("petpooja");
 
   if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
 
@@ -223,9 +226,9 @@ export function SalesAnalyticsPage() {
         <div>
           <h1>Sales & Revenue</h1>
           <p className="page-desc">
-            <b>Live Feed</b> and <b>Sales Amount</b> stream straight from Petpooja (primary source) the moment an order
-            is billed. <b>Overview</b> holds the PDF-import figures (backup / manual source) plus the one-day
-            operations snapshot from <b>{snap.reportDate}</b> — a separate, one-time report.
+            <b>Live Feed</b> and <b>Sales Amount</b> stream straight from a live order source (Petpooja or Kiosk) the
+            moment an order is billed. <b>Overview</b> holds the PDF-import figures (backup / manual source) plus the
+            one-day operations snapshot from <b>{snap.reportDate}</b> — a separate, one-time report.
           </p>
         </div>
         <DataFreshnessBadge lastSyncedAt={latestBatch?.createdAt ?? null} />
@@ -244,8 +247,27 @@ export function SalesAnalyticsPage() {
         ))}
       </div>
 
-      {tab === "live" && <LiveSalesFeed connection={connection} />}
-      {tab === "amount" && <SalesAmountTab connection={connection} />}
+      {(tab === "live" || tab === "amount") && (
+        <div className="filters-bar" style={{ marginBottom: 18, alignItems: "center" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
+            Source
+          </span>
+          {SALES_SOURCES.map((s) => (
+            <button
+              key={s}
+              className="btn small"
+              onClick={() => setSource(s)}
+              aria-pressed={source === s}
+              style={source === s ? { background: "var(--brand)", color: "var(--on-brand, #fff)", borderColor: "var(--brand)" } : undefined}
+            >
+              {SALES_SOURCE_LABELS[s]}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {tab === "live" && (isLiveSalesSource(source) ? <LiveSalesFeed connection={connection} source={source} /> : <OnlineSourcePlaceholder area="feed" />)}
+      {tab === "amount" && (isLiveSalesSource(source) ? <SalesAmountTab connection={connection} source={source} /> : <OnlineSourcePlaceholder area="amount" />)}
       {tab === "overview" && (
       <>
 

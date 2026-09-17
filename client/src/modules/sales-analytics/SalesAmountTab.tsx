@@ -5,6 +5,7 @@ import { useProviderOrderSalesSummary, useProviderOrders, type RealtimeStatus } 
 import { PROVIDER_ORDER_TYPE_LABELS } from "@shared/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import { formatInrCompact } from "../../lib/format";
+import { SALES_SOURCE_LABELS, type LiveSalesSource } from "./salesSource";
 
 const TYPE_COLOR: Record<string, string> = {
   dine_in: "var(--s1)",
@@ -28,18 +29,19 @@ function computeRange(preset: RangePreset, today: string): { from?: string; to?:
 
 /**
  * Sales Amount tab -- same source of truth as the Live Feed (provider_orders,
- * status = 'success', provider = 'petpooja'). Never reads dataset_records /
- * the PDF import, per the brief: "Do NOT calculate sales from the PDF if live
- * provider orders are available."
+ * status = 'success', scoped to whichever live source is selected). Never
+ * reads dataset_records / the PDF import, per the brief: "Do NOT calculate
+ * sales from the PDF if live provider orders are available."
  */
-export function SalesAmountTab({ connection }: { connection: RealtimeStatus }) {
+export function SalesAmountTab({ connection, source }: { connection: RealtimeStatus; source: LiveSalesSource }) {
   const today = getCurrentBusinessDate();
   const [preset, setPreset] = useState<RangePreset>("today");
   const range = useMemo(() => computeRange(preset, today), [preset, today]);
+  const label = SALES_SOURCE_LABELS[source];
 
-  const { data: summary } = useProviderOrderSalesSummary({ provider: "petpooja", ...range });
-  const { data: todaySummary } = useProviderOrderSalesSummary({ provider: "petpooja", from: today, to: today });
-  const { data: recentOrders } = useProviderOrders({ provider: "petpooja", status: "success" });
+  const { data: summary } = useProviderOrderSalesSummary({ provider: source, ...range });
+  const { data: todaySummary } = useProviderOrderSalesSummary({ provider: source, from: today, to: today });
+  const { data: recentOrders } = useProviderOrders({ provider: source, status: "success" });
 
   const rangeLabel =
     summary?.businessDateFrom && summary.businessDateFrom === summary.businessDateTo
@@ -52,7 +54,7 @@ export function SalesAmountTab({ connection }: { connection: RealtimeStatus }) {
     <div>
       <div className="page-head">
         <div>
-          <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>Sales Amount — live Petpooja orders</h2>
+          <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>Sales Amount — live {label} orders</h2>
           <p className="page-desc" style={{ margin: 0 }}>
             Computed directly from successful provider_orders — the same source as the Live Feed above, never the PDF import.
           </p>
@@ -75,7 +77,7 @@ export function SalesAmountTab({ connection }: { connection: RealtimeStatus }) {
 
       {!summary || summary.totalOrders === 0 ? (
         <div className="banner-not-connected" style={{ marginBottom: 18 }}>
-          No successful Petpooja orders in this range yet. They'll show up here the moment one comes in.
+          No successful {label} orders in this range yet. They'll show up here the moment one comes in.
         </div>
       ) : (
         <>
@@ -126,7 +128,7 @@ export function SalesAmountTab({ connection }: { connection: RealtimeStatus }) {
             </div>
             <div className="card" style={{ marginBottom: 0 }}>
               <h3>Recent sales</h3>
-              <p className="h3sub">Latest successful Petpooja orders</p>
+              <p className="h3sub">Latest successful {label} orders</p>
               <div className="table-scroll">
                 <table>
                   <thead>
