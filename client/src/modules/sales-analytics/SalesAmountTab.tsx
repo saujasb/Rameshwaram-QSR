@@ -2,15 +2,22 @@ import { useMemo, useState } from "react";
 import { Donut } from "../../components/charts/Donut";
 import { SalesTrendChart } from "../../components/charts/SalesTrendChart";
 import { useProviderOrderSalesSummary, useProviderOrders, type RealtimeStatus } from "../../lib/api/providerOrders";
-import { PROVIDER_ORDER_TYPE_LABELS } from "@shared/providerOrders";
+import { PROVIDER_ORDER_TYPE_LABELS, SALES_CHANNEL_DISPLAY_LABELS } from "@shared/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import { formatInrCompact } from "../../lib/format";
-import { SALES_SOURCE_LABELS, type LiveSalesSource } from "./salesSource";
+import { SALES_SOURCE_LABELS, providerFilterFor, type LiveSalesSource } from "./salesSource";
 
 const TYPE_COLOR: Record<string, string> = {
   dine_in: "var(--s1)",
   pick_up: "var(--s2)",
   delivery: "var(--s3)",
+  other: "var(--muted)",
+};
+
+const CHANNEL_COLOR: Record<string, string> = {
+  petpooja_pos: "var(--s2)",
+  kiosk: "var(--s1)",
+  petpooja_online: "var(--s3)",
   other: "var(--muted)",
 };
 
@@ -38,10 +45,12 @@ export function SalesAmountTab({ connection, source }: { connection: RealtimeSta
   const [preset, setPreset] = useState<RangePreset>("today");
   const range = useMemo(() => computeRange(preset, today), [preset, today]);
   const label = SALES_SOURCE_LABELS[source];
+  const provider = providerFilterFor(source);
+  const combined = source === "combined";
 
-  const { data: summary } = useProviderOrderSalesSummary({ provider: source, ...range });
-  const { data: todaySummary } = useProviderOrderSalesSummary({ provider: source, from: today, to: today });
-  const { data: recentOrders } = useProviderOrders({ provider: source, status: "success" });
+  const { data: summary } = useProviderOrderSalesSummary({ provider, ...range });
+  const { data: todaySummary } = useProviderOrderSalesSummary({ provider, from: today, to: today });
+  const { data: recentOrders } = useProviderOrders({ provider, status: "success" });
 
   const rangeLabel =
     summary?.businessDateFrom && summary.businessDateFrom === summary.businessDateTo
@@ -54,7 +63,9 @@ export function SalesAmountTab({ connection, source }: { connection: RealtimeSta
     <div>
       <div className="page-head">
         <div>
-          <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>Sales Amount — live {label} orders</h2>
+          <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>
+            Sales Amount — {combined ? "all live sources combined" : `live ${label} orders`}
+          </h2>
           <p className="page-desc" style={{ margin: 0 }}>
             Computed directly from successful provider_orders — the same source as the Live Feed above, never the PDF import.
           </p>
@@ -77,7 +88,7 @@ export function SalesAmountTab({ connection, source }: { connection: RealtimeSta
 
       {!summary || summary.totalOrders === 0 ? (
         <div className="banner-not-connected" style={{ marginBottom: 18 }}>
-          No successful {label} orders in this range yet. They'll show up here the moment one comes in.
+          No successful {combined ? "" : `${label} `}orders in this range yet. They'll show up here the moment one comes in.
         </div>
       ) : (
         <>
@@ -126,18 +137,66 @@ export function SalesAmountTab({ connection, source }: { connection: RealtimeSta
                 centerSub="total sales"
               />
             </div>
-            <div className="card" style={{ marginBottom: 0 }}>
+            {combined ? (
+              <div className="card" style={{ marginBottom: 0 }}>
+                <h3>Sales by channel</h3>
+                <p className="h3sub">{rangeLabel}</p>
+                <div className="legend">
+                  {summary.byChannel.map((c) => (
+                    <span key={c.channel}>
+                      <span className="sw" style={{ background: CHANNEL_COLOR[c.channel] ?? "var(--brand)" }} />
+                      {SALES_CHANNEL_DISPLAY_LABELS[c.channel]}
+                    </span>
+                  ))}
+                </div>
+                <Donut
+                  data={summary.byChannel.map((c) => ({
+                    name: SALES_CHANNEL_DISPLAY_LABELS[c.channel],
+                    value: c.amount,
+                    color: CHANNEL_COLOR[c.channel] ?? "var(--brand)",
+                  }))}
+                  centerLabel={`₹${summary.totalAmount.toLocaleString()}`}
+                  centerSub="total sales"
+                />
+              </div>
+            ) : (
+              <div className="card" style={{ marginBottom: 0 }}>
+                <h3>Recent sales</h3>
+                <p className="h3sub">Latest successful {label} orders</p>
+                <div className="table-scroll">
+                  <table>
+                    <thead>
+                      <tr><th>Order</th><th>Type</th><th className="num">Amount</th></tr>
+                    </thead>
+                    <tbody>
+                      {(recentOrders ?? []).slice(0, 10).map((o) => (
+                        <tr key={o.id}>
+                          <td>#{o.providerOrderId}</td>
+                          <td>{PROVIDER_ORDER_TYPE_LABELS[o.orderType]}</td>
+                          <td className="num">₹{o.totalAmount.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {combined && (
+            <div className="card" style={{ marginTop: 18 }}>
               <h3>Recent sales</h3>
-              <p className="h3sub">Latest successful {label} orders</p>
+              <p className="h3sub">Latest successful orders across all sources</p>
               <div className="table-scroll">
                 <table>
                   <thead>
-                    <tr><th>Order</th><th>Type</th><th className="num">Amount</th></tr>
+                    <tr><th>Order</th><th>Source</th><th>Type</th><th className="num">Amount</th></tr>
                   </thead>
                   <tbody>
                     {(recentOrders ?? []).slice(0, 10).map((o) => (
                       <tr key={o.id}>
                         <td>#{o.providerOrderId}</td>
+                        <td>{SALES_SOURCE_LABELS[o.provider]}</td>
                         <td>{PROVIDER_ORDER_TYPE_LABELS[o.orderType]}</td>
                         <td className="num">₹{o.totalAmount.toLocaleString()}</td>
                       </tr>
@@ -146,7 +205,7 @@ export function SalesAmountTab({ connection, source }: { connection: RealtimeSta
                 </table>
               </div>
             </div>
-          </div>
+          )}
 
           <div className="card">
             <h3>Sales over time</h3>

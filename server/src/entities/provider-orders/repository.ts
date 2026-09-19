@@ -1,6 +1,12 @@
 import { randomUUID } from "node:crypto";
 import { query, queryOne } from "../../db/pg.js";
-import { aggregateProviderOrderSales, type ProviderOrderSalesRow } from "./salesAggregation.js";
+import {
+  aggregateProviderOrderItems,
+  aggregateProviderOrderSales,
+  type ProviderOrderItemRow,
+  type ProviderOrderSalesRow,
+} from "./salesAggregation.js";
+import { shiftDateKey } from "../../../../shared-types/businessDate.js";
 import type {
   ProviderName,
   ProviderOrder,
@@ -8,6 +14,7 @@ import type {
   ProviderOrderDiscount,
   ProviderOrderFilter,
   ProviderOrderItem,
+  ProviderOrderItemSales,
   ProviderOrderPartPayment,
   ProviderOrderSalesFilter,
   ProviderOrderSalesSummary,
@@ -295,11 +302,31 @@ function redactTokens(value: unknown): unknown {
 }
 
 /**
- * Sales Amount tab source of truth: aggregates directly from provider_orders,
- * status = 'success' only (cancelled/pending excluded, never invented). Row
- * volume for a single-outlet dashboard is small enough that bucketing in JS
- * (rather than duplicating business-day math in SQL) is the simpler,
- * less error-prone option.
+ * Cheap SQL-side pre-filter, on top of the precise business-day bucketing
+ * that already happens in JS (aggregateProviderOrderSales/Items -- see that
+ * file's comment on why bucketing stays in JS). Widened by one calendar day
+ * on each side so the business-day cutoff (default 05:00, shared-types/
+ * businessDate.ts) can never exclude a row the JS pass would have kept -- it
+ * only narrows what's fetched from Postgres, never what's counted. This is
+ * what keeps a bounded query (the common case: today/this week/this month)
+ * well under the row caps below as order volume grows, without touching the
+ * caps themselves.
+ */
+function coarseBusinessDateBounds(from?: string, to?: string): { gte?: string; lt?: string } {
+  if (!from && !to) return {};
+  return {
+    gte: from ? `${shiftDateKey(from, -1)}T00:00:00` : undefined,
+    lt: to ? `${shiftDateKey(to, 1)}T00:00:00` : undefined,
+  };
+}
+
+/**
+ * Sales Amount tab / Overview live-sales source of truth: aggregates directly
+ * from provider_orders, status = 'success' only (cancelled/pending excluded,
+ * never invented). Row volume for a single-outlet dashboard is small enough
+ * that bucketing in JS (rather than duplicating business-day math in SQL) is
+ * the simpler, less error-prone option -- the coarse date pre-filter above is
+ * what keeps this scaling as volume grows, without changing that approach.
  */
 export async function getProviderOrderSalesSummary(filter: ProviderOrderSalesFilter): Promise<ProviderOrderSalesSummary> {
   const conditions: string[] = [`status = 'success'`];
@@ -313,12 +340,85 @@ export async function getProviderOrderSalesSummary(filter: ProviderOrderSalesFil
     conditions.push(`"restaurantId" = ${next()}`);
     params.push(filter.restaurantId);
   }
+  const { gte, lt } = coarseBusinessDateBounds(filter.from, filter.to);
+  if (gte) {
+    conditions.push(`${SAFE_PROVIDER_CREATED_AT} >= ${next()}`);
+    params.push(gte);
+  }
+  if (lt) {
+    conditions.push(`${SAFE_PROVIDER_CREATED_AT} < ${next()}`);
+    params.push(lt);
+  }
   const where = `WHERE ${conditions.join(" AND ")}`;
   const rows = await query<ProviderOrderSalesRow>(
-    `SELECT "orderType", "totalAmount", "itemCount", "providerCreatedAt" FROM provider_orders ${where} ORDER BY "providerCreatedAt" ASC LIMIT 20000`,
+    `SELECT provider, "orderFromLabel", "orderType", "totalAmount", "itemCount", "providerCreatedAt"
+     FROM provider_orders ${where} ORDER BY "providerCreatedAt" ASC LIMIT 20000`,
     params
   );
   return aggregateProviderOrderSales(rows, filter);
+}
+
+// Mirrors getProviderOrderSalesSummary's existing safety ceiling -- not a new,
+// lower limit. Applied to the number of qualifying ORDERS before unnesting
+// their items, so a wide/unbounded date range still can't unnest an unbounded
+// number of item rows.
+const ITEM_SALES_MAX_ORDERS = 20000;
+
+/**
+ * Item Sales / Category Performance source of truth. Aggregates in SQL via
+ * jsonb_array_elements rather than fetching every matching order's full
+ * itemsJson into Node -- items can outnumber orders several-fold, so this is
+ * the one place in this file where server-side aggregation (Phase 13) matters
+ * more than the "bucket in JS" simplicity used elsewhere; the coarse date
+ * pre-filter still narrows which orders get unnested at all, and business-day
+ * bucketing of the unnested rows still happens in JS via aggregateProviderOrderItems
+ * for the same precision reasons as getProviderOrderSalesSummary.
+ */
+export async function getProviderOrderItemSales(filter: ProviderOrderSalesFilter): Promise<ProviderOrderItemSales> {
+  const conditions: string[] = [`status = 'success'`];
+  const params: unknown[] = [];
+  const next = () => `$${params.length + 1}`;
+  if (filter.provider) {
+    conditions.push(`provider = ${next()}`);
+    params.push(filter.provider);
+  }
+  if (filter.restaurantId) {
+    conditions.push(`"restaurantId" = ${next()}`);
+    params.push(filter.restaurantId);
+  }
+  const { gte, lt } = coarseBusinessDateBounds(filter.from, filter.to);
+  if (gte) {
+    conditions.push(`${SAFE_PROVIDER_CREATED_AT} >= ${next()}`);
+    params.push(gte);
+  }
+  if (lt) {
+    conditions.push(`${SAFE_PROVIDER_CREATED_AT} < ${next()}`);
+    params.push(lt);
+  }
+  const where = `WHERE ${conditions.join(" AND ")}`;
+  const limitParam = `$${params.length + 1}`;
+
+  const rows = await query<{
+    providerCreatedAt: string;
+    item: { name?: string; categoryName?: string; quantity?: number; total?: number };
+  }>(
+    `WITH filtered_orders AS (
+       SELECT "providerCreatedAt", "itemsJson" FROM provider_orders ${where}
+       ORDER BY "providerCreatedAt" ASC LIMIT ${limitParam}
+     )
+     SELECT fo."providerCreatedAt", item
+     FROM filtered_orders fo, LATERAL jsonb_array_elements((fo."itemsJson")::jsonb) AS item`,
+    [...params, ITEM_SALES_MAX_ORDERS]
+  );
+
+  const itemRows: ProviderOrderItemRow[] = rows.map((r) => ({
+    providerCreatedAt: r.providerCreatedAt,
+    name: r.item?.name ?? "Unknown item",
+    categoryName: r.item?.categoryName ?? null,
+    quantity: r.item?.quantity ?? 0,
+    total: r.item?.total ?? 0,
+  }));
+  return aggregateProviderOrderItems(itemRows, filter);
 }
 
 export async function recordWebhookEvent(input: {

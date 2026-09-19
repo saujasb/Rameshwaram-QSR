@@ -4,7 +4,7 @@ import { ProviderOrderDetailModal } from "../live-orders/ProviderOrderDetailModa
 import { useProviderOrders, type RealtimeStatus } from "../../lib/api/providerOrders";
 import { PROVIDER_ORDER_TYPE_LABELS } from "@shared/providerOrders";
 import type { ProviderOrder } from "@shared/providerOrders";
-import { SALES_SOURCE_LABELS, type LiveSalesSource } from "./salesSource";
+import { SALES_SOURCE_LABELS, providerFilterFor, type LiveSalesSource } from "./salesSource";
 
 function money(n: number): string {
   return `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
@@ -35,17 +35,17 @@ const CONNECTION_TONE: Record<RealtimeStatus, "good" | "notconn" | "warn"> = {
 };
 
 /**
- * Live Sales feed -- scoped to a single live provider at a time (Petpooja or
- * Kiosk/GoSelfServe), chosen by the source selector in SalesAnalyticsPage.
- * The general multi-provider Live Orders page is left untouched; this is the
- * Sales-section-scoped view the brief asked for.
+ * Live Sales feed -- scoped to a single live provider, or "combined" for both
+ * at once (provider filter simply omitted -- the same query Live Orders
+ * already uses), chosen by the source selector in SalesAnalyticsPage.
  */
 export function LiveSalesFeed({ connection, source }: { connection: RealtimeStatus; source: LiveSalesSource }) {
   const [selected, setSelected] = useState<ProviderOrder | null>(null);
-  const { data, isLoading, isError } = useProviderOrders({ provider: source });
+  const { data, isLoading, isError } = useProviderOrders({ provider: providerFilterFor(source) });
   const orders = (data ?? []).slice(0, 30);
   const tone = CONNECTION_TONE[connection];
   const label = SALES_SOURCE_LABELS[source];
+  const combined = source === "combined";
 
   return (
     <div>
@@ -53,7 +53,9 @@ export function LiveSalesFeed({ connection, source }: { connection: RealtimeStat
         <div>
           <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>Live sales feed — {label}</h2>
           <p className="page-desc" style={{ margin: 0 }}>
-            Every order {label} pushes to the webhook lands here the moment it's billed — no import, no refresh needed.
+            {combined
+              ? "Every order Petpooja or Kiosk pushes to their webhook lands here the moment it's billed — no import, no refresh needed."
+              : `Every order ${label} pushes to the webhook lands here the moment it's billed — no import, no refresh needed.`}
           </p>
         </div>
         <span className={`freshness ${tone}`}>
@@ -67,7 +69,9 @@ export function LiveSalesFeed({ connection, source }: { connection: RealtimeStat
         ) : isLoading ? (
           <p style={{ color: "var(--muted)", fontSize: 13.5 }}>Loading…</p>
         ) : orders.length === 0 ? (
-          <div className="banner-not-connected">No {label} orders yet. They'll appear here the moment one arrives.</div>
+          <div className="banner-not-connected">
+            No {combined ? "" : `${label} `}orders yet. They'll appear here the moment one arrives.
+          </div>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {orders.map((o) => (
@@ -95,7 +99,8 @@ export function LiveSalesFeed({ connection, source }: { connection: RealtimeStat
                     Order #{o.providerOrderId} · {PROVIDER_ORDER_TYPE_LABELS[o.orderType]}
                   </div>
                   <div style={{ fontSize: 11.5, color: "var(--muted)" }}>
-                    {o.itemCount} item{o.itemCount === 1 ? "" : "s"} · {o.restaurantName || label}
+                    {o.itemCount} item{o.itemCount === 1 ? "" : "s"} ·{" "}
+                    {combined ? SALES_SOURCE_LABELS[o.provider] : o.restaurantName || label}
                   </div>
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 14, flexShrink: 0 }}>{money(o.totalAmount)}</div>

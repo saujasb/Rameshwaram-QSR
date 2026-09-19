@@ -141,6 +141,29 @@ export interface ProviderOrderDailyTotal {
   amount: number;
 }
 
+/**
+ * Business-facing sales channel -- distinct from ProviderOrderSource (the raw
+ * order_from enum). "petpooja_online" only ever appears once Petpooja's real
+ * order_from value for its Online-ordering mode has been confirmed and added
+ * to CONFIRMED_PETPOOJA_ONLINE_LABELS in salesAggregation.ts -- until then no
+ * order is ever classified into it, by design (see that file's comment).
+ */
+export type SalesChannel = "petpooja_pos" | "petpooja_online" | "kiosk" | "other";
+
+export const SALES_CHANNEL_DISPLAY_LABELS: Record<SalesChannel, string> = {
+  petpooja_pos: "Petpooja (POS)",
+  petpooja_online: "Petpooja (Online)",
+  kiosk: "Kiosk",
+  other: "Other",
+};
+
+export interface ProviderOrderChannelTotal {
+  channel: SalesChannel;
+  orders: number;
+  quantity: number;
+  amount: number;
+}
+
 export interface ProviderOrderSalesSummary {
   businessDateFrom: string | null;
   businessDateTo: string | null;
@@ -148,6 +171,7 @@ export interface ProviderOrderSalesSummary {
   totalAmount: number;
   averageOrderValue: number;
   byOrderType: ProviderOrderTypeTotal[];
+  byChannel: ProviderOrderChannelTotal[];
   dailyTrend: ProviderOrderDailyTotal[];
 }
 
@@ -156,4 +180,27 @@ export interface ProviderOrderSalesFilter {
   to?: string;
   provider?: ProviderName;
   restaurantId?: string;
+}
+
+// Item Sales / Category Performance -- combined, single-list views over
+// provider_orders.itemsJson. category is null (never a made-up label) when
+// the source item genuinely carries no category.
+export interface ProviderOrderItemTotal {
+  name: string;
+  category: string | null;
+  quantity: number;
+  amount: number;
+}
+
+export interface ProviderOrderCategoryTotal {
+  category: string | null;
+  quantity: number;
+  amount: number;
+}
+
+export interface ProviderOrderItemSales {
+  businessDateFrom: string | null;
+  businessDateTo: string | null;
+  items: ProviderOrderItemTotal[];
+  categories: ProviderOrderCategoryTotal[];
 }

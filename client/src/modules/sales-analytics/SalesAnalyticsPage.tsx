@@ -14,6 +14,8 @@ import { SALES_CHANNEL_LABELS } from "@shared/sales";
 import { useSalesTargetWithEditor } from "../dashboard/SalesTargetEditor";
 import { LiveSalesFeed } from "./LiveSalesFeed";
 import { SalesAmountTab } from "./SalesAmountTab";
+import { ItemSalesTab } from "./ItemSalesTab";
+import { CategoryPerformanceTab } from "./CategoryPerformanceTab";
 import { OnlineSourcePlaceholder } from "./OnlineSourcePlaceholder";
 import { SALES_SOURCES, SALES_SOURCE_LABELS, isLiveSalesSource, type SalesSource } from "./salesSource";
 
@@ -202,12 +204,14 @@ function LiveSalesSection() {
   );
 }
 
-type SalesTab = "overview" | "live" | "amount";
+type SalesTab = "overview" | "live" | "amount" | "items" | "categories";
 
 const TAB_LABELS: Record<SalesTab, string> = {
   overview: "Overview",
   live: "🟢 Live Feed",
   amount: "Sales Amount",
+  items: "Item Sales",
+  categories: "Category Performance",
 };
 
 export function SalesAnalyticsPage() {
@@ -247,7 +251,7 @@ export function SalesAnalyticsPage() {
         ))}
       </div>
 
-      {(tab === "live" || tab === "amount") && (
+      {(tab === "live" || tab === "amount" || tab === "items" || tab === "categories") && (
         <div className="filters-bar" style={{ marginBottom: 18, alignItems: "center" }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
             Source
@@ -268,6 +272,8 @@ export function SalesAnalyticsPage() {
 
       {tab === "live" && (isLiveSalesSource(source) ? <LiveSalesFeed connection={connection} source={source} /> : <OnlineSourcePlaceholder area="feed" />)}
       {tab === "amount" && (isLiveSalesSource(source) ? <SalesAmountTab connection={connection} source={source} /> : <OnlineSourcePlaceholder area="amount" />)}
+      {tab === "items" && (isLiveSalesSource(source) ? <ItemSalesTab source={source} /> : <OnlineSourcePlaceholder area="items" />)}
+      {tab === "categories" && (isLiveSalesSource(source) ? <CategoryPerformanceTab source={source} /> : <OnlineSourcePlaceholder area="categories" />)}
       {tab === "overview" && (
       <>
 

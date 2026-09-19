@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   countProviderOrders,
   getProviderOrder,
+  getProviderOrderItemSales,
   getProviderOrderSalesSummary,
   listProviderOrders,
   MAX_PROVIDER_ORDERS_PAGE_SIZE,
@@ -62,6 +63,17 @@ providerOrdersRouter.get("/sales-summary", async (req, res) => {
     restaurantId: str(req.query.restaurantId),
   };
   res.json(await getProviderOrderSalesSummary(filter));
+});
+
+// Must also be registered before "/:id" for the same reason as sales-summary.
+providerOrdersRouter.get("/item-sales", async (req, res) => {
+  const filter: ProviderOrderSalesFilter = {
+    from: str(req.query.from),
+    to: str(req.query.to),
+    provider: str(req.query.provider) as ProviderOrderSalesFilter["provider"],
+    restaurantId: str(req.query.restaurantId),
+  };
+  res.json(await getProviderOrderItemSales(filter));
 });
 
 providerOrdersRouter.get("/:id", async (req, res) => {

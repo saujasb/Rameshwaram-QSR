@@ -5,6 +5,7 @@ import { supabase } from "../supabaseClient";
 import type {
   ProviderOrder,
   ProviderOrderFilter,
+  ProviderOrderItemSales,
   ProviderOrderSalesFilter,
   ProviderOrderSalesSummary,
   ProviderOrdersPage,
@@ -54,6 +55,15 @@ export function useProviderOrderSalesSummary(filter: ProviderOrderSalesFilter) {
   return useQuery({
     queryKey: ["provider-orders-sales-summary", filter],
     queryFn: () => apiGet<ProviderOrderSalesSummary>(`/provider-orders/sales-summary${filterToParams(filter)}`),
+    refetchInterval: 15000,
+  });
+}
+
+/** Item Sales / Category Performance source -- same filter shape as the sales summary. */
+export function useProviderOrderItemSales(filter: ProviderOrderSalesFilter) {
+  return useQuery({
+    queryKey: ["provider-orders-item-sales", filter],
+    queryFn: () => apiGet<ProviderOrderItemSales>(`/provider-orders/item-sales${filterToParams(filter)}`),
     refetchInterval: 15000,
   });
 }

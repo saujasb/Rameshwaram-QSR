@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import type { ReactNode } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAnalyticsSnapshot } from "../../lib/api/analytics";
+import { useNavigate } from "react-router-dom";
 import { useActionCenter } from "../../lib/api/actionCenter";
-import { useSalesSummary, useLatestImportBatch } from "../../lib/api/sales";
+import { useLatestImportBatch } from "../../lib/api/sales";
+import { useProviderOrderSalesSummary } from "../../lib/api/providerOrders";
+import { useDatasetSummary } from "../../lib/api/datasets";
 import { wastageHooks } from "../../lib/api/wastage";
 import { taskHooks } from "../../lib/api/tasks";
 import { inventoryHooks } from "../../lib/api/inventory";
@@ -14,12 +15,21 @@ import { maintenanceHooks } from "../../lib/api/maintenance";
 import { complaintHooks } from "../../lib/api/complaints";
 import { computeInventoryStatus } from "@shared/inventoryStatus";
 import { getCurrentBusinessDate, shiftDateKey, formatBusinessDateLong } from "@shared/businessDate";
+import { SALES_CHANNEL_DISPLAY_LABELS } from "@shared/providerOrders";
 import { formatInrCompact, formatTrendArrow } from "../../lib/format";
 import { BusinessDayTimeline } from "../../components/BusinessDayTimeline";
 import { DataFreshnessBadge } from "../../components/DataFreshnessBadge";
 import { SalesTrendChart } from "../../components/charts/SalesTrendChart";
+import { Donut } from "../../components/charts/Donut";
 import { AttentionRequiredCard, type AttentionAlert } from "./AttentionRequiredCard";
 import { useSalesTargetWithEditor } from "./SalesTargetEditor";
+
+const CHANNEL_COLOR: Record<string, string> = {
+  petpooja_pos: "var(--s2)",
+  kiosk: "var(--s1)",
+  petpooja_online: "var(--s3)",
+  other: "var(--muted)",
+};
 
 const TREND_WINDOW_DAYS = 14;
 
@@ -80,15 +90,25 @@ export function DashboardPage() {
   const lastWeek = shiftDateKey(today, -7);
   const trendStart = shiftDateKey(today, -(TREND_WINDOW_DAYS - 1));
 
-  const { data: snap } = useAnalyticsSnapshot();
   const { data: actionItems } = useActionCenter();
-  const { data: todaySales } = useSalesSummary(today, today);
-  const { data: yesterdaySales } = useSalesSummary(yesterday, yesterday);
-  const { data: lastWeekSales } = useSalesSummary(lastWeek, lastWeek);
-  const { data: trendSales } = useSalesSummary(trendStart, today);
-  const { data: allSales } = useSalesSummary();
+  // Combined live sales (no provider filter = Petpooja + Kiosk together),
+  // straight from provider_orders -- replaces the old dataset_records/PDF-
+  // import-backed KPIs, which had no real order count or AOV to show.
+  const { data: todaySales } = useProviderOrderSalesSummary({ from: today, to: today });
+  const { data: yesterdaySales } = useProviderOrderSalesSummary({ from: yesterday, to: yesterday });
+  const { data: lastWeekSales } = useProviderOrderSalesSummary({ from: lastWeek, to: lastWeek });
+  const { data: trendSales } = useProviderOrderSalesSummary({ from: trendStart, to: today });
   const { data: latestBatch } = useLatestImportBatch();
   const { target, openEditor, editor } = useSalesTargetWithEditor();
+
+  // Operations/Reports -- kept strictly separate from live sales above, and
+  // sourced from the existing Data Import pipeline (dataset_records), not
+  // invented. recordCount === 0 means exactly what it says: nothing has been
+  // imported for today's business date, not "zero production/wastage".
+  const { data: productionToday } = useDatasetSummary({ datasetType: "production", from: today, to: today });
+  const { data: wastageTodayImport } = useDatasetSummary({ datasetType: "wastage", from: today, to: today });
+  const hasProductionImport = Boolean(productionToday && productionToday.totals.recordCount > 0);
+  const hasWastageImport = Boolean(wastageTodayImport && wastageTodayImport.totals.recordCount > 0);
 
   const { data: wastage } = wastageHooks.useList();
   const { data: tasks } = taskHooks.useList();
@@ -115,9 +135,9 @@ export function DashboardPage() {
   const openComplaints = useMemo(() => (complaints ?? []).filter((c) => c.status !== "resolved"), [complaints]);
   const criticalCount = actionItems?.filter((i) => i.severity === "critical").length ?? 0;
 
-  const hasToday = Boolean(todaySales && todaySales.totalAmount > 0);
-  const hasYesterday = Boolean(yesterdaySales && yesterdaySales.totalAmount > 0);
-  const hasLastWeek = Boolean(lastWeekSales && lastWeekSales.totalAmount > 0);
+  const hasToday = Boolean(todaySales && todaySales.totalOrders > 0);
+  const hasYesterday = Boolean(yesterdaySales && yesterdaySales.totalOrders > 0);
+  const hasLastWeek = Boolean(lastWeekSales && lastWeekSales.totalOrders > 0);
 
   const growthVsYesterday = hasToday && hasYesterday ? ((todaySales!.totalAmount - yesterdaySales!.totalAmount) / yesterdaySales!.totalAmount) * 100 : null;
   const growthVsLastWeek = hasToday && hasLastWeek ? ((todaySales!.totalAmount - lastWeekSales!.totalAmount) / lastWeekSales!.totalAmount) * 100 : null;
@@ -126,21 +146,13 @@ export function DashboardPage() {
 
   const salesAlerts: AttentionAlert[] = useMemo(() => {
     const alerts: AttentionAlert[] = [];
-    if (!allSales || allSales.totalAmount === 0) {
-      alerts.push({
-        id: "sales-none",
-        severity: "info",
-        title: "No sales data imported yet",
-        detail: "Upload your first Kiosk / PetPooja report to start tracking real sales here.",
-        linkPath: "/sales-import",
-      });
-    } else if (!hasToday) {
+    if (!hasToday) {
       alerts.push({
         id: "sales-today-missing",
         severity: "info",
-        title: `No sales imported yet for today's business day (${today})`,
-        detail: "Import today's report once trading closes to keep this dashboard current.",
-        linkPath: "/sales-import",
+        title: `No live orders received yet today (${today})`,
+        detail: "Petpooja and Kiosk orders appear here the moment they're billed — nothing logged yet for this business day.",
+        linkPath: "/sales-analytics",
       });
     } else if (targetPct != null && targetPct < 60) {
       alerts.push({
@@ -169,7 +181,7 @@ export function DashboardPage() {
       });
     }
     return alerts;
-  }, [allSales, hasToday, targetPct, latestBatch, today, todaySales, target]);
+  }, [hasToday, targetPct, latestBatch, today, todaySales, target]);
 
   return (
     <div>
@@ -181,14 +193,6 @@ export function DashboardPage() {
         <DataFreshnessBadge lastSyncedAt={latestBatch?.createdAt ?? null} />
       </div>
 
-      {snap && (
-        <div className="callout">
-          <b>Last reported trading day ({snap.reportDate}):</b> {snap.itemsSold.toLocaleString()} items sold on{" "}
-          {snap.productionKg} kg production, wastage {snap.wastagePct}%, recipe-vs-actual gap ₹{snap.recipeVsActualRupees.toLocaleString()}.{" "}
-          <Link to="/sales-analytics">Full analytics →</Link>
-        </div>
-      )}
-
       <div className="card hero-bizday">
         <div className="hero-bizday-head">
           <span className="lab">Business Day</span>
@@ -197,17 +201,29 @@ export function DashboardPage() {
         <BusinessDayTimeline businessDate={today} live />
       </div>
 
-      <GroupHeading>Executive Summary</GroupHeading>
+      <GroupHeading>Live Sales — Petpooja + Kiosk combined</GroupHeading>
       <div className="kpis">
         <KpiTile
           label="Total Sales"
           value={hasToday ? formatInrCompact(todaySales!.totalAmount) : "₹0"}
-          note={hasToday ? `${todaySales!.totalQuantity.toLocaleString()} items · ${today}` : `No PDF imported yet for ${today}`}
+          note={hasToday ? `${todaySales!.totalOrders.toLocaleString()} orders · ${today}` : `No live orders yet for ${today}`}
           tone={hasToday ? "good" : "notconn"}
-          onClick={() => navigate("/sales-import")}
+          onClick={() => navigate("/sales-analytics")}
         />
-        <KpiTile label="Orders" value="Not available" note="No per-order/bill count in item-wise sales reports" tone="notconn" onClick={() => navigate("/sales-analytics")} />
-        <KpiTile label="AOV" value="Not available" note="Needs an order/bill-count feed" tone="notconn" onClick={() => navigate("/sales-analytics")} />
+        <KpiTile
+          label="Orders"
+          value={hasToday ? todaySales!.totalOrders.toLocaleString() : "0"}
+          note={hasToday ? "successful orders today" : "No live orders yet"}
+          tone={hasToday ? "good" : "notconn"}
+          onClick={() => navigate("/live-orders")}
+        />
+        <KpiTile
+          label="AOV"
+          value={hasToday ? formatInrCompact(todaySales!.averageOrderValue) : "Not available"}
+          note={hasToday ? "average order value, today" : "Needs at least one order today"}
+          tone={hasToday ? "good" : "notconn"}
+          onClick={() => navigate("/sales-analytics")}
+        />
         <KpiTile
           label="Target Achievement"
           value={targetPct != null ? `${Math.round(targetPct)}%` : "Set a target"}
@@ -218,60 +234,91 @@ export function DashboardPage() {
         <KpiTile
           label="Growth vs Yesterday"
           value={formatTrendArrow(growthVsYesterday)}
-          note={hasYesterday ? `₹${todaySales?.totalAmount.toLocaleString() ?? 0} vs ₹${yesterdaySales!.totalAmount.toLocaleString()}` : "Need yesterday imported"}
+          note={hasYesterday ? `₹${todaySales?.totalAmount.toLocaleString() ?? 0} vs ₹${yesterdaySales!.totalAmount.toLocaleString()}` : "No orders yesterday yet"}
           tone={growthTone(growthVsYesterday)}
           onClick={() => navigate("/sales-analytics")}
         />
         <KpiTile
           label="Weekly Growth"
           value={formatTrendArrow(growthVsLastWeek)}
-          note={hasLastWeek ? `vs same day last week (₹${lastWeekSales!.totalAmount.toLocaleString()})` : "Need same day last week imported"}
+          note={hasLastWeek ? `vs same day last week (₹${lastWeekSales!.totalAmount.toLocaleString()})` : "No orders same day last week"}
           tone={growthTone(growthVsLastWeek)}
           onClick={() => navigate("/sales-analytics")}
         />
       </div>
       {editor}
 
-      <div className="card glance-card">
-        <h3>Today at a Glance</h3>
-        <p className="h3sub">{today} business day</p>
-        <div className="glance-grid">
-          <div className="glance-row">
-            <span>Sales</span>
-            <b>{hasToday ? `₹${todaySales!.totalAmount.toLocaleString()}` : "₹0"}</b>
-            <span className={growthVsYesterday == null ? "muted-text" : growthVsYesterday >= 0 ? "trend-up" : "trend-down"}>{formatTrendArrow(growthVsYesterday)}</span>
+      <div className="grid2">
+        <div className="card glance-card" style={{ marginBottom: 0 }}>
+          <h3>Today at a Glance</h3>
+          <p className="h3sub">{today} business day</p>
+          <div className="glance-grid">
+            <div className="glance-row">
+              <span>Sales</span>
+              <b>{hasToday ? `₹${todaySales!.totalAmount.toLocaleString()}` : "₹0"}</b>
+              <span className={growthVsYesterday == null ? "muted-text" : growthVsYesterday >= 0 ? "trend-up" : "trend-down"}>{formatTrendArrow(growthVsYesterday)}</span>
+            </div>
+            <div className="glance-row">
+              <span>Orders</span>
+              <b>{hasToday ? todaySales!.totalOrders.toLocaleString() : "0"}</b>
+              <span className="muted-text">{hasToday ? "successful" : "none yet"}</span>
+            </div>
+            <div className="glance-row">
+              <span>AOV</span>
+              <b>{hasToday ? formatInrCompact(todaySales!.averageOrderValue) : "Not available"}</b>
+              <span className="muted-text">{hasToday ? "per order" : "no orders yet"}</span>
+            </div>
+            <div className="glance-row">
+              <span>Target Achievement</span>
+              <b>{targetPct != null ? `${Math.round(targetPct)}%` : "—"}</b>
+              <span className="muted-text">{target?.amount ? `of ₹${target.amount.toLocaleString()}` : "not set"}</span>
+            </div>
+            <div className="glance-row">
+              <span>Best Hour</span>
+              <b>Not available</b>
+              <span className="muted-text">hourly breakdown not built yet</span>
+            </div>
+            <div className="glance-row">
+              <span>Status</span>
+              <b><span className={`status-dot ${status.tone}`} /> {status.label}</b>
+              <span className="muted-text">{criticalCount > 0 ? `${criticalCount} critical` : ""}</span>
+            </div>
           </div>
-          <div className="glance-row">
-            <span>Orders</span>
-            <b>Not available</b>
-            <span className="muted-text">no bill count</span>
-          </div>
-          <div className="glance-row">
-            <span>AOV</span>
-            <b>Not available</b>
-            <span className="muted-text">no bill count</span>
-          </div>
-          <div className="glance-row">
-            <span>Target Achievement</span>
-            <b>{targetPct != null ? `${Math.round(targetPct)}%` : "—"}</b>
-            <span className="muted-text">{target?.amount ? `of ₹${target.amount.toLocaleString()}` : "not set"}</span>
-          </div>
-          <div className="glance-row">
-            <span>Best Hour</span>
-            <b>Not available</b>
-            <span className="muted-text">no per-order time data</span>
-          </div>
-          <div className="glance-row">
-            <span>Status</span>
-            <b><span className={`status-dot ${status.tone}`} /> {status.label}</b>
-            <span className="muted-text">{criticalCount > 0 ? `${criticalCount} critical` : ""}</span>
-          </div>
+        </div>
+        <div className="card" style={{ marginBottom: 0 }}>
+          <h3>Sales by channel</h3>
+          <p className="h3sub">{today} business day</p>
+          {hasToday && todaySales!.byChannel.length > 0 ? (
+            <>
+              <div className="legend">
+                {todaySales!.byChannel.map((c) => (
+                  <span key={c.channel}>
+                    <span className="sw" style={{ background: CHANNEL_COLOR[c.channel] ?? "var(--brand)" }} />
+                    {SALES_CHANNEL_DISPLAY_LABELS[c.channel]}
+                  </span>
+                ))}
+              </div>
+              <Donut
+                data={todaySales!.byChannel.map((c) => ({
+                  name: SALES_CHANNEL_DISPLAY_LABELS[c.channel],
+                  value: c.amount,
+                  color: CHANNEL_COLOR[c.channel] ?? "var(--brand)",
+                }))}
+                centerLabel={`₹${todaySales!.totalAmount.toLocaleString()}`}
+                centerSub="total sales"
+              />
+            </>
+          ) : (
+            <div className="empty-state" style={{ padding: "20px 16px" }}>
+              <p style={{ color: "var(--muted)", fontSize: 13.5, margin: 0 }}>No live orders yet today.</p>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="card" style={{ marginBottom: 18 }}>
+      <div className="card" style={{ marginTop: 18, marginBottom: 18 }}>
         <h3>Sales Performance</h3>
-        <p className="h3sub">Last {TREND_WINDOW_DAYS} business days on file · target shown as dashed line</p>
+        <p className="h3sub">Last {TREND_WINDOW_DAYS} business days on file, live orders · target shown as dashed line</p>
         <SalesTrendChart
           data={trendSales?.dailyTrend ?? []}
           target={target?.amount}
@@ -288,13 +335,34 @@ export function DashboardPage() {
         <p className="h3sub">Operating window 05:00 → 03:00 next day</p>
         <div className="empty-state" style={{ padding: "24px 20px" }}>
           <p style={{ color: "var(--muted)", fontSize: 13.5, margin: 0 }}>
-            Hourly breakdown isn't available yet — Kiosk and PetPooja item-wise reports carry daily totals only, no
-            per-order clock time. This section lights up automatically once a timestamped export is imported.
+            Hourly breakdown isn't built yet. Live provider orders already carry a per-order timestamp
+            (providerCreatedAt) — this section just hasn't been wired up to bucket by hour yet, unlike the item-wise
+            PDF/Excel reports this dashboard used to rely on, which genuinely had no per-order clock time.
           </p>
         </div>
       </div>
 
       <AttentionRequiredCard salesAlerts={salesAlerts} />
+
+      <GroupHeading>Operations / Reports — {today}</GroupHeading>
+      <div className="kpis">
+        <KpiTile
+          label="Production"
+          value={hasProductionImport ? productionToday!.totals.quantity.toLocaleString() : "No data"}
+          note={hasProductionImport ? `${productionToday!.totals.recordCount} items logged` : "No Production report imported for this period."}
+          tone={hasProductionImport ? "good" : "notconn"}
+          onClick={() => navigate("/data-import")}
+        />
+        <KpiTile
+          label="Wastage"
+          value={hasWastageImport ? wastageTodayImport!.totals.quantity.toLocaleString() : "No data"}
+          note={hasWastageImport ? `${wastageTodayImport!.totals.recordCount} entries logged` : "No Wastage report imported for this period."}
+          tone={hasWastageImport ? "warn" : "notconn"}
+          onClick={() => navigate("/data-import")}
+        />
+        <KpiTile label="Consumption" value="Not available" note="No consumption import type exists yet" tone="notconn" onClick={() => navigate("/data-import")} />
+        <KpiTile label="Variance" value="Not available" note="Needs both Production and Sales imported for the same period" tone="notconn" onClick={() => navigate("/data-explorer")} />
+      </div>
 
       <GroupHeading>Orders (manually logged — no POS/online feed)</GroupHeading>
       <div className="kpis">
