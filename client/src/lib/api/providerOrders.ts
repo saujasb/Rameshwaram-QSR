@@ -2,7 +2,13 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { apiGet } from "./client";
 import { supabase } from "../supabaseClient";
-import type { ProviderOrder, ProviderOrderFilter, ProviderOrderSalesFilter, ProviderOrderSalesSummary } from "@shared/providerOrders";
+import type {
+  ProviderOrder,
+  ProviderOrderFilter,
+  ProviderOrderSalesFilter,
+  ProviderOrderSalesSummary,
+  ProviderOrdersPage,
+} from "@shared/providerOrders";
 
 function filterToParams(filter: object): string {
   const p = new URLSearchParams();
@@ -22,6 +28,25 @@ export function useProviderOrders(filter: ProviderOrderFilter, refetchIntervalMs
     queryKey: ["provider-orders", filter],
     queryFn: () => apiGet<ProviderOrder[]>(`/provider-orders${filterToParams(filter)}`),
     refetchInterval: refetchIntervalMs,
+  });
+}
+
+export type ProviderOrdersPageFilter = Omit<ProviderOrderFilter, "page" | "pageSize"> & {
+  page: number;
+  pageSize: number | "all";
+};
+
+/**
+ * Paginated variant for Live Orders' date-range browser. Distinct from
+ * useProviderOrders above so the Live Sales Feed / Sales Amount tab (which
+ * expect a flat array and never pass page/pageSize) are completely unaffected.
+ */
+export function useProviderOrdersPage(filter: ProviderOrdersPageFilter, refetchIntervalMs = 15000) {
+  return useQuery({
+    queryKey: ["provider-orders-page", filter],
+    queryFn: () => apiGet<ProviderOrdersPage>(`/provider-orders${filterToParams(filter)}`),
+    refetchInterval: refetchIntervalMs,
+    placeholderData: (previous) => previous,
   });
 }
 

@@ -22,13 +22,28 @@ const GSS_LABEL: Record<ProviderOrder["goselfserveSyncStatus"], string> = {
 };
 
 export function ProviderOrderDetailModal({ order, onClose }: { order: ProviderOrder; onClose: () => void }) {
+  // Kiosk/GoSelfServe orders carry a Bill No (providerInvoiceId, falling back
+  // to the order ref if Kiosk didn't send one) that's the more recognizable
+  // identifier for staff than the internal order ref id -- Petpooja is
+  // unchanged, its providerOrderId already is the bill/order id.
+  const isKiosk = order.provider === "goselfserve";
+  const primaryLabel = isKiosk ? "Bill" : "Order";
+  const primaryId = isKiosk && order.providerInvoiceId ? order.providerInvoiceId : order.providerOrderId;
+  const showOrderRef = isKiosk && order.providerInvoiceId && order.providerInvoiceId !== order.providerOrderId;
+
   return (
-    <Modal title={`Order #${order.providerOrderId} — ${order.orderFromLabel}`} onClose={onClose}>
+    <Modal title={`${primaryLabel} #${primaryId} — ${order.orderFromLabel}`} onClose={onClose}>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
         <StatusBadge label={order.status} tone={order.status === "success" ? "ok" : "over"} />
         <StatusBadge label={PROVIDER_ORDER_TYPE_LABELS[order.orderType]} tone="neutral" />
         <StatusBadge label={PROVIDER_ORDER_SOURCE_LABELS[order.orderFrom]} tone="neutral" />
-        <StatusBadge label={GSS_LABEL[order.goselfserveSyncStatus]} tone={GSS_TONE[order.goselfserveSyncStatus]} />
+        {/* "not_configured" just means outbound GoSelfServe sync has no API
+            credentials set -- true for every Petpooja order today, so it's
+            noise rather than information. Real states (pending/sent/failed)
+            still show normally once sync is actually configured. */}
+        {order.goselfserveSyncStatus !== "not_configured" && (
+          <StatusBadge label={GSS_LABEL[order.goselfserveSyncStatus]} tone={GSS_TONE[order.goselfserveSyncStatus]} />
+        )}
       </div>
 
       <div className="grid2">
@@ -36,6 +51,7 @@ export function ProviderOrderDetailModal({ order, onClose }: { order: ProviderOr
           <h4 style={{ fontSize: 13, marginBottom: 6 }}>Order</h4>
           <p style={{ fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
             {order.restaurantName || "—"} · {order.tableNo ? `Table ${order.tableNo}` : "No table"} · {order.paymentType || "—"}
+            {showOrderRef && <> · Order ref #{order.providerOrderId}</>}
             <br />
             {new Date(order.providerCreatedAt.replace(" ", "T")).toLocaleString() || order.providerCreatedAt}
           </p>

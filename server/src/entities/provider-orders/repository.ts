@@ -192,7 +192,22 @@ export async function getProviderOrder(id: string): Promise<ProviderOrder | unde
   return row ? rowToOrder(row) : undefined;
 }
 
-export async function listProviderOrders(filter: ProviderOrderFilter): Promise<ProviderOrder[]> {
+// Preserves the original hardcoded safety cap that used to sit directly in the
+// SELECT below: even a "show all" request from the client is bounded to this
+// many rows so a wide date range can't produce an unbounded response.
+export const MAX_PROVIDER_ORDERS_PAGE_SIZE = 1000;
+
+// providerCreatedAt is stored as text, and the two providers write different
+// formats (Petpooja: "YYYY-MM-DD HH:mm:ss", GoSelfServe: ISO "...T...Z").
+// Postgres's own ::timestamptz cast parses both correctly, but a handful of
+// test/QA rows (see Live Orders audit) have it blank, which would make a bare
+// cast throw for every row in the table. The WHEN/THEN form of CASE is
+// spec-guaranteed to only evaluate the cast when the regex already matched
+// (unlike relying on AND short-circuit order), so those rows are simply left
+// out of any date-filtered query instead of erroring the whole thing out.
+const SAFE_PROVIDER_CREATED_AT = `(CASE WHEN "providerCreatedAt" ~ '^\\d{4}-\\d{2}-\\d{2}' THEN "providerCreatedAt"::timestamptz ELSE NULL END)`;
+
+function buildProviderOrderWhere(filter: ProviderOrderFilter): { where: string; params: unknown[] } {
   const conditions: string[] = [];
   const params: unknown[] = [];
   const next = () => `$${params.length + 1}`;
@@ -217,9 +232,42 @@ export async function listProviderOrders(filter: ProviderOrderFilter): Promise<P
     conditions.push(`("providerOrderId" ILIKE ${next()} OR "customerName" ILIKE ${next()} OR "restaurantName" ILIKE ${next()})`);
     params.push(like, like, like);
   }
+  if (filter.from) {
+    conditions.push(`${SAFE_PROVIDER_CREATED_AT} >= ${next()}`);
+    params.push(filter.from);
+  }
+  if (filter.to) {
+    conditions.push(`${SAFE_PROVIDER_CREATED_AT} < ${next()}`);
+    params.push(filter.to);
+  }
   const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
-  const rows = await query(`SELECT * FROM provider_orders ${where} ORDER BY "receivedAt" DESC LIMIT 1000`, params);
+  return { where, params };
+}
+
+/**
+ * When filter.page/pageSize are omitted (existing callers -- Live Sales Feed,
+ * Sales Amount tab's recent-sales list), this is byte-for-byte the original
+ * behavior: newest 1000 rows, no offset. Callers that pass page/pageSize
+ * (Live Orders' date-range browser) get real OFFSET/LIMIT pagination instead.
+ */
+export async function listProviderOrders(filter: ProviderOrderFilter): Promise<ProviderOrder[]> {
+  const { where, params } = buildProviderOrderWhere(filter);
+  const pageSize = Math.min(filter.pageSize ?? MAX_PROVIDER_ORDERS_PAGE_SIZE, MAX_PROVIDER_ORDERS_PAGE_SIZE);
+  const offset = filter.page && filter.page > 1 ? (filter.page - 1) * pageSize : 0;
+  const limitParam = `$${params.length + 1}`;
+  const offsetParam = `$${params.length + 2}`;
+  const rows = await query(
+    `SELECT * FROM provider_orders ${where} ORDER BY "receivedAt" DESC LIMIT ${limitParam} OFFSET ${offsetParam}`,
+    [...params, pageSize, offset]
+  );
   return rows.map(rowToOrder);
+}
+
+/** Total matching rows for a filter, ignoring page/pageSize -- used to build pagination metadata. */
+export async function countProviderOrders(filter: ProviderOrderFilter): Promise<number> {
+  const { where, params } = buildProviderOrderWhere(filter);
+  const row = await queryOne<{ count: string }>(`SELECT COUNT(*)::text AS count FROM provider_orders ${where}`, params);
+  return Number(row?.count ?? 0);
 }
 
 export async function markGoSelfServeSyncResult(id: string, ok: boolean, error: string | null): Promise<void> {

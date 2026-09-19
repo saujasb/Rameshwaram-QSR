@@ -95,6 +95,21 @@ export interface ProviderOrderFilter {
   orderType?: ProviderOrderType;
   orderFrom?: ProviderOrderSource;
   search?: string;
+  /** Inclusive lower bound on providerCreatedAt, as an ISO timestamp. */
+  from?: string;
+  /** Exclusive upper bound on providerCreatedAt, as an ISO timestamp. */
+  to?: string;
+  /** 1-based. Only takes effect when the caller also passes pageSize (see routes.ts). */
+  page?: number;
+  pageSize?: number;
+}
+
+/** Response shape for GET /provider-orders when pagination params are supplied. */
+export interface ProviderOrdersPage {
+  orders: ProviderOrder[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
 
 export const PROVIDER_ORDER_TYPE_LABELS: Record<ProviderOrderType, string> = {

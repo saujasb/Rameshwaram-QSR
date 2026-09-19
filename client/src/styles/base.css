@@ -99,6 +99,8 @@ tr.clickable:hover td { background: rgba(182, 95, 58, 0.045); }
 }
 .pager button:disabled { opacity: 0.4; cursor: default; }
 .pager button:not(:disabled):hover { border-color: var(--brand); color: var(--brand); }
+.pager button.current { background: var(--brand); border-color: var(--brand); color: #fff; cursor: default; }
+.pager .pager-ellipsis { padding: 0 2px; color: var(--muted); }
 
 .callout {
   background: linear-gradient(90deg, rgba(200, 164, 93, 0.1), transparent);
