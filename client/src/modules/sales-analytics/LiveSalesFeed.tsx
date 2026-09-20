@@ -2,7 +2,7 @@ import { useState } from "react";
 import { StatusBadge } from "../../components/StatusBadge";
 import { ProviderOrderDetailModal } from "../live-orders/ProviderOrderDetailModal";
 import { useProviderOrders, type RealtimeStatus } from "../../lib/api/providerOrders";
-import { PROVIDER_ORDER_TYPE_LABELS } from "@shared/providerOrders";
+import { PROVIDER_ORDER_TYPE_LABELS, classifyOnlinePlatform } from "@shared/providerOrders";
 import type { ProviderOrder } from "@shared/providerOrders";
 import { SALES_SOURCE_LABELS, providerFilterFor, type LiveSalesSource } from "./salesSource";
 
@@ -100,7 +100,15 @@ export function LiveSalesFeed({ connection, source }: { connection: RealtimeStat
                   </div>
                   <div style={{ fontSize: 11.5, color: "var(--muted)" }}>
                     {o.itemCount} item{o.itemCount === 1 ? "" : "s"} ·{" "}
-                    {combined ? SALES_SOURCE_LABELS[o.provider] : o.restaurantName || label}
+                    {combined
+                      ? (() => {
+                          // Swiggy/Zomato orders are ONE combined "Online"
+                          // source here too, never shown as if Petpooja
+                          // itself were the distinguishing category.
+                          const online = classifyOnlinePlatform(o);
+                          return online.isOnline ? `Online (${online.platformLabel ?? "Petpooja"})` : SALES_SOURCE_LABELS[o.provider];
+                        })()
+                      : o.restaurantName || label}
                   </div>
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 14, flexShrink: 0 }}>{money(o.totalAmount)}</div>

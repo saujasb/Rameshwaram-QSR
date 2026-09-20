@@ -1,6 +1,6 @@
 import { Modal } from "../../components/Modal";
 import { StatusBadge } from "../../components/StatusBadge";
-import { PROVIDER_ORDER_SOURCE_LABELS, PROVIDER_ORDER_TYPE_LABELS } from "@shared/providerOrders";
+import { PROVIDER_ORDER_SOURCE_LABELS, PROVIDER_ORDER_TYPE_LABELS, classifyOnlinePlatform } from "@shared/providerOrders";
 import type { ProviderOrder } from "@shared/providerOrders";
 
 function money(n: number): string {
@@ -30,13 +30,25 @@ export function ProviderOrderDetailModal({ order, onClose }: { order: ProviderOr
   const primaryLabel = isKiosk ? "Bill" : "Order";
   const primaryId = isKiosk && order.providerInvoiceId ? order.providerInvoiceId : order.providerOrderId;
   const showOrderRef = isKiosk && order.providerInvoiceId && order.providerInvoiceId !== order.providerOrderId;
+  // Swiggy/Zomato orders are ONE combined "Online" reporting category (see
+  // classifyOnlinePlatform) -- Source always reads "Online" here, with the
+  // actual aggregator shown separately as the Platform, never as if Swiggy/
+  // Zomato were their own top-level source.
+  const online = classifyOnlinePlatform(order);
 
   return (
     <Modal title={`${primaryLabel} #${primaryId} — ${order.orderFromLabel}`} onClose={onClose}>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
         <StatusBadge label={order.status} tone={order.status === "success" ? "ok" : "over"} />
         <StatusBadge label={PROVIDER_ORDER_TYPE_LABELS[order.orderType]} tone="neutral" />
-        <StatusBadge label={PROVIDER_ORDER_SOURCE_LABELS[order.orderFrom]} tone="neutral" />
+        {online.isOnline ? (
+          <>
+            <StatusBadge label="Source: Online" tone="neutral" />
+            <StatusBadge label={`Platform: ${online.platformLabel ?? "Unknown"}`} tone="neutral" />
+          </>
+        ) : (
+          <StatusBadge label={PROVIDER_ORDER_SOURCE_LABELS[order.orderFrom]} tone="neutral" />
+        )}
         {/* "not_configured" just means outbound GoSelfServe sync has no API
             credentials set -- true for every Petpooja order today, so it's
             noise rather than information. Real states (pending/sent/failed)

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { DataTable } from "../../components/table/DataTable";
 import { StatusBadge } from "../../components/StatusBadge";
 import { useProviderOrdersPage, type ProviderOrdersPageFilter } from "../../lib/api/providerOrders";
-import { PROVIDER_ORDER_SOURCE_LABELS, PROVIDER_ORDER_TYPE_LABELS } from "@shared/providerOrders";
+import { PROVIDER_ORDER_SOURCE_LABELS, PROVIDER_ORDER_TYPE_LABELS, classifyOnlinePlatform } from "@shared/providerOrders";
 import type { ProviderOrder, ProviderOrderFilter } from "@shared/providerOrders";
 import { getBusinessDayBounds, getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import type { ColumnConfig } from "../../components/crud/types";
@@ -78,12 +78,27 @@ const columns: ColumnConfig<ProviderOrder>[] = [
     key: "orderFromLabel",
     label: "Source",
     sortable: true,
-    render: (r) => (
-      <div>
-        <div style={{ fontWeight: 600 }}>{PROVIDER_ORDER_SOURCE_LABELS[r.orderFrom]}</div>
-        <div style={{ fontSize: 11, color: "var(--muted)", textTransform: "capitalize" }}>{r.provider}</div>
-      </div>
-    ),
+    render: (r) => {
+      // Swiggy/Zomato orders are ONE combined "Online" reporting category,
+      // never split into separate top-level sources -- the actual aggregator
+      // still shows underneath as the platform, exactly like the provider
+      // name shows for every other order.
+      const online = classifyOnlinePlatform(r);
+      if (online.isOnline) {
+        return (
+          <div>
+            <div style={{ fontWeight: 600 }}>Online</div>
+            <div style={{ fontSize: 11, color: "var(--muted)" }}>{online.platformLabel ?? "Petpooja"}</div>
+          </div>
+        );
+      }
+      return (
+        <div>
+          <div style={{ fontWeight: 600 }}>{PROVIDER_ORDER_SOURCE_LABELS[r.orderFrom]}</div>
+          <div style={{ fontSize: 11, color: "var(--muted)", textTransform: "capitalize" }}>{r.provider}</div>
+        </div>
+      );
+    },
   },
   {
     key: "providerOrderId",

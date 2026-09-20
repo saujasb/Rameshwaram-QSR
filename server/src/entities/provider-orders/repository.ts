@@ -351,7 +351,7 @@ export async function getProviderOrderSalesSummary(filter: ProviderOrderSalesFil
   }
   const where = `WHERE ${conditions.join(" AND ")}`;
   const rows = await query<ProviderOrderSalesRow>(
-    `SELECT provider, "orderFromLabel", "orderType", "totalAmount", "itemCount", "providerCreatedAt"
+    `SELECT provider, "orderFrom", "orderFromLabel", "orderType", "totalAmount", "itemCount", "providerCreatedAt"
      FROM provider_orders ${where} ORDER BY "providerCreatedAt" ASC LIMIT 20000`,
     params
   );

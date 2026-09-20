@@ -1,14 +1,15 @@
 // Shown when the Sales & Revenue live-area source selector is set to "Online".
 // Petpooja Online is NOT a separate integration -- it arrives through the
-// same Petpooja webhook and is classified purely by its order_from value (see
-// classifySalesChannel in server/src/entities/provider-orders/
-// salesAggregation.ts). That classifier's confirmed-Online label list is
-// deliberately empty because no real Petpooja Online order has been observed
-// yet (every order to date carries order_from "POS"/"pos"), so this stays a
-// placeholder -- not because a webhook/feed is missing, but because the real
-// label to recognize hasn't been confirmed. Once it is (a real Online test
-// order or direct word from Petpooja), adding it to that list is enough for
-// this to light up on its own; no new selector option or component swap needed.
+// same Petpooja webhook. Swiggy and Zomato orders (order_from "zomato"/
+// "swiggy") are ALREADY recognized and combined into the one "Online" channel
+// bucket (see classifySalesChannel in shared-types/providerOrders.ts) -- they
+// already show up correctly in the Combined view's channel breakdown the
+// moment such an order arrives, no code change needed. This DEDICATED tab
+// specifically stays a placeholder only because it isn't wired to a live
+// per-channel query yet (real Online order volume didn't exist to build and
+// verify that against until now) -- that wiring, plus mapping any further
+// confirmed order_from value beyond zomato/swiggy via
+// CONFIRMED_PETPOOJA_ONLINE_LABELS, is what "tomorrow" covers.
 export function OnlineSourcePlaceholder({ area }: { area: "feed" | "amount" | "items" | "categories" }) {
   const title =
     area === "feed"
@@ -25,14 +26,14 @@ export function OnlineSourcePlaceholder({ area }: { area: "feed" | "amount" | "i
         <div>
           <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>{title}</h2>
         </div>
-        <span className="tag neutral" style={{ fontSize: 10.5 }}>⏳ AWAITING CONFIRMATION</span>
+        <span className="tag neutral" style={{ fontSize: 10.5 }}>⏳ AWAITING LIVE DATA</span>
       </div>
       <div className="banner-not-connected">
-        <b>No confirmed Petpooja Online orders yet.</b> Petpooja and Kiosk (GoSelfServe) are live. Petpooja Online orders
-        arrive through the same Petpooja webhook Offline/POS orders already use — but the exact order/channel value
-        Petpooja sends for its Online-ordering mode hasn't been confirmed against real traffic (every order seen so far
-        is "POS"). Nothing is shown here rather than invented or estimated figures — this view switches on automatically
-        the moment that value is confirmed and added to the channel mapping, with no new integration required.
+        <b>No Online orders recorded yet.</b> Petpooja and Kiosk (GoSelfServe) are live. Swiggy and Zomato orders placed
+        through Petpooja are already recognized as one combined "Online" channel — visible in the Combined view's
+        channel breakdown as soon as a real one arrives — but this dedicated Online tab isn't wired to a live
+        per-channel feed yet. Nothing is shown here rather than invented or estimated figures; individual Online orders
+        (with their Swiggy/Zomato platform) already show correctly in Live Orders and the Combined feed today.
       </div>
     </div>
   );

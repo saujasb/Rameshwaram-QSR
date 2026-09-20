@@ -143,10 +143,14 @@ export interface ProviderOrderDailyTotal {
 
 /**
  * Business-facing sales channel -- distinct from ProviderOrderSource (the raw
- * order_from enum). "petpooja_online" only ever appears once Petpooja's real
- * order_from value for its Online-ordering mode has been confirmed and added
- * to CONFIRMED_PETPOOJA_ONLINE_LABELS in salesAggregation.ts -- until then no
- * order is ever classified into it, by design (see that file's comment).
+ * order_from enum). "petpooja_online" is the ONE combined bucket for every
+ * online aggregator (Swiggy, Zomato, and any future one) ordered through
+ * Petpooja -- it is never split into per-aggregator totals. It's reached two
+ * ways: (1) orderFrom is the already-confirmed "zomato" or "swiggy" enum
+ * value (see providers/petpooja.ts's mapOrderFrom -- this keyword matching
+ * predates this feature and isn't a guess), or (2) orderFromLabel matches
+ * CONFIRMED_PETPOOJA_ONLINE_LABELS below, for some other online-channel value
+ * Petpooja is confirmed to send that isn't literally "zomato"/"swiggy".
  */
 export type SalesChannel = "petpooja_pos" | "petpooja_online" | "kiosk" | "other";
 
@@ -156,6 +160,57 @@ export const SALES_CHANNEL_DISPLAY_LABELS: Record<SalesChannel, string> = {
   kiosk: "Kiosk",
   other: "Other",
 };
+
+/**
+ * Every real Petpooja order observed in production to date carries
+ * orderFromLabel "POS"/"pos" only. This list is deliberately empty until
+ * Petpooja confirms some OTHER real order_from value their Online-ordering
+ * mode sends beyond the already-recognized "zomato"/"swiggy" (either from a
+ * real test order or directly from Petpooja support). Once confirmed, add it
+ * here -- no webhook, schema, or normalization change is needed for that
+ * value to start being classified correctly, because orderFromLabel already
+ * carries it losslessly. Never add "POS"/"pos" here: that is the confirmed
+ * Offline/counter value, not Online.
+ */
+export const CONFIRMED_PETPOOJA_ONLINE_LABELS: readonly string[] = [];
+
+export function classifySalesChannel(order: {
+  provider: ProviderName;
+  orderFrom?: ProviderOrderSource;
+  orderFromLabel: string;
+}): SalesChannel {
+  if (order.provider === "goselfserve") return "kiosk";
+  if (order.provider === "petpooja") {
+    if (order.orderFrom === "zomato" || order.orderFrom === "swiggy") return "petpooja_online";
+    const label = order.orderFromLabel?.trim().toLowerCase() ?? "";
+    const isConfirmedOnline = CONFIRMED_PETPOOJA_ONLINE_LABELS.some((v) => v.toLowerCase() === label);
+    return isConfirmedOnline ? "petpooja_online" : "petpooja_pos";
+  }
+  return "other";
+}
+
+export interface OnlinePlatformInfo {
+  isOnline: boolean;
+  /**
+   * "Zomato"/"Swiggy" when orderFrom confirms it, the raw orderFromLabel for
+   * any other confirmed-online value (best-effort display, never a guess --
+   * it's literally what the order carries), or null when this isn't an
+   * online order at all.
+   */
+  platformLabel: string | null;
+}
+
+/** Order-level Source/Platform info for display (Live Orders, order detail) -- Source is always "Online" here; platformLabel is the Swiggy/Zomato/other aggregator. */
+export function classifyOnlinePlatform(order: {
+  provider: ProviderName;
+  orderFrom?: ProviderOrderSource;
+  orderFromLabel: string;
+}): OnlinePlatformInfo {
+  if (classifySalesChannel(order) !== "petpooja_online") return { isOnline: false, platformLabel: null };
+  if (order.orderFrom === "zomato") return { isOnline: true, platformLabel: "Zomato" };
+  if (order.orderFrom === "swiggy") return { isOnline: true, platformLabel: "Swiggy" };
+  return { isOnline: true, platformLabel: order.orderFromLabel || null };
+}
 
 export interface ProviderOrderChannelTotal {
   channel: SalesChannel;
