@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { supabase } from "../db/client.js";
+import { getSupabase } from "../db/client.js";
 import type { BaseRecord } from "../../../shared-types/entities.js";
 
 export interface Repository<T extends BaseRecord> {
@@ -21,7 +21,7 @@ export interface Repository<T extends BaseRecord> {
 export function createRepository<T extends BaseRecord>(tableName: string): Repository<T> {
   return {
     async list() {
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from(tableName)
         .select("json")
         .order("createdAt", { ascending: false });
@@ -30,7 +30,7 @@ export function createRepository<T extends BaseRecord>(tableName: string): Repos
     },
 
     async get(id) {
-      const { data, error } = await supabase.from(tableName).select("json").eq("id", id).maybeSingle();
+      const { data, error } = await getSupabase().from(tableName).select("json").eq("id", id).maybeSingle();
       if (error) throw new Error(`[${tableName}] get failed: ${error.message}`);
       return (data as { json: T } | null)?.json ?? undefined;
     },
@@ -38,7 +38,7 @@ export function createRepository<T extends BaseRecord>(tableName: string): Repos
     async create(data) {
       const now = new Date().toISOString();
       const record = { ...data, id: randomUUID(), createdAt: now, updatedAt: now } as T;
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from(tableName)
         .insert({ id: record.id, json: record, createdAt: record.createdAt, updatedAt: record.updatedAt });
       if (error) throw new Error(`[${tableName}] create failed: ${error.message}`);
@@ -46,7 +46,7 @@ export function createRepository<T extends BaseRecord>(tableName: string): Repos
     },
 
     async update(id, patch) {
-      const { data: existingRow, error: getError } = await supabase
+      const { data: existingRow, error: getError } = await getSupabase()
         .from(tableName)
         .select("json")
         .eq("id", id)
@@ -57,13 +57,13 @@ export function createRepository<T extends BaseRecord>(tableName: string): Repos
       const existing = (existingRow as { json: T }).json;
       const now = new Date().toISOString();
       const updated = { ...existing, ...patch, id, updatedAt: now } as T;
-      const { error } = await supabase.from(tableName).update({ json: updated, updatedAt: now }).eq("id", id);
+      const { error } = await getSupabase().from(tableName).update({ json: updated, updatedAt: now }).eq("id", id);
       if (error) throw new Error(`[${tableName}] update (write) failed: ${error.message}`);
       return updated;
     },
 
     async remove(id) {
-      const { data, error } = await supabase.from(tableName).delete().eq("id", id).select("id");
+      const { data, error } = await getSupabase().from(tableName).delete().eq("id", id).select("id");
       if (error) throw new Error(`[${tableName}] remove failed: ${error.message}`);
       return (data ?? []).length > 0;
     },

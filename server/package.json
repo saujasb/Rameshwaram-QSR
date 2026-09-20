@@ -9,7 +9,7 @@
     "dev": "tsx watch --clear-screen=false src/index.ts",
     "start": "tsx src/index.ts",
     "seed": "tsx src/db/seed/run.ts",
-    "test": "tsx --test src/**/*.test.ts",
+    "test": "tsx --test $(find src -name '*.test.ts' -not -path '*/node_modules/*' -not -path '*/dist/*')",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

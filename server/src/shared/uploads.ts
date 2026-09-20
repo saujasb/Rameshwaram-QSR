@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Router } from "express";
 import { waitUntil } from "@vercel/functions";
-import { supabase } from "../db/client.js";
+import { getSupabase } from "../db/client.js";
 
 // Vercel Node.js functions cap the request body around 4.5MB, well under the
 // 20-25MB sales/dataset import limits this app already advertises. Large
@@ -36,7 +36,7 @@ uploadsRouter.post("/sign", async (req, res) => {
   }
 
   const path = `uploads/${new Date().toISOString().slice(0, 10)}/${randomUUID()}-${sanitizeFileName(fileName)}`;
-  const { data, error } = await supabase.storage.from(IMPORT_BUCKET).createSignedUploadUrl(path);
+  const { data, error } = await getSupabase().storage.from(IMPORT_BUCKET).createSignedUploadUrl(path);
   if (error || !data) {
     res.status(500).json({ error: "Could not prepare the upload.", detail: error?.message });
     return;
@@ -47,7 +47,7 @@ uploadsRouter.post("/sign", async (req, res) => {
 
 /** Downloads a previously-uploaded file back into memory for processing. Deletes it once read. */
 export async function downloadUpload(path: string): Promise<Buffer> {
-  const { data, error } = await supabase.storage.from(IMPORT_BUCKET).download(path);
+  const { data, error } = await getSupabase().storage.from(IMPORT_BUCKET).download(path);
   if (error || !data) {
     throw new Error(`Could not read uploaded file "${path}": ${error?.message ?? "not found"}`);
   }
@@ -56,6 +56,6 @@ export async function downloadUpload(path: string): Promise<Buffer> {
   // PII beyond what the business already uploads), so failures aren't fatal.
   // waitUntil() (not a bare fire-and-forget promise) gives it a chance to
   // finish even if the response completes before the delete does.
-  waitUntil(supabase.storage.from(IMPORT_BUCKET).remove([path]).then(() => {}, () => {}));
+  waitUntil(getSupabase().storage.from(IMPORT_BUCKET).remove([path]).then(() => {}, () => {}));
   return buffer;
 }
