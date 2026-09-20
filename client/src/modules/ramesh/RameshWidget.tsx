@@ -196,9 +196,9 @@ export function RameshWidget() {
       <div className="ramesh-log" ref={logRef} role="log" aria-live="polite">
         {messages.length === 0 && (
           <div className="ramesh-intro">
-            <b>Ask me anything.</b> I'm not yet connected to this dashboard's live business data, so for now I'll answer
-            general questions and flag when I don't have a real number to give you — real sales/production insights are
-            coming in a future update.
+            <b>Ask me anything.</b> I can look up live Petpooja + Kiosk sales, orders and item/category performance, and
+            imported Production/Wastage reports where available — and I'll say so plainly when I don't have a real
+            number to give you, rather than guessing.
           </div>
         )}
 
@@ -235,7 +235,7 @@ export function RameshWidget() {
           ref={inputRef}
           value={draft}
           maxLength={500}
-          placeholder="Ask me anything…"
+          placeholder="e.g. what were today's sales?"
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKeyDown}
           aria-label="Ask Anything a question"

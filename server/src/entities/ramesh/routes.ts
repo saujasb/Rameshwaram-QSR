@@ -2,6 +2,7 @@ import { Router } from "express";
 import type { RameshAnswer, RameshQuery } from "../../../../shared-types/ramesh.js";
 import { suggestionsForCurrentData } from "./engine.js";
 import { askGemini, isGeminiConfigured } from "./gemini.js";
+import { buildGroundedContext } from "./groundedAnswer.js";
 
 export const rameshRouter: Router = Router();
 
@@ -95,7 +96,13 @@ rameshRouter.post("/ask", async (req, res) => {
   }
 
   try {
-    const text = await askGemini(question, body?.context);
+    // Deterministic layer first: figure out the correct data source(s) for
+    // this question and compute real facts from them (provider_orders for
+    // live sales/orders, dataset_records for imported production/wastage --
+    // see groundedAnswer.ts). Gemini only phrases these numbers; it never
+    // computes or guesses them itself.
+    const grounded = await buildGroundedContext({ question, context: body?.context });
+    const text = await askGemini(question, body?.context, grounded.factsText || undefined);
     res.json(emptyAnswer({ answer: text }));
   } catch (err) {
     // Ask Anything must never 500 on a failed request -- that would look like

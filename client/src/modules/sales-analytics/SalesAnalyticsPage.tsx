@@ -62,8 +62,14 @@ function LiveSalesSection() {
   const range = useMemo(() => computeRange(preset, customFrom, customTo), [preset, customFrom, customTo]);
   const { data: sales } = useSalesSummary(range.from, range.to);
   const { data: todaySales } = useSalesSummary(today, today);
-  const { target, openEditor, editor } = useSalesTargetWithEditor();
-  const targetPct = target?.amount ? ((todaySales?.totalAmount ?? 0) / target.amount) * 100 : null;
+  // Only the daily target VALUE is used here (as the dashed reference line on
+  // the legacy trend chart below) -- the Target Achievement % comparison
+  // against actual sales lives solely on the main Dashboard now, computed
+  // from live provider_orders. This section's own actual sales are the
+  // legacy PDF-import figures (dataset_records, often empty), so showing a
+  // second Target Achievement here against a different, usually-empty
+  // "actual" would just be a second, conflicting number for the same target.
+  const { target } = useSalesTargetWithEditor();
 
   const rangeLabel =
     sales?.businessDateFrom && sales.businessDateFrom === sales.businessDateTo
@@ -121,11 +127,6 @@ function LiveSalesSection() {
                 <div className="note">{c.quantity.toLocaleString()} items</div>
               </div>
             ))}
-            <button className={`kpi ${targetPct == null ? "notconn" : targetPct >= 100 ? "good" : targetPct >= 85 ? "warn" : "crit"}`} onClick={openEditor}>
-              <div className="lab">Target Achievement</div>
-              <div className="val">{targetPct != null ? `${Math.round(targetPct)}%` : "Set a target"}</div>
-              <div className="note">{target?.amount ? `today vs ₹${target.amount.toLocaleString()} · click to edit` : "click to set a daily target"}</div>
-            </button>
             <div className={`kpi ${sales.hasHourlyData ? "good" : "notconn"}`}>
               <div className="lab">Hourly breakdown</div>
               <div className="val" style={sales.hasHourlyData ? undefined : { fontSize: 14.5 }}>
@@ -134,7 +135,6 @@ function LiveSalesSection() {
               <div className="note">{sales.hasHourlyData ? "per-order timestamps found" : "these reports have no per-order time data"}</div>
             </div>
           </div>
-          {editor}
 
           <div className="grid2">
             <div className="card" style={{ marginBottom: 0 }}>

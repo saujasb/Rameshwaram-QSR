@@ -4,44 +4,40 @@ import { StatusBadge } from "../../components/StatusBadge";
 import { useProviderOrdersPage, type ProviderOrdersPageFilter } from "../../lib/api/providerOrders";
 import { PROVIDER_ORDER_SOURCE_LABELS, PROVIDER_ORDER_TYPE_LABELS } from "@shared/providerOrders";
 import type { ProviderOrder, ProviderOrderFilter } from "@shared/providerOrders";
+import { getBusinessDayBounds, getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import type { ColumnConfig } from "../../components/crud/types";
 import { ProviderOrderDetailModal } from "./ProviderOrderDetailModal";
 
 type DatePreset = "today" | "yesterday" | "last7" | "custom";
 type PageSizeOption = "10" | "20" | "50" | "100" | "all";
 
-function startOfDay(d: Date): Date {
-  const copy = new Date(d);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
-
-function addDays(d: Date, days: number): Date {
-  const copy = new Date(d);
-  copy.setDate(copy.getDate() + days);
-  return copy;
-}
-
 /**
- * Resolves a UI preset to an inclusive-from/exclusive-to ISO range in the
- * browser's local calendar (no business-day-start-hour concept exists for
- * provider_orders today, unlike the Excel/dataset_records side -- introducing
- * one is out of scope for this pagination fix).
+ * Resolves a UI preset to an inclusive-from/exclusive-to instant range using
+ * the SAME 04:30 outlet business-day boundary as Sales & Revenue and the
+ * Overview (shared-types/businessDate.ts) -- not a midnight-to-midnight
+ * calendar day. getBusinessDayBounds() returns explicit +05:30-offset
+ * instants, so these are safe to send to the server regardless of its
+ * runtime timezone (local dev vs. Vercel's UTC default).
  */
 function resolveDateRange(preset: DatePreset, customFrom: string, customTo: string): { from?: string; to?: string } {
-  const now = new Date();
-  const todayStart = startOfDay(now);
+  const today = getCurrentBusinessDate();
   if (preset === "today") {
-    return { from: todayStart.toISOString(), to: addDays(todayStart, 1).toISOString() };
+    const { start, end } = getBusinessDayBounds(today);
+    return { from: start, to: end };
   }
   if (preset === "yesterday") {
-    return { from: addDays(todayStart, -1).toISOString(), to: todayStart.toISOString() };
+    const { start, end } = getBusinessDayBounds(shiftDateKey(today, -1));
+    return { from: start, to: end };
   }
   if (preset === "last7") {
-    return { from: addDays(todayStart, -6).toISOString(), to: addDays(todayStart, 1).toISOString() };
+    const { start } = getBusinessDayBounds(shiftDateKey(today, -6));
+    const { end } = getBusinessDayBounds(today);
+    return { from: start, to: end };
   }
   if (!customFrom || !customTo) return {};
-  return { from: startOfDay(new Date(customFrom)).toISOString(), to: addDays(startOfDay(new Date(customTo)), 1).toISOString() };
+  const { start } = getBusinessDayBounds(customFrom);
+  const { end } = getBusinessDayBounds(customTo);
+  return { from: start, to: end };
 }
 
 /** First, last, current ± 2 neighbors, with "…" gaps -- e.g. 1 … 4 5 [6] 7 8 … 45 */
