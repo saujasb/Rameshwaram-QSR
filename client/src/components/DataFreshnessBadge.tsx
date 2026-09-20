@@ -9,15 +9,32 @@ function formatRelativeTime(fromMs: number): string {
 }
 
 /**
- * Tells the user, without them having to guess, how current the sales data
- * behind this page actually is -- driven by the last successful import's
- * timestamp, never a decorative "live" claim.
+ * Tells the user, without them having to guess, how current the *imported*
+ * data behind this page actually is -- driven by the last successful import
+ * batch's timestamp, never a decorative "live" claim. This is specifically an
+ * import-freshness indicator: it says nothing about live webhook feeds
+ * (Petpooja/Kiosk via provider_orders), which have their own "Live ·
+ * auto-refreshing" indicators where shown. The label props exist so a caller
+ * whose imports aren't about "sales" (e.g. Production/Wastage/Data Import in
+ * general) doesn't get a misleading "sales" claim baked into the text.
  */
-export function DataFreshnessBadge({ lastSyncedAt, staleAfterMinutes = 1560 }: { lastSyncedAt: string | null; staleAfterMinutes?: number }) {
+export function DataFreshnessBadge({
+  lastSyncedAt,
+  staleAfterMinutes = 1560,
+  notConnectedLabel = "No sales data imported yet",
+  syncedLabel = "Data synced",
+  staleLabel = "Data may be outdated",
+}: {
+  lastSyncedAt: string | null;
+  staleAfterMinutes?: number;
+  notConnectedLabel?: string;
+  syncedLabel?: string;
+  staleLabel?: string;
+}) {
   if (!lastSyncedAt) {
     return (
       <span className="freshness notconn">
-        <span className="status-dot notconn" /> No sales data imported yet
+        <span className="status-dot notconn" /> {notConnectedLabel}
       </span>
     );
   }
@@ -29,7 +46,7 @@ export function DataFreshnessBadge({ lastSyncedAt, staleAfterMinutes = 1560 }: {
   return (
     <span className={`freshness ${isStale ? "warn" : "good"}`}>
       <span className={`status-dot ${isStale ? "warn" : "good"}`} />
-      {isStale ? "Data may be outdated" : "Data synced"} · last import {formatRelativeTime(syncedMs)}
+      {isStale ? staleLabel : syncedLabel} · last import {formatRelativeTime(syncedMs)}
     </span>
   );
 }

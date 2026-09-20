@@ -6,7 +6,12 @@ import { Donut } from "../../components/charts/Donut";
 import { SalesTrendChart } from "../../components/charts/SalesTrendChart";
 import { DataFreshnessBadge } from "../../components/DataFreshnessBadge";
 import { useAnalyticsSnapshot, usePrioritizedActions } from "../../lib/api/analytics";
-import { useSalesSummary, useLatestImportBatch } from "../../lib/api/sales";
+import { useSalesSummary } from "../../lib/api/sales";
+// Header freshness badge reports on Data Import (Production/Wastage/Excel),
+// not live sales -- Live Feed/Sales Amount below are live via provider_orders
+// and never "imported", so the legacy sales_import_batches-backed batch
+// (often empty) must not be what this badge is driven by.
+import { useLatestImportBatch } from "../../lib/api/datasets";
 import { useProviderOrdersRealtime } from "../../lib/api/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import { formatInrCompact } from "../../lib/format";
@@ -235,7 +240,12 @@ export function SalesAnalyticsPage() {
             one-day operations snapshot from <b>{snap.reportDate}</b> — a separate, one-time report.
           </p>
         </div>
-        <DataFreshnessBadge lastSyncedAt={latestBatch?.createdAt ?? null} />
+        <DataFreshnessBadge
+          lastSyncedAt={latestBatch?.createdAt ?? null}
+          notConnectedLabel="No Data Import yet"
+          syncedLabel="Data Import synced"
+          staleLabel="Data Import may be outdated"
+        />
       </div>
 
       <div className="filters-bar" style={{ marginBottom: 18 }}>

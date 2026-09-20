@@ -2,9 +2,17 @@ import { useMemo } from "react";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { useActionCenter } from "../../lib/api/actionCenter";
-import { useLatestImportBatch } from "../../lib/api/sales";
+// Legacy Sales PDF Import batch -- kept only for the import-validation alert
+// below (a real, still-supported feature of that separate legacy page). Never
+// used for the header freshness badge: it's about a manual PDF workflow, not
+// live sales, and sales_import_batches is currently empty in production.
+import { useLatestImportBatch as useLatestLegacySalesImportBatch } from "../../lib/api/sales";
 import { useProviderOrderSalesSummary } from "../../lib/api/providerOrders";
-import { useDatasetSummary } from "../../lib/api/datasets";
+// Modern Data Import Center batch (dataset_records/dataset_import_batches) --
+// this is what the header freshness badge actually reports on: Production/
+// Wastage/Excel imports, not live Petpooja/Kiosk sales (those are live via
+// provider_orders and never "imported").
+import { useDatasetSummary, useLatestImportBatch as useLatestDataImportBatch } from "../../lib/api/datasets";
 import { wastageHooks } from "../../lib/api/wastage";
 import { taskHooks } from "../../lib/api/tasks";
 import { inventoryHooks } from "../../lib/api/inventory";
@@ -98,7 +106,8 @@ export function DashboardPage() {
   const { data: yesterdaySales } = useProviderOrderSalesSummary({ from: yesterday, to: yesterday });
   const { data: lastWeekSales } = useProviderOrderSalesSummary({ from: lastWeek, to: lastWeek });
   const { data: trendSales } = useProviderOrderSalesSummary({ from: trendStart, to: today });
-  const { data: latestBatch } = useLatestImportBatch();
+  const { data: latestBatch } = useLatestLegacySalesImportBatch(); // legacy PDF import validation alert only, see below
+  const { data: latestDataImportBatch } = useLatestDataImportBatch(); // header freshness badge -- Data Import, not live sales
   const { target, openEditor, editor } = useSalesTargetWithEditor();
 
   // Operations/Reports -- kept strictly separate from live sales above, and
@@ -190,7 +199,12 @@ export function DashboardPage() {
           <h1>Rameshwaram — Master Tracking Command Centre</h1>
           <p className="page-desc">Brookefield branch. Live metrics are computed from what your team has logged and imported; anything without a connected feed is labeled, never invented.</p>
         </div>
-        <DataFreshnessBadge lastSyncedAt={latestBatch?.createdAt ?? null} />
+        <DataFreshnessBadge
+          lastSyncedAt={latestDataImportBatch?.createdAt ?? null}
+          notConnectedLabel="No Data Import yet"
+          syncedLabel="Data Import synced"
+          staleLabel="Data Import may be outdated"
+        />
       </div>
 
       <div className="card hero-bizday">
