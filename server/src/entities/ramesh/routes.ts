@@ -1,6 +1,7 @@
 import { Router } from "express";
-import type { RameshQuery } from "../../../../shared-types/ramesh.js";
-import { answer, suggestionsForCurrentData } from "./engine.js";
+import type { RameshAnswer, RameshQuery } from "../../../../shared-types/ramesh.js";
+import { suggestionsForCurrentData } from "./engine.js";
+import { askGemini, isGeminiConfigured } from "./gemini.js";
 
 export const rameshRouter: Router = Router();
 
@@ -56,28 +57,65 @@ rameshRouter.post("/ask", async (req, res) => {
     return;
   }
 
+  // Every RameshAnswer field the client's AnswerBody renders conditionally
+  // (dataUsed/calculation/insights/conclusion) is safe to leave empty --
+  // Gemini-backed answers are plain text for now, not data-grounded
+  // computations. See gemini.ts's SYSTEM_INSTRUCTION for why Gemini is told
+  // not to invent business figures it doesn't actually have.
+  function emptyAnswer(overrides: Partial<RameshAnswer>): RameshAnswer {
+    return {
+      intent: "general",
+      answer: "",
+      dataUsed: null,
+      calculation: [],
+      conclusion: "",
+      insights: [],
+      evidence: [],
+      drilldownQuery: null,
+      insufficientData: false,
+      refusalReason: null,
+      suggestions: [],
+      ...overrides,
+    };
+  }
+
+  if (!isGeminiConfigured()) {
+    // Honest configuration state, not a fake answer and not a silent fallback
+    // to a different engine -- the client shows this via the existing
+    // refusal-rendering path (see RameshWidget.tsx's AnswerBody).
+    res.json(
+      emptyAnswer({
+        intent: "unsupported",
+        answer: "Ask Anything isn't set up yet.",
+        conclusion: "An administrator needs to configure the Gemini API key on the server before I can answer questions.",
+        refusalReason: "not_configured",
+      })
+    );
+    return;
+  }
+
   try {
-    res.json(await answer({ question, context: body?.context }));
+    const text = await askGemini(question, body?.context);
+    res.json(emptyAnswer({ answer: text }));
   } catch (err) {
-    // Ramesh must never 500 on an odd question -- that would look like a data
-    // problem to a business user. Surface it as an honest inability instead.
-    console.error("[ramesh] answer failed:", err);
+    // Ask Anything must never 500 on a failed request -- that would look like
+    // a data problem to a business user. Surface it as an honest inability
+    // instead. askGemini() already strips any SDK internals before this
+    // point, so logging `err` here is safe.
+    console.error("[ramesh] Gemini answer failed:", err);
     const fallbackSuggestions = await suggestionsForCurrentData().then(
       (s) => s.suggestions,
       () => [] as string[]
     );
-    res.json({
-      intent: "unsupported",
-      answer: "I couldn't work that question out from the data I have. Try asking about sales, production or wastage for a specific date or product.",
-      dataUsed: null,
-      calculation: [],
-      conclusion: "",
-      evidence: [],
-      drilldownQuery: null,
-      insufficientData: true,
-      refusalReason: null,
-      suggestions: fallbackSuggestions,
-    });
+    res.json(
+      emptyAnswer({
+        intent: "unsupported",
+        answer: "I couldn't reach the AI service just now. Please try again in a moment.",
+        insufficientData: true,
+        refusalReason: "provider_error",
+        suggestions: fallbackSuggestions,
+      })
+    );
   }
 });
 

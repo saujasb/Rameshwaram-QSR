@@ -172,8 +172,8 @@ export function RameshWidget() {
 
   if (!open) {
     return (
-      <button className="ramesh-launcher" onClick={() => setOpen(true)} aria-label="Open Ramesh, the Rameshwaram Intelligence Assistant">
-        <img src={LOGO} alt="Ramesh" />
+      <button className="ramesh-launcher" onClick={() => setOpen(true)} aria-label="Open Ask Anything">
+        <img src={LOGO} alt="Ask Anything" />
         <span className="ramesh-launcher-badge">Ask</span>
       </button>
     );
@@ -183,24 +183,22 @@ export function RameshWidget() {
   const chips = messages.length === 0 ? (starter?.suggestions ?? []) : (lastAnswer?.suggestions ?? []);
 
   return (
-    <div className="ramesh-panel" role="dialog" aria-label="Ramesh — Rameshwaram Intelligence Assistant">
+    <div className="ramesh-panel" role="dialog" aria-label={RAMESH_IDENTITY}>
       <div className="ramesh-head">
         <img src={LOGO} alt="" aria-hidden />
         <div>
-          <div className="ramesh-head-name">Ramesh</div>
-          <div className="ramesh-head-sub">{RAMESH_IDENTITY.replace("Ramesh — ", "")}</div>
+          <div className="ramesh-head-name">Ask Anything</div>
+          <div className="ramesh-head-sub">{RAMESH_IDENTITY.replace("Ask Anything — ", "")}</div>
         </div>
-        <button className="ramesh-close" onClick={() => setOpen(false)} aria-label="Close Ramesh">×</button>
+        <button className="ramesh-close" onClick={() => setOpen(false)} aria-label="Close Ask Anything">×</button>
       </div>
 
       <div className="ramesh-log" ref={logRef} role="log" aria-live="polite">
         {messages.length === 0 && (
           <div className="ramesh-intro">
-            <b>Ask me about your imported business data.</b> I only answer from records in this dashboard, and I always
-            show the calculation behind the number — so you can check my working.
-            {starter && !starter.hasData && (
-              <> Nothing has been imported yet, so there is nothing for me to compute. Import a sales report first.</>
-            )}
+            <b>Ask me anything.</b> I'm not yet connected to this dashboard's live business data, so for now I'll answer
+            general questions and flag when I don't have a real number to give you — real sales/production insights are
+            coming in a future update.
           </div>
         )}
 
@@ -217,7 +215,7 @@ export function RameshWidget() {
             <div className="ramesh-bubble">
               <div className="ramesh-thinking">
                 <img src={LOGO} alt="" aria-hidden />
-                Working through the records…
+                Thinking…
               </div>
             </div>
           </div>
@@ -237,10 +235,10 @@ export function RameshWidget() {
           ref={inputRef}
           value={draft}
           maxLength={500}
-          placeholder="e.g. what were total sales yesterday?"
+          placeholder="Ask me anything…"
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKeyDown}
-          aria-label="Ask Ramesh a question about your business data"
+          aria-label="Ask Anything a question"
         />
         <button className="btn primary" onClick={() => submit(draft)} disabled={!draft.trim() || ask.isPending}>
           Ask
