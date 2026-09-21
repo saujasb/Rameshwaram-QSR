@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useProviderOrderItemSales } from "../../lib/api/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
-import { providerFilterFor, type LiveSalesSource } from "./salesSource";
+import { liveSourceFilter, type LiveSalesSource } from "./salesSource";
 
 type RangePreset = "today" | "yesterday" | "week" | "month" | "all";
 type SortDir = "asc" | "desc";
@@ -28,9 +28,9 @@ export function ItemSalesTab({ source }: { source: LiveSalesSource }) {
   const [preset, setPreset] = useState<RangePreset>("today");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
   const range = useMemo(() => computeRange(preset, today), [preset, today]);
-  const provider = providerFilterFor(source);
+  const sourceFilter = liveSourceFilter(source);
 
-  const { data, isLoading, isError } = useProviderOrderItemSales({ provider, ...range });
+  const { data, isLoading, isError } = useProviderOrderItemSales({ ...sourceFilter, ...range });
 
   const rangeLabel =
     data?.businessDateFrom && data.businessDateFrom === data.businessDateTo

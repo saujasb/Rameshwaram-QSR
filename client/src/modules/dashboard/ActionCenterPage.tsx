@@ -32,7 +32,7 @@ function Section({ severity, items }: { severity: ActionCenterItem["severity"]; 
 }
 
 export function ActionCenterPage() {
-  const { data, isLoading } = useActionCenter();
+  const { data, isLoading, isError } = useActionCenter();
 
   return (
     <div>
@@ -46,7 +46,11 @@ export function ActionCenterPage() {
           </p>
         </div>
       </div>
-      {isLoading || !data ? (
+      {isError ? (
+        <div className="banner-not-connected">
+          <b>Couldn't reach the action center service.</b> No items are shown rather than stale or guessed ones.
+        </div>
+      ) : isLoading || !data ? (
         <p style={{ color: "var(--muted)" }}>Loading…</p>
       ) : (
         <>

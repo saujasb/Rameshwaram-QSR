@@ -56,7 +56,7 @@ export function ShiftPerformancePage() {
         </div>
       )}
 
-      <div className="grid2">
+      <div className="grid2" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))" }}>
         {rows.map((r) => (
           <div className="card" key={r.key} style={{ marginBottom: 0 }}>
             <h3>{r.label} shift</h3>

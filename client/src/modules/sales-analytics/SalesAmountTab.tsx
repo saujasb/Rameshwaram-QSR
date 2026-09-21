@@ -5,7 +5,7 @@ import { useProviderOrderSalesSummary, useProviderOrders, type RealtimeStatus } 
 import { PROVIDER_ORDER_TYPE_LABELS, SALES_CHANNEL_DISPLAY_LABELS } from "@shared/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import { formatInrCompact } from "../../lib/format";
-import { SALES_SOURCE_LABELS, providerFilterFor, type LiveSalesSource } from "./salesSource";
+import { SALES_SOURCE_LABELS, liveSourceFilter, type LiveSalesSource } from "./salesSource";
 
 const TYPE_COLOR: Record<string, string> = {
   dine_in: "var(--s1)",
@@ -45,12 +45,12 @@ export function SalesAmountTab({ connection, source }: { connection: RealtimeSta
   const [preset, setPreset] = useState<RangePreset>("today");
   const range = useMemo(() => computeRange(preset, today), [preset, today]);
   const label = SALES_SOURCE_LABELS[source];
-  const provider = providerFilterFor(source);
+  const sourceFilter = liveSourceFilter(source);
   const combined = source === "combined";
 
-  const { data: summary } = useProviderOrderSalesSummary({ provider, ...range });
-  const { data: todaySummary } = useProviderOrderSalesSummary({ provider, from: today, to: today });
-  const { data: recentOrders } = useProviderOrders({ provider, status: "success" });
+  const { data: summary } = useProviderOrderSalesSummary({ ...sourceFilter, ...range });
+  const { data: todaySummary } = useProviderOrderSalesSummary({ ...sourceFilter, from: today, to: today });
+  const { data: recentOrders } = useProviderOrders({ ...sourceFilter, status: "success" });
 
   const rangeLabel =
     summary?.businessDateFrom && summary.businessDateFrom === summary.businessDateTo

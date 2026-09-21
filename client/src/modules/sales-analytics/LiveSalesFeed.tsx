@@ -4,7 +4,7 @@ import { ProviderOrderDetailModal } from "../live-orders/ProviderOrderDetailModa
 import { useProviderOrders, type RealtimeStatus } from "../../lib/api/providerOrders";
 import { PROVIDER_ORDER_TYPE_LABELS, classifyOnlinePlatform } from "@shared/providerOrders";
 import type { ProviderOrder } from "@shared/providerOrders";
-import { SALES_SOURCE_LABELS, providerFilterFor, type LiveSalesSource } from "./salesSource";
+import { SALES_SOURCE_LABELS, liveSourceFilter, type LiveSalesSource } from "./salesSource";
 
 function money(n: number): string {
   return `₹${n.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
@@ -41,11 +41,16 @@ const CONNECTION_TONE: Record<RealtimeStatus, "good" | "notconn" | "warn"> = {
  */
 export function LiveSalesFeed({ connection, source }: { connection: RealtimeStatus; source: LiveSalesSource }) {
   const [selected, setSelected] = useState<ProviderOrder | null>(null);
-  const { data, isLoading, isError } = useProviderOrders({ provider: providerFilterFor(source) });
+  const { data, isLoading, isError } = useProviderOrders(liveSourceFilter(source));
   const orders = (data ?? []).slice(0, 30);
   const tone = CONNECTION_TONE[connection];
   const label = SALES_SOURCE_LABELS[source];
   const combined = source === "combined";
+  // "Online" mixes Swiggy + Zomato orders together (never split into separate
+  // sources), so per-order Platform is the useful subtitle here too, same as
+  // the combined view -- unlike petpooja/kiosk, restaurantName alone
+  // wouldn't tell them apart.
+  const showPlatformPerOrder = combined || source === "online";
 
   return (
     <div>
@@ -100,7 +105,7 @@ export function LiveSalesFeed({ connection, source }: { connection: RealtimeStat
                   </div>
                   <div style={{ fontSize: 11.5, color: "var(--muted)" }}>
                     {o.itemCount} item{o.itemCount === 1 ? "" : "s"} ·{" "}
-                    {combined
+                    {showPlatformPerOrder
                       ? (() => {
                           // Swiggy/Zomato orders are ONE combined "Online"
                           // source here too, never shown as if Petpooja

@@ -12,9 +12,16 @@ function toneFor(status: string) {
 }
 
 export function VegIndentPage() {
-  const { data: snap, isLoading } = useAnalyticsSnapshot();
+  const { data: snap, isLoading, isError } = useAnalyticsSnapshot();
   const computed = useMemo(() => (snap ? snap.vegIndent.map(computeVegIndent) : []), [snap]);
 
+  if (isError) {
+    return (
+      <div className="banner-not-connected">
+        <b>Couldn't reach the analytics service.</b> No figures are shown rather than stale or guessed ones.
+      </div>
+    );
+  }
   if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
 
   const onTarget = computed.filter((v) => v.status === "ON TARGET").length;

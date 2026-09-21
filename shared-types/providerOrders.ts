@@ -102,6 +102,8 @@ export interface ProviderOrderFilter {
   /** 1-based. Only takes effect when the caller also passes pageSize (see routes.ts). */
   page?: number;
   pageSize?: number;
+  /** When true, restricts to the combined Petpooja Online channel (see classifySalesChannel) -- Swiggy + Zomato + any other confirmed online label, never split apart. Not a raw DB provider, so it's a separate flag rather than a `provider` value. */
+  onlineOnly?: boolean;
 }
 
 /** Response shape for GET /provider-orders when pagination params are supplied. */
@@ -235,6 +237,8 @@ export interface ProviderOrderSalesFilter {
   to?: string;
   provider?: ProviderName;
   restaurantId?: string;
+  /** See ProviderOrderFilter.onlineOnly -- same meaning, same combined channel. */
+  onlineOnly?: boolean;
 }
 
 // Item Sales / Category Performance -- combined, single-list views over

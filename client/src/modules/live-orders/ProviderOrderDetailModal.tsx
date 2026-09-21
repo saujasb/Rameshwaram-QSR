@@ -64,6 +64,7 @@ export function ProviderOrderDetailModal({ order, onClose }: { order: ProviderOr
           <p style={{ fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
             {order.restaurantName || "—"} · {order.tableNo ? `Table ${order.tableNo}` : "No table"} · {order.paymentType || "—"}
             {showOrderRef && <> · Order ref #{order.providerOrderId}</>}
+            {order.tokenNo && <> · Token #{order.tokenNo}</>}
             <br />
             {new Date(order.providerCreatedAt.replace(" ", "T")).toLocaleString() || order.providerCreatedAt}
           </p>

@@ -1,7 +1,14 @@
 import { useAnalyticsSnapshot } from "../../lib/api/analytics";
 
 export function KpiScorecardPage() {
-  const { data: snap, isLoading } = useAnalyticsSnapshot();
+  const { data: snap, isLoading, isError } = useAnalyticsSnapshot();
+  if (isError) {
+    return (
+      <div className="banner-not-connected">
+        <b>Couldn't reach the analytics service.</b> No figures are shown rather than stale or guessed ones.
+      </div>
+    );
+  }
   if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
 
   return (

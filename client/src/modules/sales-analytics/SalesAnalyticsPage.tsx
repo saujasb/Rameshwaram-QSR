@@ -21,8 +21,7 @@ import { LiveSalesFeed } from "./LiveSalesFeed";
 import { SalesAmountTab } from "./SalesAmountTab";
 import { ItemSalesTab } from "./ItemSalesTab";
 import { CategoryPerformanceTab } from "./CategoryPerformanceTab";
-import { OnlineSourcePlaceholder } from "./OnlineSourcePlaceholder";
-import { SALES_SOURCES, SALES_SOURCE_LABELS, isLiveSalesSource, type SalesSource } from "./salesSource";
+import { SALES_SOURCES, SALES_SOURCE_LABELS, type SalesSource } from "./salesSource";
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "var(--critical)",
@@ -220,13 +219,20 @@ const TAB_LABELS: Record<SalesTab, string> = {
 };
 
 export function SalesAnalyticsPage() {
-  const { data: snap, isLoading } = useAnalyticsSnapshot();
+  const { data: snap, isLoading, isError } = useAnalyticsSnapshot();
   const { data: actions } = usePrioritizedActions();
   const { data: latestBatch } = useLatestImportBatch();
   const connection = useProviderOrdersRealtime();
   const [tab, setTab] = useState<SalesTab>("overview");
   const [source, setSource] = useState<SalesSource>("petpooja");
 
+  if (isError) {
+    return (
+      <div className="banner-not-connected">
+        <b>Couldn't reach the sales analytics service.</b> No figures are shown rather than stale or guessed ones.
+      </div>
+    );
+  }
   if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
 
   return (
@@ -280,10 +286,10 @@ export function SalesAnalyticsPage() {
         </div>
       )}
 
-      {tab === "live" && (isLiveSalesSource(source) ? <LiveSalesFeed connection={connection} source={source} /> : <OnlineSourcePlaceholder area="feed" />)}
-      {tab === "amount" && (isLiveSalesSource(source) ? <SalesAmountTab connection={connection} source={source} /> : <OnlineSourcePlaceholder area="amount" />)}
-      {tab === "items" && (isLiveSalesSource(source) ? <ItemSalesTab source={source} /> : <OnlineSourcePlaceholder area="items" />)}
-      {tab === "categories" && (isLiveSalesSource(source) ? <CategoryPerformanceTab source={source} /> : <OnlineSourcePlaceholder area="categories" />)}
+      {tab === "live" && <LiveSalesFeed connection={connection} source={source} />}
+      {tab === "amount" && <SalesAmountTab connection={connection} source={source} />}
+      {tab === "items" && <ItemSalesTab source={source} />}
+      {tab === "categories" && <CategoryPerformanceTab source={source} />}
       {tab === "overview" && (
       <>
 

@@ -15,6 +15,10 @@ function str(v: unknown): string | undefined {
   return typeof v === "string" && v.length > 0 ? v : undefined;
 }
 
+function bool(v: unknown): boolean {
+  return v === "true";
+}
+
 function clampInt(v: string | undefined, fallback: number, min: number, max: number): number {
   const n = v ? parseInt(v, 10) : NaN;
   if (!Number.isFinite(n)) return fallback;
@@ -30,6 +34,7 @@ providerOrdersRouter.get("/", async (req, res) => {
     search: str(req.query.search),
     from: str(req.query.from),
     to: str(req.query.to),
+    onlineOnly: bool(req.query.onlineOnly),
   };
 
   // Backward compatible: callers that don't ask for pagination (Live Sales
@@ -61,6 +66,7 @@ providerOrdersRouter.get("/sales-summary", async (req, res) => {
     to: str(req.query.to),
     provider: str(req.query.provider) as ProviderOrderSalesFilter["provider"],
     restaurantId: str(req.query.restaurantId),
+    onlineOnly: bool(req.query.onlineOnly),
   };
   res.json(await getProviderOrderSalesSummary(filter));
 });
@@ -72,6 +78,7 @@ providerOrdersRouter.get("/item-sales", async (req, res) => {
     to: str(req.query.to),
     provider: str(req.query.provider) as ProviderOrderSalesFilter["provider"],
     restaurantId: str(req.query.restaurantId),
+    onlineOnly: bool(req.query.onlineOnly),
   };
   res.json(await getProviderOrderItemSales(filter));
 });

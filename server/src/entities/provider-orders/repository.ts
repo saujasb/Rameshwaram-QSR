@@ -7,6 +7,7 @@ import {
   type ProviderOrderSalesRow,
 } from "./salesAggregation.js";
 import { shiftDateKey } from "../../../../shared-types/businessDate.js";
+import { CONFIRMED_PETPOOJA_ONLINE_LABELS } from "../../../../shared-types/providerOrders.js";
 import type {
   ProviderName,
   ProviderOrder,
@@ -214,6 +215,24 @@ export const MAX_PROVIDER_ORDERS_PAGE_SIZE = 1000;
 // out of any date-filtered query instead of erroring the whole thing out.
 const SAFE_PROVIDER_CREATED_AT = `(CASE WHEN "providerCreatedAt" ~ '^\\d{4}-\\d{2}-\\d{2}' THEN "providerCreatedAt"::timestamptz ELSE NULL END)`;
 
+// Same two confirmed order_from values classifySalesChannel checks (shared-
+// types/providerOrders.ts) -- kept here as SQL rather than fetching every
+// Petpooja row and filtering in JS, so "Online" queries stay cheap as volume
+// grows. CONFIRMED_PETPOOJA_ONLINE_LABELS is the same list that function
+// falls back to for any other confirmed online orderFromLabel; an empty list
+// makes `= ANY($n)` correctly match nothing, never everything.
+const ONLINE_ORDER_FROM_VALUES = ["zomato", "swiggy"];
+const ONLINE_LABELS_LOWER = CONFIRMED_PETPOOJA_ONLINE_LABELS.map((v) => v.toLowerCase());
+
+/** Appends the "this row is the combined Petpooja Online channel" condition, in sync with classifySalesChannel's definition. */
+function pushOnlineOnlyCondition(conditions: string[], params: unknown[], next: () => string): void {
+  const orderFromParam = next();
+  params.push(ONLINE_ORDER_FROM_VALUES);
+  const labelParam = next();
+  params.push(ONLINE_LABELS_LOWER);
+  conditions.push(`(provider = 'petpooja' AND ("orderFrom" = ANY(${orderFromParam}) OR lower("orderFromLabel") = ANY(${labelParam})))`);
+}
+
 function buildProviderOrderWhere(filter: ProviderOrderFilter): { where: string; params: unknown[] } {
   const conditions: string[] = [];
   const params: unknown[] = [];
@@ -221,6 +240,9 @@ function buildProviderOrderWhere(filter: ProviderOrderFilter): { where: string; 
   if (filter.provider) {
     conditions.push(`provider = ${next()}`);
     params.push(filter.provider);
+  }
+  if (filter.onlineOnly) {
+    pushOnlineOnlyCondition(conditions, params, next);
   }
   if (filter.status) {
     conditions.push(`status = ${next()}`);
@@ -336,6 +358,9 @@ export async function getProviderOrderSalesSummary(filter: ProviderOrderSalesFil
     conditions.push(`provider = ${next()}`);
     params.push(filter.provider);
   }
+  if (filter.onlineOnly) {
+    pushOnlineOnlyCondition(conditions, params, next);
+  }
   if (filter.restaurantId) {
     conditions.push(`"restaurantId" = ${next()}`);
     params.push(filter.restaurantId);
@@ -381,6 +406,9 @@ export async function getProviderOrderItemSales(filter: ProviderOrderSalesFilter
   if (filter.provider) {
     conditions.push(`provider = ${next()}`);
     params.push(filter.provider);
+  }
+  if (filter.onlineOnly) {
+    pushOnlineOnlyCondition(conditions, params, next);
   }
   if (filter.restaurantId) {
     conditions.push(`"restaurantId" = ${next()}`);

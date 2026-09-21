@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Donut } from "../../components/charts/Donut";
 import { useProviderOrderItemSales } from "../../lib/api/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
-import { providerFilterFor, type LiveSalesSource } from "./salesSource";
+import { liveSourceFilter, type LiveSalesSource } from "./salesSource";
 
 type RangePreset = "today" | "yesterday" | "week" | "month" | "all";
 
@@ -29,9 +29,9 @@ export function CategoryPerformanceTab({ source }: { source: LiveSalesSource }) 
   const today = getCurrentBusinessDate();
   const [preset, setPreset] = useState<RangePreset>("today");
   const range = useMemo(() => computeRange(preset, today), [preset, today]);
-  const provider = providerFilterFor(source);
+  const sourceFilter = liveSourceFilter(source);
 
-  const { data, isLoading, isError } = useProviderOrderItemSales({ provider, ...range });
+  const { data, isLoading, isError } = useProviderOrderItemSales({ ...sourceFilter, ...range });
 
   const rangeLabel =
     data?.businessDateFrom && data.businessDateFrom === data.businessDateTo
