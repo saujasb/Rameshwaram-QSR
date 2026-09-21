@@ -27,7 +27,7 @@ h1, h2, h3, h4 { margin: 0; font-family: "Inter", system-ui, sans-serif; letter-
 .card h3 { margin: 0 0 4px; font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
 .card .h3sub { color: var(--ink-2); font-size: 12.5px; margin: 0 0 16px; }
 
-.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; margin-bottom: 18px; }
 .kpi {
   background: var(--card);
   border: 1px solid var(--line);
