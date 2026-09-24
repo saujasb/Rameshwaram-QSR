@@ -47,6 +47,11 @@ uploadsRouter.post("/sign", async (req, res) => {
 
 /** Downloads a previously-uploaded file back into memory for processing. Deletes it once read. */
 export async function downloadUpload(path: string): Promise<Buffer> {
+  // Only files minted by /sign above (uploads/<date>/<uuid>-<name>) -- the
+  // path comes from the client, so don't let it point anywhere else in the bucket.
+  if (typeof path !== "string" || !/^uploads\/\d{4}-\d{2}-\d{2}\/[0-9a-f-]{36}-[a-zA-Z0-9_.-]+$/.test(path)) {
+    throw new Error("Invalid upload reference.");
+  }
   const { data, error } = await getSupabase().storage.from(IMPORT_BUCKET).download(path);
   if (error || !data) {
     throw new Error(`Could not read uploaded file "${path}": ${error?.message ?? "not found"}`);

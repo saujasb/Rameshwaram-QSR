@@ -129,7 +129,8 @@ export async function upsertProviderOrder(input: NormalizedProviderOrder): Promi
   );
 
   const now = new Date().toISOString();
-  const rawPayloadJson = JSON.stringify(input.rawPayload);
+  // The Petpooja shared-secret "token" is stripped before storage (like webhook events).
+  const rawPayloadJson = JSON.stringify(redactTokens(input.rawPayload));
   const isDuplicate = existing != null && existing.rawPayloadJson === rawPayloadJson;
   const id = existing?.id ?? randomUUID();
   // Outbound GoSelfServe sync only ever applies to Petpooja orders being

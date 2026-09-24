@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiGet, apiPut, apiDelete } from "./client";
+import { apiDelete, apiFetch, apiGet, apiPut, BASE } from "./client";
 import type { SalesSummary, SalesImportBatch, SalesTargetSetting } from "@shared/sales";
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 function summaryKey(from?: string, to?: string) {
   return ["sales-summary", from ?? null, to ?? null] as const;
@@ -45,7 +44,7 @@ export interface ImportError extends Error {
 const SMALL_FILE_BYTES = 4 * 1024 * 1024;
 
 async function uploadViaStorage(file: File): Promise<string> {
-  const sign = await fetch(`${BASE}/uploads/sign`, {
+  const sign = await apiFetch(`${BASE}/uploads/sign`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ fileName: file.name, contentType: file.type }),
@@ -71,10 +70,10 @@ export function useImportSalesPdf() {
         const formData = new FormData();
         formData.append("file", file);
         if (businessDate) formData.append("businessDate", businessDate);
-        res = await fetch(`${BASE}/sales/import`, { method: "POST", body: formData });
+        res = await apiFetch(`${BASE}/sales/import`, { method: "POST", body: formData });
       } else {
         const storagePath = await uploadViaStorage(file);
-        res = await fetch(`${BASE}/sales/import`, {
+        res = await apiFetch(`${BASE}/sales/import`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ storagePath, fileName: file.name, businessDate }),

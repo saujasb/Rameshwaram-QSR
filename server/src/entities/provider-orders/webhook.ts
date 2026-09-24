@@ -4,31 +4,20 @@ import { normalizePetpoojaPayload, PetpoojaPayloadError } from "./providers/petp
 import { normalizeGoSelfServeOrder, GoSelfServePayloadError } from "./providers/goselfserve.js";
 import { recordWebhookEvent, upsertProviderOrder } from "./repository.js";
 import { syncOrderStatusToGoSelfServe } from "./goselfserve.js";
+import { verifyGoSelfServeWebhook, verifyPetpoojaWebhook } from "./webhookAuth.js";
 
-// Global API Documentation.pdf: "Webhook Authentication: The webhook should be
-// non-authenticated. If required, we can send a static token in the body of
-// the payload in the key named 'token'." -- so token validation is optional
-// and only enforced when PETPOOJA_WEBHOOK_TOKEN is configured.
-const EXPECTED_TOKEN = process.env.PETPOOJA_WEBHOOK_TOKEN;
-
-// GoSelfServe's Swagger only documents endpoints hosted on their own server,
-// not what they send us -- so unlike Petpooja there's no vendor-specified
-// auth contract. Mint our own shared secret, sent back as a header (their
-// CreateOrderDto is a strict schema with no room for an extra body field).
-const GOSELFSERVE_EXPECTED_TOKEN = process.env.GOSELFSERVE_WEBHOOK_TOKEN;
+// Token checks live in webhookAuth.ts (constant-time compare, read from env
+// per request). See that file for each provider's auth contract.
 
 export const providerWebhookRouter: Router = Router();
 
 providerWebhookRouter.post("/petpooja/order", async (req, res) => {
   const body = req.body;
 
-  if (EXPECTED_TOKEN) {
-    const receivedToken = typeof body?.token === "string" ? body.token : undefined;
-    if (receivedToken !== EXPECTED_TOKEN) {
-      await recordWebhookEvent({ provider: "petpooja", ok: false, httpStatus: 401, error: "Invalid or missing token.", body });
-      res.status(401).json({ error: "Invalid or missing token." });
-      return;
-    }
+  if (!verifyPetpoojaWebhook(body).ok) {
+    await recordWebhookEvent({ provider: "petpooja", ok: false, httpStatus: 401, error: "Invalid or missing token.", body });
+    res.status(401).json({ error: "Invalid or missing token." });
+    return;
   }
 
   let normalized;
@@ -73,13 +62,10 @@ providerWebhookRouter.post("/petpooja/order", async (req, res) => {
 providerWebhookRouter.post("/goselfserve/order", async (req, res) => {
   const body = req.body;
 
-  if (GOSELFSERVE_EXPECTED_TOKEN) {
-    const receivedToken = req.header("x-webhook-token");
-    if (receivedToken !== GOSELFSERVE_EXPECTED_TOKEN) {
-      await recordWebhookEvent({ provider: "goselfserve", ok: false, httpStatus: 401, error: "Invalid or missing token.", body });
-      res.status(401).json({ error: "Invalid or missing token." });
-      return;
-    }
+  if (!verifyGoSelfServeWebhook(req).ok) {
+    await recordWebhookEvent({ provider: "goselfserve", ok: false, httpStatus: 401, error: "Invalid or missing token.", body });
+    res.status(401).json({ error: "Invalid or missing token." });
+    return;
   }
 
   let normalized;

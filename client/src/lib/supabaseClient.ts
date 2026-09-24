@@ -1,15 +1,18 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-// Publishable/anon key only -- safe to expose to the browser (see
-// client/.env.example). Never the service-role key; that one stays
-// server-only (server/.env.example). This client can only SELECT from
-// provider_orders, per its read-only RLS policy -- no writes are possible
-// from here.
+// Supabase Realtime for the Live Sales feed is switched OFF.
 //
-// Realtime is optional infrastructure, not a hard requirement: if these env
-// vars aren't set, `supabase` is null and callers (useProviderOrdersRealtime)
-// fall back to the existing poll instead of throwing.
-const url = import.meta.env.VITE_SUPABASE_URL;
-const key = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-export const supabase: SupabaseClient | null = url && key ? createClient(url, key) : null;
+// It used to subscribe with the publishable (anon) key, which relied on an
+// RLS policy letting *anyone* holding that key -- it ships in the browser
+// bundle -- read provider_orders. That policy was removed: order data is now
+// readable only by signed-in, active dashboard users. The dashboard's session
+// lives in HttpOnly cookies (never exposed to JavaScript), so there is no
+// user JWT here to authorise a Realtime channel with.
+//
+// Callers (useProviderOrdersRealtime) already treat `null` as "not
+// configured" and fall back to their regular polling through the
+// authenticated /api, which is how production has always run (the VITE_
+// Supabase vars were never set there). To bring pushed updates back later,
+// add a server-issued, short-lived Realtime token and call
+// `client.realtime.setAuth(token)` before subscribing.
+export const supabase: SupabaseClient | null = null;

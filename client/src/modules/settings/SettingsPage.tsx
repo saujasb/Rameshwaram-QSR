@@ -6,7 +6,12 @@ import {
   toDateKey,
 } from "@shared/businessDate";
 import { DATASET_LABELS } from "@shared/datasets";
+import { NavLink, Navigate, useLocation } from "react-router-dom";
+import { SlidersHorizontal, Users } from "lucide-react";
 import { useBusinessDaySettings, useDatasetCoverage, useSetBusinessDayStartHour } from "../../lib/api/datasets";
+import { useAuth } from "../../lib/auth/AuthContext";
+import { AccessDenied } from "../auth/AccessDenied";
+import { UserManagement } from "./UserManagement";
 
 const HOURS = Array.from({ length: 24 }, (_, h) => h);
 
@@ -75,6 +80,8 @@ function BusinessDayExamples({ hour }: { hour: number }) {
 }
 
 function BusinessDayCard() {
+  const { can } = useAuth();
+  const canEdit = can("settings.manage");
   const { data: settings, isLoading } = useBusinessDaySettings();
   const saveMutation = useSetBusinessDayStartHour();
   const [hour, setHour] = useState<number | null>(null);
@@ -103,7 +110,7 @@ function BusinessDayCard() {
           <select
             id="business-day-start-hour"
             value={selected}
-            disabled={isLoading || saveMutation.isPending}
+            disabled={isLoading || saveMutation.isPending || !canEdit}
             onChange={(e) => setHour(Number(e.target.value))}
           >
             {HOURS.map((h) => (
@@ -124,6 +131,8 @@ function BusinessDayCard() {
         undo the affected imports in the Data Import Center and import those files again.
       </div>
 
+      {!canEdit && <p style={MUTED}>Only an admin can change this.</p>}
+      {canEdit && (
       <div className="btn-row">
         <button
           className="btn primary"
@@ -138,6 +147,7 @@ function BusinessDayCard() {
           </button>
         )}
       </div>
+      )}
 
       {saveMutation.isError && (
         <p style={{ color: "var(--critical)", fontSize: 13, marginBottom: 0 }} role="alert">
@@ -229,21 +239,57 @@ function CoverageCard() {
   );
 }
 
+function GeneralSettings() {
+  return (
+    <>
+      <BusinessDayCard />
+      <CoverageCard />
+    </>
+  );
+}
+
+const BASE = "/settings";
+
+/**
+ * Settings with its own sub-navigation: General (everyone with Settings
+ * access) and User Management (admins only -- the /api/users endpoints
+ * enforce that server-side too).
+ */
 export function SettingsPage() {
+  const { can } = useAuth();
+  const { pathname } = useLocation();
+  const slug = pathname.slice(BASE.length).replace(/^\/+|\/+$/g, "");
+  const tabs = [
+    { slug: "", label: "General", icon: SlidersHorizontal, allowed: true },
+    { slug: "users", label: "User Management", icon: Users, allowed: can("users.manage") },
+  ].filter((t) => t.allowed);
+  const current = tabs.find((t) => t.slug === slug);
+  if (!current) {
+    return slug === "users" ? <AccessDenied /> : <Navigate to={BASE} replace />;
+  }
+
   return (
     <div>
       <div className="page-head">
         <div>
           <h1>Settings</h1>
           <p className="page-desc">
-            How the dashboard interprets time, and exactly which data it currently holds. These settings change the
-            reading of every number on every page, so each one states plainly what it does and does not affect.
+            {current.slug === "users"
+              ? "Add people, choose what they can access, and switch accounts off when someone leaves."
+              : "How the dashboard interprets time, and exactly which data it currently holds. These settings change the reading of every number on every page, so each one states plainly what it does and does not affect."}
           </p>
         </div>
       </div>
-
-      <BusinessDayCard />
-      <CoverageCard />
+      <div className="subnav-layout">
+        <nav className="subnav" aria-label="Settings">
+          {tabs.map((t) => (
+            <NavLink key={t.slug} to={t.slug ? `${BASE}/${t.slug}` : BASE} end className={({ isActive }) => `subnav-link${isActive ? " active" : ""}`}>
+              <t.icon size={16} strokeWidth={1.9} aria-hidden /> {t.label}
+            </NavLink>
+          ))}
+        </nav>
+        <div className="subnav-content">{current.slug === "users" ? <UserManagement /> : <GeneralSettings />}</div>
+      </div>
     </div>
   );
 }

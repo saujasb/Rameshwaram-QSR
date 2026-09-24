@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { apiGet, apiPut } from "./client";
+import { apiFetch, apiGet, apiPut, BASE } from "./client";
 import type {
   DatasetCoverage,
   DatasetFilter,
@@ -9,7 +9,6 @@ import type {
 } from "@shared/datasets";
 import type { HourlyBucket, ProductPerformanceRow } from "@shared/intelligence";
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 export interface DatasetSummary {
   totals: { quantity: number; value: number; recordCount: number };
@@ -66,11 +65,12 @@ export function useImportBatches() {
   return useQuery({ queryKey: ["dataset-import-batches"], queryFn: () => apiGet<ImportBatch[]>("/datasets/import-batches") });
 }
 
-export function useLatestImportBatch() {
+export function useLatestImportBatch(enabled = true) {
   return useQuery({
     queryKey: ["dataset-import-batches"],
     queryFn: () => apiGet<ImportBatch[]>("/datasets/import-batches"),
     select: (b) => b[0] ?? null,
+    enabled,
   });
 }
 
@@ -108,7 +108,7 @@ export function useInvalidateDataLayer() {
 const SMALL_BATCH_BYTES = 4 * 1024 * 1024;
 
 async function uploadFileViaStorage(file: File): Promise<{ path: string; fileName: string }> {
-  const sign = await fetch(`${BASE}/uploads/sign`, {
+  const sign = await apiFetch(`${BASE}/uploads/sign`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ fileName: file.name, contentType: file.type }),
@@ -142,10 +142,10 @@ export function useImportFiles() {
         if (input.businessDate) fd.append("businessDate", input.businessDate);
         if (input.datasetOverrides) fd.append("datasetOverrides", JSON.stringify(input.datasetOverrides));
         if (input.allowDuplicateFile) fd.append("allowDuplicateFile", "true");
-        res = await fetch(`${BASE}/datasets/import`, { method: "POST", body: fd });
+        res = await apiFetch(`${BASE}/datasets/import`, { method: "POST", body: fd });
       } else {
         const storagePaths = await Promise.all(input.files.map(uploadFileViaStorage));
-        res = await fetch(`${BASE}/datasets/import`, {
+        res = await apiFetch(`${BASE}/datasets/import`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -170,7 +170,7 @@ export function useDeleteImportBatch() {
   const invalidate = useInvalidateDataLayer();
   return useMutation({
     mutationFn: async (id: string) => {
-      const res = await fetch(`${BASE}/datasets/import-batches/${id}`, { method: "DELETE" });
+      const res = await apiFetch(`${BASE}/datasets/import-batches/${id}`, { method: "DELETE" });
       if (!res.ok && res.status !== 204) throw new Error(`Delete failed with ${res.status}`);
     },
     onSuccess: invalidate,

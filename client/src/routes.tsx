@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import type { Permission } from "@shared/auth";
 import {
   Bike, Boxes, CalendarCheck, Carrot, ChefHat, ClipboardList, Clock, Database, Download, FileUp, Flag,
   IndianRupee, LayoutDashboard, ListChecks, MessageSquareWarning, Radio, Settings, ShoppingCart, Sparkles,
@@ -34,6 +35,12 @@ import { ExpensesPage } from "./modules/expenses/ExpensesPage";
 
 export interface NavItem {
   path: string;
+  /**
+   * Needed to see this page. Hides the nav link and shows "no access" on a
+   * direct URL visit -- convenience only; the API enforces the same
+   * permission on every data call regardless (server/src/auth/accessPolicy.ts).
+   */
+  permission: Permission;
   label: string;
   element: JSX.Element;
   icon: LucideIcon;
@@ -52,73 +59,73 @@ export const navGroups: NavGroup[] = [
   {
     label: "Overview",
     items: [
-      { path: "/", label: "Dashboard", element: <DashboardPage />, icon: LayoutDashboard },
-      { path: "/intelligence", label: "Intelligence", element: <IntelligencePage />, icon: Sparkles },
-      { path: "/action-center", label: "Action Center", element: <ActionCenterPage />, icon: Flag },
+      { path: "/", permission: "dashboard.view", label: "Dashboard", element: <DashboardPage />, icon: LayoutDashboard },
+      { path: "/intelligence", permission: "analytics.view", label: "Intelligence", element: <IntelligencePage />, icon: Sparkles },
+      { path: "/action-center", permission: "dashboard.view", label: "Action Center", element: <ActionCenterPage />, icon: Flag },
     ],
   },
   {
     label: "Sales",
     items: [
-      { path: "/sales-analytics", label: "Sales & Revenue", element: <SalesRevenueLayout />, icon: IndianRupee, hasSubRoutes: true },
-      { path: "/data-import", label: "Data Import", element: <ImportCenterPage />, icon: Upload, hidden: true },
-      { path: "/data-explorer", label: "Data Explorer", element: <DataExplorerPage />, icon: Database, hidden: true },
-      { path: "/sales-import", label: "Sales PDF Import (legacy)", element: <SalesImportPage />, icon: FileUp, hidden: true },
-      { path: "/kpi-scorecard", label: "KPI Scorecard", element: <KpiScorecardPage />, icon: Target },
-      { path: "/veg-indent", label: "Vegetable Indent", element: <VegIndentPage />, icon: Carrot },
-      { path: "/export", label: "Export", element: <ExportPage />, icon: Download },
+      { path: "/sales-analytics", permission: "sales.view", label: "Sales & Revenue", element: <SalesRevenueLayout />, icon: IndianRupee, hasSubRoutes: true },
+      { path: "/data-import", permission: "data.import", label: "Data Import", element: <ImportCenterPage />, icon: Upload, hidden: true },
+      { path: "/data-explorer", permission: "sales.view", label: "Data Explorer", element: <DataExplorerPage />, icon: Database, hidden: true },
+      { path: "/sales-import", permission: "data.import", label: "Sales PDF Import (legacy)", element: <SalesImportPage />, icon: FileUp, hidden: true },
+      { path: "/kpi-scorecard", permission: "analytics.view", label: "KPI Scorecard", element: <KpiScorecardPage />, icon: Target },
+      { path: "/veg-indent", permission: "analytics.view", label: "Vegetable Indent", element: <VegIndentPage />, icon: Carrot },
+      { path: "/export", permission: "data.export", label: "Export", element: <ExportPage />, icon: Download },
     ],
   },
   {
     label: "Orders",
     items: [
-      { path: "/live-orders", label: "Live Orders", element: <LiveOrdersPage />, icon: Radio },
-      { path: "/orders", label: "Orders (manual)", element: <OrdersPage />, icon: ClipboardList },
-      { path: "/kitchen", label: "Kitchen", element: <KitchenPage />, icon: ChefHat },
-      { path: "/delivery", label: "Delivery", element: <DeliveryPage />, icon: Bike },
-      { path: "/front-counter", label: "Front Counter", element: <FrontCounterPage />, icon: Store },
+      { path: "/live-orders", permission: "orders.view", label: "Live Orders", element: <LiveOrdersPage />, icon: Radio },
+      { path: "/orders", permission: "orders.view", label: "Orders (manual)", element: <OrdersPage />, icon: ClipboardList },
+      { path: "/kitchen", permission: "orders.view", label: "Kitchen", element: <KitchenPage />, icon: ChefHat },
+      { path: "/delivery", permission: "orders.view", label: "Delivery", element: <DeliveryPage />, icon: Bike },
+      { path: "/front-counter", permission: "orders.view", label: "Front Counter", element: <FrontCounterPage />, icon: Store },
     ],
   },
   {
     label: "Operations",
     items: [
-      { path: "/tasks", label: "Tasks / SPO", element: <TasksPage />, icon: ListChecks },
-      { path: "/shift-performance", label: "Shift & Store Perf.", element: <ShiftPerformancePage />, icon: Clock },
+      { path: "/tasks", permission: "operations.view", label: "Tasks / SPO", element: <TasksPage />, icon: ListChecks },
+      { path: "/shift-performance", permission: "people.view", label: "Shift & Store Perf.", element: <ShiftPerformancePage />, icon: Clock },
     ],
   },
   {
     label: "People",
     items: [
-      { path: "/staff", label: "Staff", element: <StaffPage />, icon: Users },
-      { path: "/attendance", label: "Attendance", element: <AttendancePage />, icon: CalendarCheck },
+      { path: "/staff", permission: "people.view", label: "Staff", element: <StaffPage />, icon: Users },
+      { path: "/attendance", permission: "people.view", label: "Attendance", element: <AttendancePage />, icon: CalendarCheck },
     ],
   },
   {
     label: "Inventory & Supply",
     items: [
-      { path: "/inventory", label: "Inventory", element: <InventoryPage />, icon: Boxes },
-      { path: "/purchases", label: "Purchases", element: <PurchasesPage />, icon: ShoppingCart },
-      { path: "/suppliers", label: "Suppliers", element: <SuppliersPage />, icon: Truck },
+      { path: "/inventory", permission: "operations.view", label: "Inventory", element: <InventoryPage />, icon: Boxes },
+      { path: "/purchases", permission: "operations.view", label: "Purchases", element: <PurchasesPage />, icon: ShoppingCart },
+      { path: "/suppliers", permission: "operations.view", label: "Suppliers", element: <SuppliersPage />, icon: Truck },
     ],
   },
   {
     label: "Quality & Issues",
     items: [
-      { path: "/wastage", label: "Wastage", element: <WastagePage />, icon: Trash2 },
-      { path: "/complaints", label: "Complaints", element: <ComplaintsPage />, icon: MessageSquareWarning },
-      { path: "/maintenance", label: "Maintenance", element: <MaintenancePage />, icon: Wrench },
+      { path: "/wastage", permission: "operations.view", label: "Wastage", element: <WastagePage />, icon: Trash2 },
+      { path: "/complaints", permission: "operations.view", label: "Complaints", element: <ComplaintsPage />, icon: MessageSquareWarning },
+      { path: "/maintenance", permission: "operations.view", label: "Maintenance", element: <MaintenancePage />, icon: Wrench },
     ],
   },
   {
     label: "Finance",
     items: [
-      { path: "/expenses", label: "Expenses", element: <ExpensesPage />, icon: Wallet },
+      { path: "/expenses", permission: "finance.view", label: "Expenses", element: <ExpensesPage />, icon: Wallet },
     ],
   },
   {
     label: "Admin",
     items: [
-      { path: "/settings", label: "Settings", element: <SettingsPage />, icon: Settings },
+      { path: "/settings", permission: "settings.view", label: "Settings", element: <SettingsPage />, icon: Settings, hasSubRoutes: true },
     ],
   },
 ];

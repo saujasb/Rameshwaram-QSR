@@ -6,6 +6,8 @@ import { getCurrentBusinessDate, formatBusinessDateLong } from "@shared/business
 import { useHealthCheck } from "../../lib/api/system";
 import { useLatestImportBatch } from "../../lib/api/datasets";
 import { RameshWidget } from "../../modules/ramesh/RameshWidget";
+import { useAuth } from "../../lib/auth/AuthContext";
+import { UserMenu } from "./UserMenu";
 
 function useTheme() {
   const [theme, setTheme] = useState<"light" | "dark">(() => (localStorage.getItem("theme") as "light" | "dark") ?? "light");
@@ -27,8 +29,10 @@ function useLiveBusinessDate() {
 
 function OpsStatusStrip() {
   const businessDate = useLiveBusinessDate();
+  const { can } = useAuth();
+  const showSalesSync = can("sales.view");
   const { data: health, isLoading: healthLoading, isError: healthError } = useHealthCheck();
-  const { data: latestBatch } = useLatestImportBatch();
+  const { data: latestBatch } = useLatestImportBatch(showSalesSync);
   const isLive = !healthLoading && !healthError && Boolean(health?.ok);
   const liveTone = healthLoading ? "notconn" : isLive ? "good" : "crit";
 
@@ -42,11 +46,15 @@ function OpsStatusStrip() {
         <span className={`status-dot ${liveTone}`} />
         {healthLoading ? "Connecting…" : isLive ? "Live" : "Offline"}
       </span>
-      <span className="ops-status-sep" aria-hidden>·</span>
-      <span className="ops-status-item">
-        <span className="ops-status-label">Last sales sync</span>{" "}
-        {latestBatch ? new Date(latestBatch.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "never"}
-      </span>
+      {showSalesSync && (
+        <>
+          <span className="ops-status-sep" aria-hidden>·</span>
+          <span className="ops-status-item">
+            <span className="ops-status-label">Last sales sync</span>{" "}
+            {latestBatch ? new Date(latestBatch.createdAt).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "never"}
+          </span>
+        </>
+      )}
     </div>
   );
 }
@@ -54,6 +62,11 @@ function OpsStatusStrip() {
 export function AppShell() {
   const { theme, toggle } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { can } = useAuth();
+  // Only links this role can open (the server still checks every request).
+  const visibleGroups = navGroups
+    .map((g) => ({ ...g, items: g.items.filter((item) => !item.hidden && can(item.permission)) }))
+    .filter((g) => g.items.length > 0);
 
   return (
     <div className="app-shell">
@@ -64,10 +77,10 @@ export function AppShell() {
           <div className="brand-title">Master Tracking</div>
           <div className="brand-sub">Aikyam · Brookefield</div>
         </div>
-        {navGroups.map((group) => (
+        {visibleGroups.map((group) => (
           <div className="nav-group" key={group.label}>
             <div className="nav-group-label">{group.label}</div>
-            {group.items.filter((item) => !item.hidden).map((item) => (
+            {group.items.map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
@@ -88,11 +101,12 @@ export function AppShell() {
           <OpsStatusStrip />
           <GlobalSearch />
           <button className="theme-toggle" onClick={toggle}>◐ {theme === "dark" ? "Dark" : "Light"}</button>
+          <UserMenu />
         </div>
         <div className="content">
           <Outlet />
         </div>
-        <RameshWidget />
+        {can("assistant.use") && <RameshWidget />}
       </div>
     </div>
   );
