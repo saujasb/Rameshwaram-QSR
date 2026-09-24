@@ -5,13 +5,14 @@ import { normalizeGoSelfServeOrder, GoSelfServePayloadError } from "./providers/
 import { recordWebhookEvent, upsertProviderOrder } from "./repository.js";
 import { syncOrderStatusToGoSelfServe } from "./goselfserve.js";
 import { verifyGoSelfServeWebhook, verifyPetpoojaWebhook } from "./webhookAuth.js";
+import { asyncRoute } from "../../shared/asyncRoute.js";
 
 // Token checks live in webhookAuth.ts (constant-time compare, read from env
 // per request). See that file for each provider's auth contract.
 
 export const providerWebhookRouter: Router = Router();
 
-providerWebhookRouter.post("/petpooja/order", async (req, res) => {
+providerWebhookRouter.post("/petpooja/order", asyncRoute(async (req, res) => {
   const body = req.body;
 
   if (!verifyPetpoojaWebhook(body).ok) {
@@ -57,9 +58,9 @@ providerWebhookRouter.post("/petpooja/order", async (req, res) => {
     await recordWebhookEvent({ provider: "petpooja", ok: false, httpStatus: 500, error: message, body });
     res.status(500).json({ error: "Failed to process order." });
   }
-});
+}));
 
-providerWebhookRouter.post("/goselfserve/order", async (req, res) => {
+providerWebhookRouter.post("/goselfserve/order", asyncRoute(async (req, res) => {
   const body = req.body;
 
   if (!verifyGoSelfServeWebhook(req).ok) {
@@ -97,4 +98,4 @@ providerWebhookRouter.post("/goselfserve/order", async (req, res) => {
     await recordWebhookEvent({ provider: "goselfserve", ok: false, httpStatus: 500, error: message, body });
     res.status(500).json({ error: "Failed to process order." });
   }
-});
+}));
