@@ -199,7 +199,17 @@ authRouter.post("/change-password", asyncRoute(async (req, res) => {
   await query(`UPDATE public.profiles SET must_change_password = false, updated_by = $1 WHERE id = $1`, [auth.userId]);
   await query(`INSERT INTO public.user_audit_log (actor_id, target_id, action) VALUES ($1, $1, 'password_changed')`, [auth.userId]);
   invalidateUserCache(auth.userId);
-  res.json({ ok: true });
+
+  // Supabase ends the user's existing sessions when the password changes, so
+  // hand back a fresh session under the new password (a new session after a
+  // credential change is the right outcome anyway).
+  const fresh = await freshAuthClient().auth.signInWithPassword({ email: account.email, password: newPassword });
+  if (fresh.error || !fresh.data.session) {
+    clearSessionCookies(req, res);
+    res.json({ ok: true, reauthenticate: true });
+    return;
+  }
+  await completeSignIn(req, res, fresh.data.session);
 }));
 
 // ---------------------------------------------------------------------------
