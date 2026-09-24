@@ -12,6 +12,7 @@ const GSS_TONE: Record<ProviderOrder["goselfserveSyncStatus"], "ok" | "over" | "
   failed: "over",
   pending: "under",
   not_configured: "neutral",
+  not_applicable: "neutral",
 };
 
 const GSS_LABEL: Record<ProviderOrder["goselfserveSyncStatus"], string> = {
@@ -19,6 +20,7 @@ const GSS_LABEL: Record<ProviderOrder["goselfserveSyncStatus"], string> = {
   failed: "Sync failed",
   pending: "Sync pending",
   not_configured: "GoSelfServe not configured",
+  not_applicable: "Not applicable",
 };
 
 export function ProviderOrderDetailModal({ order, onClose }: { order: ProviderOrder; onClose: () => void }) {
@@ -49,11 +51,17 @@ export function ProviderOrderDetailModal({ order, onClose }: { order: ProviderOr
         ) : (
           <StatusBadge label={PROVIDER_ORDER_SOURCE_LABELS[order.orderFrom]} tone="neutral" />
         )}
-        {/* "not_configured" just means outbound GoSelfServe sync has no API
-            credentials set -- true for every Petpooja order today, so it's
-            noise rather than information. Real states (pending/sent/failed)
-            still show normally once sync is actually configured. */}
-        {order.goselfserveSyncStatus !== "not_configured" && (
+        {/* Outbound GoSelfServe sync only ever applies to Petpooja orders
+            being pushed TO GoSelfServe -- an order that originated AT
+            GoSelfServe (isKiosk) has no sync step to report on at all, so
+            the badge is suppressed by provider directly, not by the stored
+            status value. This also correctly hides the badge for
+            already-existing GoSelfServe orders still holding the old
+            "pending" value from before this distinction existed, with no
+            database correction needed. "not_configured" (Petpooja orders
+            with no outbound API credentials set, true for every Petpooja
+            order today) stays noise-free the same way it always has. */}
+        {!isKiosk && order.goselfserveSyncStatus !== "not_configured" && (
           <StatusBadge label={GSS_LABEL[order.goselfserveSyncStatus]} tone={GSS_TONE[order.goselfserveSyncStatus]} />
         )}
       </div>

@@ -1,27 +1,21 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { DivergingBar } from "../../components/charts/DivergingBar";
 import { HBarChart } from "../../components/charts/HBarChart";
-import { Donut } from "../../components/charts/Donut";
 import { SalesTrendChart } from "../../components/charts/SalesTrendChart";
-import { DataFreshnessBadge } from "../../components/DataFreshnessBadge";
+import { DateRangeControl } from "../../components/DateRangeControl";
 import { useAnalyticsSnapshot, usePrioritizedActions } from "../../lib/api/analytics";
 import { useSalesSummary } from "../../lib/api/sales";
-// Header freshness badge reports on Data Import (Production/Wastage/Excel),
-// not live sales -- Live Feed/Sales Amount below are live via provider_orders
-// and never "imported", so the legacy sales_import_batches-backed batch
-// (often empty) must not be what this badge is driven by.
-import { useLatestImportBatch } from "../../lib/api/datasets";
 import { useProviderOrdersRealtime } from "../../lib/api/providerOrders";
 import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
-import { formatInrCompact } from "../../lib/format";
-import { SALES_CHANNEL_LABELS } from "@shared/sales";
+import { defaultDateRange, formatBusinessDateRange, resolveBusinessDateRange, type DateRangeValue } from "../../lib/dateRange";
 import { useSalesTargetWithEditor } from "../dashboard/SalesTargetEditor";
+import { TotalSalesCard } from "./TotalSalesCard";
 import { LiveSalesFeed } from "./LiveSalesFeed";
 import { SalesAmountTab } from "./SalesAmountTab";
 import { ItemSalesTab } from "./ItemSalesTab";
 import { CategoryPerformanceTab } from "./CategoryPerformanceTab";
-import { SALES_SOURCES, SALES_SOURCE_LABELS, type SalesSource } from "./salesSource";
+import { LIVE_FEED_SOURCES, SALES_SOURCES, SALES_SOURCE_LABELS, type SalesSource } from "./salesSource";
 
 const SEVERITY_COLOR: Record<string, string> = {
   critical: "var(--critical)",
@@ -30,37 +24,12 @@ const SEVERITY_COLOR: Record<string, string> = {
   info: "var(--brand)",
 };
 
-const CHANNEL_COLOR: Record<string, string> = {
-  petpooja_pos: "var(--s2)",
-  kiosk: "var(--s1)",
-  petpooja_online: "var(--s3)",
-};
-
-type RangePreset = "today" | "yesterday" | "week" | "month" | "all" | "custom";
-
-function computeRange(preset: RangePreset, customFrom: string, customTo: string): { from?: string; to?: string } {
-  const today = getCurrentBusinessDate();
-  if (preset === "today") return { from: today, to: today };
-  if (preset === "yesterday") {
-    const y = shiftDateKey(today, -1);
-    return { from: y, to: y };
-  }
-  if (preset === "week") return { from: shiftDateKey(today, -6), to: today };
-  if (preset === "month") return { from: shiftDateKey(today, -29), to: today };
-  if (preset === "all") return {};
-  return { from: customFrom || undefined, to: customTo || undefined };
-}
-
-function LiveSalesSection() {
+function ImportedSalesSections({ range }: { range: DateRangeValue }) {
   const today = getCurrentBusinessDate();
   const yesterday = shiftDateKey(today, -1);
   const lastWeek = shiftDateKey(today, -7);
-  const [preset, setPreset] = useState<RangePreset>("today");
-  const [customFrom, setCustomFrom] = useState(today);
-  const [customTo, setCustomTo] = useState(today);
-  const range = useMemo(() => computeRange(preset, customFrom, customTo), [preset, customFrom, customTo]);
-  const { data: sales } = useSalesSummary(range.from, range.to);
-  const { data: todaySales } = useSalesSummary(today, today);
+  const { from, to } = resolveBusinessDateRange(range);
+  const { data: sales } = useSalesSummary(from, to);
   // Only the daily target VALUE is used here (as the dashed reference line on
   // the legacy trend chart below) -- the Target Achievement % comparison
   // against actual sales lives solely on the main Dashboard now, computed
@@ -69,171 +38,68 @@ function LiveSalesSection() {
   // second Target Achievement here against a different, usually-empty
   // "actual" would just be a second, conflicting number for the same target.
   const { target } = useSalesTargetWithEditor();
-
-  const rangeLabel =
-    sales?.businessDateFrom && sales.businessDateFrom === sales.businessDateTo
-      ? sales.businessDateFrom
-      : sales?.businessDateFrom
-        ? `${sales.businessDateFrom} – ${sales.businessDateTo}`
-        : "";
+  const rangeLabel = formatBusinessDateRange(from, to);
 
   return (
     <>
-      <h2 style={{ fontSize: 15, margin: "0 0 4px", color: "var(--ink-2)" }}>
-        <span className="tag neutral" style={{ fontSize: 10, marginRight: 8, verticalAlign: 1 }}>📄 BACKUP / MANUAL</span>
-        Overview — from imported PDF reports
-      </h2>
-      <p className="page-desc" style={{ margin: "0 0 10px" }}>
-        For live, automatically-updating figures see the <b>Live Feed</b> and <b>Sales Amount</b> tabs above — those come
-        straight from Petpooja, no upload required.
-      </p>
-      <div className="filters-bar">
-        <select value={preset} onChange={(e) => setPreset(e.target.value as RangePreset)}>
-          <option value="today">Today</option>
-          <option value="yesterday">Yesterday</option>
-          <option value="week">Last 7 days</option>
-          <option value="month">Last 30 days</option>
-          <option value="all">All time</option>
-          <option value="custom">Custom range</option>
-        </select>
-        {preset === "custom" && (
-          <>
-            <input type="date" value={customFrom} onChange={(e) => setCustomFrom(e.target.value)} />
-            <input type="date" value={customTo} onChange={(e) => setCustomTo(e.target.value)} />
-          </>
-        )}
-        <Link to="/sales-import" className="btn small">Import a report →</Link>
+      <div className="card">
+        <h3>Top items</h3>
+        <p className="h3sub">By revenue, {rangeLabel}</p>
+        <HBarChart
+          data={(sales?.topItems ?? []).map((t) => ({ name: t.itemName, value: t.amount }))}
+          defaultColor="var(--brand)"
+          valueFormatter={(v) => `₹${v.toLocaleString()}`}
+        />
       </div>
 
-      {!sales || sales.totalAmount === 0 ? (
-        <div className="banner-not-connected" style={{ marginBottom: 18 }}>
-          No sales data imported for this range yet. <Link to="/sales-import">Upload a sales PDF</Link> to populate
-          Total Sales, Sales by Channel, Top Items, Category performance and the Sales Trend below — nothing here is
-          invented.
+      <div className="card">
+        <h3>Category performance</h3>
+        <p className="h3sub">Revenue by menu category, {rangeLabel}</p>
+        <div className="table-scroll">
+          <table>
+            <thead>
+              <tr><th>Category</th><th className="num">Qty</th><th className="num">Revenue</th></tr>
+            </thead>
+            <tbody>
+              {(sales?.byCategory ?? []).map((c) => (
+                <tr key={c.category}>
+                  <td>{c.category}</td>
+                  <td className="num">{c.quantity.toLocaleString()}</td>
+                  <td className="num">₹{c.amount.toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      ) : (
-        <>
-          <div className="kpis" style={{ marginBottom: 18 }}>
-            <div className="kpi good">
-              <div className="lab">Total Sales</div>
-              <div className="val">{formatInrCompact(sales.totalAmount)}</div>
-              <div className="note">{sales.totalQuantity.toLocaleString()} items · {rangeLabel}</div>
-            </div>
-            {sales.byChannel.map((c) => (
-              <div className="kpi good" key={c.channel}>
-                <div className="lab">{SALES_CHANNEL_LABELS[c.channel]}</div>
-                <div className="val">{formatInrCompact(c.amount)}</div>
-                <div className="note">{c.quantity.toLocaleString()} items</div>
-              </div>
-            ))}
-            <div className={`kpi ${sales.hasHourlyData ? "good" : "notconn"}`}>
-              <div className="lab">Hourly breakdown</div>
-              <div className="val" style={sales.hasHourlyData ? undefined : { fontSize: 14.5 }}>
-                {sales.hasHourlyData ? "Available" : "Not available"}
-              </div>
-              <div className="note">{sales.hasHourlyData ? "per-order timestamps found" : "these reports have no per-order time data"}</div>
-            </div>
-          </div>
+      </div>
 
-          <div className="grid2">
-            <div className="card" style={{ marginBottom: 0 }}>
-              <h3>Sales by channel</h3>
-              <p className="h3sub">{rangeLabel}</p>
-              <div className="legend">
-                {sales.byChannel.map((c) => (
-                  <span key={c.channel}>
-                    <span className="sw" style={{ background: CHANNEL_COLOR[c.channel] ?? "var(--brand)" }} />
-                    {SALES_CHANNEL_LABELS[c.channel]}
-                  </span>
-                ))}
-              </div>
-              <Donut
-                data={sales.byChannel.map((c) => ({
-                  name: SALES_CHANNEL_LABELS[c.channel],
-                  value: c.amount,
-                  color: CHANNEL_COLOR[c.channel] ?? "var(--brand)",
-                }))}
-                centerLabel={`₹${sales.totalAmount.toLocaleString()}`}
-                centerSub="total sales"
-              />
-            </div>
-            <div className="card" style={{ marginBottom: 0 }}>
-              <h3>Top items</h3>
-              <p className="h3sub">By revenue, {rangeLabel}</p>
-              <HBarChart
-                data={sales.topItems.map((t) => ({ name: t.itemName, value: t.amount }))}
-                defaultColor="var(--brand)"
-                valueFormatter={(v) => `₹${v.toLocaleString()}`}
-              />
-            </div>
-          </div>
-
-          <div className="card" style={{ marginTop: 18 }}>
-            <h3>Category performance</h3>
-            <p className="h3sub">Revenue by menu category, {rangeLabel}</p>
-            <div className="table-scroll">
-              <table>
-                <thead>
-                  <tr><th>Category</th><th className="num">Qty</th><th className="num">Revenue</th></tr>
-                </thead>
-                <tbody>
-                  {sales.byCategory.map((c) => (
-                    <tr key={c.category}>
-                      <td>{c.category}</td>
-                      <td className="num">{c.quantity.toLocaleString()}</td>
-                      <td className="num">₹{c.amount.toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="card">
-            <h3>Sales trend</h3>
-            <p className="h3sub">By business date · target shown as dashed line</p>
-            <SalesTrendChart
-              data={sales.dailyTrend}
-              target={target?.amount}
-              markers={[
-                { businessDate: today, label: "Today", color: "var(--brand)" },
-                { businessDate: yesterday, label: "Yesterday", color: "var(--s2)" },
-                { businessDate: lastWeek, label: "Last week", color: "var(--s3)" },
-              ]}
-            />
-          </div>
-        </>
-      )}
+      <div className="card">
+        <h3>Sales trend</h3>
+        <p className="h3sub">By business date · target shown as dashed line</p>
+        <SalesTrendChart
+          data={sales?.dailyTrend ?? []}
+          target={target?.amount}
+          markers={[
+            { businessDate: today, label: "Today", color: "var(--brand)" },
+            { businessDate: yesterday, label: "Yesterday", color: "var(--s2)" },
+            { businessDate: lastWeek, label: "Last week", color: "var(--s3)" },
+          ]}
+        />
+      </div>
     </>
   );
 }
 
-type SalesTab = "overview" | "live" | "amount" | "items" | "categories";
+export type SalesView = "overview" | "live" | "amount" | "items" | "categories";
 
-const TAB_LABELS: Record<SalesTab, string> = {
-  overview: "Overview",
-  live: "🟢 Live Feed",
-  amount: "Sales Amount",
-  items: "Item Sales",
-  categories: "Category Performance",
-};
-
-export function SalesAnalyticsPage() {
-  const { data: snap, isLoading, isError } = useAnalyticsSnapshot();
-  const { data: actions } = usePrioritizedActions();
-  const { data: latestBatch } = useLatestImportBatch();
+/** Which view is shown comes from SalesRevenueLayout's vertical sub-navigation (the URL), not local tab state. */
+export function SalesAnalyticsPage({ view: tab }: { view: SalesView }) {
   const connection = useProviderOrdersRealtime();
-  const [tab, setTab] = useState<SalesTab>("overview");
   const [source, setSource] = useState<SalesSource>("petpooja");
-
-  if (isError) {
-    return (
-      <div className="banner-not-connected">
-        <b>Couldn't reach the sales analytics service.</b> No figures are shown rather than stale or guessed ones.
-      </div>
-    );
-  }
-  if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
+  // Live Feed has no Combined tab; if Combined was picked on another tab,
+  // Live Feed falls back to the first source (without losing that choice).
+  const tabSources = tab === "live" ? LIVE_FEED_SOURCES : SALES_SOURCES;
+  const activeSource = tabSources.includes(source) ? source : tabSources[0];
 
   return (
     <div>
@@ -242,29 +108,10 @@ export function SalesAnalyticsPage() {
           <h1>Sales & Revenue</h1>
           <p className="page-desc">
             <b>Live Feed</b> and <b>Sales Amount</b> stream straight from a live order source (Petpooja or Kiosk) the
-            moment an order is billed. <b>Overview</b> holds the PDF-import figures (backup / manual source) plus the
-            one-day operations snapshot from <b>{snap.reportDate}</b> — a separate, one-time report.
+            moment an order is billed. <b>Overview</b> shows live Total Sales across all sources, plus imported-report
+            sections and the one-day operations snapshot.
           </p>
         </div>
-        <DataFreshnessBadge
-          lastSyncedAt={latestBatch?.createdAt ?? null}
-          notConnectedLabel="No Data Import yet"
-          syncedLabel="Data Import synced"
-          staleLabel="Data Import may be outdated"
-        />
-      </div>
-
-      <div className="filters-bar" style={{ marginBottom: 18 }}>
-        {(Object.keys(TAB_LABELS) as SalesTab[]).map((t) => (
-          <button
-            key={t}
-            className="btn small"
-            onClick={() => setTab(t)}
-            style={tab === t ? { background: "var(--brand)", color: "var(--on-brand, #fff)", borderColor: "var(--brand)" } : undefined}
-          >
-            {TAB_LABELS[t]}
-          </button>
-        ))}
       </div>
 
       {(tab === "live" || tab === "amount" || tab === "items" || tab === "categories") && (
@@ -272,13 +119,13 @@ export function SalesAnalyticsPage() {
           <span style={{ fontSize: 12, fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: 0.4 }}>
             Source
           </span>
-          {SALES_SOURCES.map((s) => (
+          {tabSources.map((s) => (
             <button
               key={s}
               className="btn small"
               onClick={() => setSource(s)}
-              aria-pressed={source === s}
-              style={source === s ? { background: "var(--brand)", color: "var(--on-brand, #fff)", borderColor: "var(--brand)" } : undefined}
+              aria-pressed={activeSource === s}
+              style={activeSource === s ? { background: "var(--brand)", color: "var(--on-brand, #fff)", borderColor: "var(--brand)" } : undefined}
             >
               {SALES_SOURCE_LABELS[s]}
             </button>
@@ -286,15 +133,49 @@ export function SalesAnalyticsPage() {
         </div>
       )}
 
-      {tab === "live" && <LiveSalesFeed connection={connection} source={source} />}
-      {tab === "amount" && <SalesAmountTab connection={connection} source={source} />}
-      {tab === "items" && <ItemSalesTab source={source} />}
-      {tab === "categories" && <CategoryPerformanceTab source={source} />}
-      {tab === "overview" && (
-      <>
+      {tab === "live" && <LiveSalesFeed connection={connection} source={activeSource} />}
+      {tab === "amount" && <SalesAmountTab connection={connection} source={activeSource} />}
+      {tab === "items" && <ItemSalesTab source={activeSource} />}
+      {tab === "categories" && <CategoryPerformanceTab source={activeSource} />}
+      {tab === "overview" && <SalesOverview />}
+    </div>
+  );
+}
 
-      <LiveSalesSection />
+/** Overview is always all sources combined -- no source selector -- on one shared date range. */
+function SalesOverview() {
+  const [range, setRange] = useState<DateRangeValue>(defaultDateRange);
+  return (
+    <>
+      <div className="filters-bar" style={{ marginBottom: 18 }}>
+        <DateRangeControl value={range} onChange={setRange} />
+      </div>
+      <TotalSalesCard range={range} />
+      <ImportedSalesSections range={range} />
+      <OperationsSnapshot />
+    </>
+  );
+}
 
+/**
+ * One-day operations snapshot (/analytics/snapshot) with its own loading/error
+ * state, so the other Sales sub-pages never depend on it.
+ */
+function OperationsSnapshot() {
+  const { data: snap, isLoading, isError } = useAnalyticsSnapshot();
+  const { data: actions } = usePrioritizedActions();
+
+  if (isError) {
+    return (
+      <div className="banner-not-connected">
+        <b>Couldn't reach the operations snapshot.</b> No figures are shown rather than stale or guessed ones.
+      </div>
+    );
+  }
+  if (isLoading || !snap) return <p style={{ color: "var(--muted)" }}>Loading…</p>;
+
+  return (
+    <>
       <h2 style={{ fontSize: 15, margin: "26px 0 10px", color: "var(--ink-2)" }}>One-day operations snapshot — {snap.reportDate}</h2>
 
       <div className="kpis" style={{ marginBottom: 18 }}>
@@ -305,33 +186,13 @@ export function SalesAnalyticsPage() {
         <div className="kpi warn"><div className="lab">Recipe vs actual</div><div className="val">₹{snap.recipeVsActualRupees.toLocaleString()}</div><div className="note">net consumption gap</div></div>
       </div>
 
-      <div className="grid2">
-        <div className="card" style={{ marginBottom: 0 }}>
-          <h3>Sales by channel</h3>
-          <p className="h3sub">{snap.reportDate}</p>
-          <div className="legend">
-            <span><span className="sw" style={{ background: "var(--s1)" }} />Kiosk</span>
-            <span><span className="sw" style={{ background: "var(--s2)" }} />PetPooja (Counter/POS)</span>
-            <span><span className="sw" style={{ background: "var(--s3)" }} />Online</span>
-          </div>
-          <Donut
-            data={[
-              { name: "PetPooja (Counter/POS)", value: snap.channelMix[0].value, color: "var(--s2)" },
-              { name: "Kiosk", value: snap.channelMix[1].value, color: "var(--s1)" },
-              { name: "Online", value: snap.channelMix[2].value, color: "var(--s3)" },
-            ]}
-            centerLabel={snap.itemsSold.toLocaleString()}
-            centerSub="items sold"
-          />
-        </div>
-        <div className="card" style={{ marginBottom: 0 }}>
-          <h3>Top 10 sellers</h3>
-          <p className="h3sub">{snap.reportDate}</p>
-          <HBarChart data={snap.topSellers.map((t) => ({ name: t.name, value: t.unitsSold }))} defaultColor="var(--brand)" />
-        </div>
+      <div className="card">
+        <h3>Top 10 sellers</h3>
+        <p className="h3sub">{snap.reportDate}</p>
+        <HBarChart data={snap.topSellers.map((t) => ({ name: t.name, value: t.unitsSold }))} defaultColor="var(--brand)" />
       </div>
 
-      <div className="card" style={{ marginTop: 18 }}>
+      <div className="card">
         <h3>Production vs sales variance</h3>
         <p className="h3sub">Kilograms. Right of zero = over-produced; left = under-produced vs sales. {snap.reportDate}.</p>
         <div className="legend">
@@ -373,8 +234,6 @@ export function SalesAnalyticsPage() {
           ))}
         </div>
       )}
-      </>
-      )}
-    </div>
+    </>
   );
 }

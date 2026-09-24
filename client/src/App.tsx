@@ -7,7 +7,7 @@ export default function App() {
     <Routes>
       <Route element={<AppShell />}>
         {flatNavItems.map((item) => (
-          <Route key={item.path} path={item.path} element={item.element} />
+          <Route key={item.path} path={item.hasSubRoutes ? `${item.path}/*` : item.path} element={item.element} />
         ))}
       </Route>
     </Routes>

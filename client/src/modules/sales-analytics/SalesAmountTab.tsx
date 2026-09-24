@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
+import { DateRangeControl } from "../../components/DateRangeControl";
+import { defaultDateRange, resolveBusinessDateRange, type DateRangeValue } from "../../lib/dateRange";
 import { Donut } from "../../components/charts/Donut";
 import { SalesTrendChart } from "../../components/charts/SalesTrendChart";
 import { useProviderOrderSalesSummary, useProviderOrders, type RealtimeStatus } from "../../lib/api/providerOrders";
 import { PROVIDER_ORDER_TYPE_LABELS, SALES_CHANNEL_DISPLAY_LABELS } from "@shared/providerOrders";
-import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
+import { getCurrentBusinessDate } from "@shared/businessDate";
 import { formatInrCompact } from "../../lib/format";
 import { SALES_SOURCE_LABELS, liveSourceFilter, type LiveSalesSource } from "./salesSource";
 
@@ -21,19 +23,6 @@ const CHANNEL_COLOR: Record<string, string> = {
   other: "var(--muted)",
 };
 
-type RangePreset = "today" | "yesterday" | "week" | "month" | "all";
-
-function computeRange(preset: RangePreset, today: string): { from?: string; to?: string } {
-  if (preset === "today") return { from: today, to: today };
-  if (preset === "yesterday") {
-    const y = shiftDateKey(today, -1);
-    return { from: y, to: y };
-  }
-  if (preset === "week") return { from: shiftDateKey(today, -6), to: today };
-  if (preset === "month") return { from: shiftDateKey(today, -29), to: today };
-  return {};
-}
-
 /**
  * Sales Amount tab -- same source of truth as the Live Feed (provider_orders,
  * status = 'success', scoped to whichever live source is selected). Never
@@ -42,8 +31,8 @@ function computeRange(preset: RangePreset, today: string): { from?: string; to?:
  */
 export function SalesAmountTab({ connection, source }: { connection: RealtimeStatus; source: LiveSalesSource }) {
   const today = getCurrentBusinessDate();
-  const [preset, setPreset] = useState<RangePreset>("today");
-  const range = useMemo(() => computeRange(preset, today), [preset, today]);
+  const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
+  const range = useMemo(() => resolveBusinessDateRange(dateRange), [dateRange]);
   const label = SALES_SOURCE_LABELS[source];
   const sourceFilter = liveSourceFilter(source);
   const combined = source === "combined";
@@ -77,13 +66,7 @@ export function SalesAmountTab({ connection, source }: { connection: RealtimeSta
       </div>
 
       <div className="filters-bar">
-        <select value={preset} onChange={(e) => setPreset(e.target.value as RangePreset)}>
-          <option value="today">Today</option>
-          <option value="yesterday">Yesterday</option>
-          <option value="week">Last 7 days</option>
-          <option value="month">Last 30 days</option>
-          <option value="all">All time</option>
-        </select>
+        <DateRangeControl value={dateRange} onChange={setDateRange} />
       </div>
 
       {!summary || summary.totalOrders === 0 ? (

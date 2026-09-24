@@ -1,21 +1,10 @@
 import { useMemo, useState } from "react";
+import { DateRangeControl } from "../../components/DateRangeControl";
+import { defaultDateRange, resolveBusinessDateRange, type DateRangeValue } from "../../lib/dateRange";
 import { useProviderOrderItemSales } from "../../lib/api/providerOrders";
-import { getCurrentBusinessDate, shiftDateKey } from "@shared/businessDate";
 import { liveSourceFilter, type LiveSalesSource } from "./salesSource";
 
-type RangePreset = "today" | "yesterday" | "week" | "month" | "all";
 type SortDir = "asc" | "desc";
-
-function computeRange(preset: RangePreset, today: string): { from?: string; to?: string } {
-  if (preset === "today") return { from: today, to: today };
-  if (preset === "yesterday") {
-    const y = shiftDateKey(today, -1);
-    return { from: y, to: y };
-  }
-  if (preset === "week") return { from: shiftDateKey(today, -6), to: today };
-  if (preset === "month") return { from: shiftDateKey(today, -29), to: today };
-  return {};
-}
 
 /**
  * Combined item-sales list, sourced from provider_orders.itemsJson (server-
@@ -24,10 +13,10 @@ function computeRange(preset: RangePreset, today: string): { from?: string; to?:
  * sections; the sort direction just flips which end is on top.
  */
 export function ItemSalesTab({ source }: { source: LiveSalesSource }) {
-  const today = getCurrentBusinessDate();
-  const [preset, setPreset] = useState<RangePreset>("today");
+  const [dateRange, setDateRange] = useState<DateRangeValue>(defaultDateRange);
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const range = useMemo(() => computeRange(preset, today), [preset, today]);
+  const [search, setSearch] = useState("");
+  const range = useMemo(() => resolveBusinessDateRange(dateRange), [dateRange]);
   const sourceFilter = liveSourceFilter(source);
 
   const { data, isLoading, isError } = useProviderOrderItemSales({ ...sourceFilter, ...range });
@@ -39,12 +28,16 @@ export function ItemSalesTab({ source }: { source: LiveSalesSource }) {
         ? `${data.businessDateFrom} – ${data.businessDateTo}`
         : "";
 
+  const allItems = data?.items ?? [];
   const sortedItems = useMemo(() => {
     const items = data?.items ?? [];
-    const copy = [...items];
+    const query = search.trim().toLowerCase();
+    const copy = query
+      ? items.filter((item) => item.name.toLowerCase().includes(query))
+      : [...items];
     copy.sort((a, b) => (sortDir === "asc" ? a.quantity - b.quantity : b.quantity - a.quantity));
     return copy;
-  }, [data, sortDir]);
+  }, [data, search, sortDir]);
 
   return (
     <div>
@@ -59,25 +52,29 @@ export function ItemSalesTab({ source }: { source: LiveSalesSource }) {
       </div>
 
       <div className="filters-bar">
-        <select value={preset} onChange={(e) => setPreset(e.target.value as RangePreset)}>
-          <option value="today">Today</option>
-          <option value="yesterday">Yesterday</option>
-          <option value="week">Last 7 days</option>
-          <option value="month">Last 30 days</option>
-          <option value="all">All time</option>
-        </select>
+        <DateRangeControl value={dateRange} onChange={setDateRange} />
         <select value={sortDir} onChange={(e) => setSortDir(e.target.value as SortDir)}>
           <option value="desc">Quantity: highest → lowest</option>
           <option value="asc">Quantity: lowest → highest</option>
         </select>
+        <input
+          type="search"
+          placeholder="Search item name…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          aria-label="Search item name"
+          style={{ minWidth: 220 }}
+        />
       </div>
 
       {isError ? (
         <p style={{ color: "var(--critical)", fontSize: 13.5 }}>Couldn't load item sales. Check the backend connection and retry.</p>
       ) : isLoading ? (
         <p style={{ color: "var(--muted)", fontSize: 13.5 }}>Loading…</p>
-      ) : sortedItems.length === 0 ? (
+      ) : allItems.length === 0 ? (
         <div className="banner-not-connected">No items sold in this range yet.</div>
+      ) : sortedItems.length === 0 ? (
+        <div className="banner-not-connected">No items match "{search.trim()}" in this range.</div>
       ) : (
         <div className="card">
           <h3>Items sold</h3>

@@ -4,7 +4,7 @@ export type ProviderName = "petpooja" | "goselfserve";
 export type ProviderOrderStatus = "success" | "cancelled" | "pending";
 export type ProviderOrderType = "dine_in" | "pick_up" | "delivery" | "other";
 export type ProviderOrderSource = "pos" | "zomato" | "swiggy" | "other";
-export type GoSelfServeSyncStatus = "not_configured" | "pending" | "sent" | "failed";
+export type GoSelfServeSyncStatus = "not_configured" | "pending" | "sent" | "failed" | "not_applicable";
 
 export interface ProviderOrderAddon {
   groupName: string;
@@ -104,6 +104,10 @@ export interface ProviderOrderFilter {
   pageSize?: number;
   /** When true, restricts to the combined Petpooja Online channel (see classifySalesChannel) -- Swiggy + Zomato + any other confirmed online label, never split apart. Not a raw DB provider, so it's a separate flag rather than a `provider` value. */
   onlineOnly?: boolean;
+  /** When true, excludes the combined Petpooja Online channel -- the inverse of onlineOnly. Lets "Petpooja" mean POS/counter orders only, everywhere it's selected, consistent with "Online" being its own separate source rather than a hidden subset of "Petpooja". */
+  excludeOnline?: boolean;
+  /** Matches orders whose totalAmount is within a small epsilon of this value (avoids float-precision false negatives on an otherwise-exact bill-amount search). */
+  amount?: number;
 }
 
 /** Response shape for GET /provider-orders when pagination params are supplied. */
@@ -239,6 +243,8 @@ export interface ProviderOrderSalesFilter {
   restaurantId?: string;
   /** See ProviderOrderFilter.onlineOnly -- same meaning, same combined channel. */
   onlineOnly?: boolean;
+  /** See ProviderOrderFilter.excludeOnline -- same meaning, inverse of onlineOnly. */
+  excludeOnline?: boolean;
 }
 
 // Item Sales / Category Performance -- combined, single-list views over

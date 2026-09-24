@@ -1,10 +1,5 @@
 import type { ProviderName } from "@shared/providerOrders";
 
-// The Sales & Revenue live area's three-way source selector. "goselfserve" is
-// labeled "Kiosk" here because that's what the live GoSelfServe/Kiosk API
-// integration is called in the product -- distinct from the PDF-imported
-// "Kiosk" channel shown in the Overview tab above, which is a separate,
-// manual data source (see server/src/entities/sales/parsers/kiosk.ts).
 /**
  * The Sales & Revenue live area's source selector. Every value has a real,
  * queryable provider_orders feed: "combined" is the existing provider_orders
@@ -24,16 +19,23 @@ export const SALES_SOURCE_LABELS: Record<SalesSource, string> = {
   online: "Online",
 };
 
-export const SALES_SOURCES: SalesSource[] = ["petpooja", "goselfserve", "combined", "online"];
+/** Standard source-tab order everywhere source tabs exist. */
+export const SALES_SOURCES: SalesSource[] = ["petpooja", "goselfserve", "online", "combined"];
+
+/** Live Feed is per-source only -- no Combined tab. */
+export const LIVE_FEED_SOURCES: SalesSource[] = ["petpooja", "goselfserve", "online"];
 
 /**
  * provider_orders / sales-summary / item-sales filter fields for a source
  * selector value. "online" isn't a raw DB provider, so it maps to the
- * onlineOnly flag rather than a provider value; "combined" maps to no filter
- * at all (every provider together).
+ * onlineOnly flag rather than a provider value; "petpooja" excludes that same
+ * Online channel so it means POS/counter orders only, and every Online order
+ * shows up under Online alone; "combined" maps to no filter at all (every
+ * provider together).
  */
-export function liveSourceFilter(source: LiveSalesSource): { provider?: ProviderName; onlineOnly?: boolean } {
+export function liveSourceFilter(source: LiveSalesSource): { provider?: ProviderName; onlineOnly?: boolean; excludeOnline?: boolean } {
   if (source === "combined") return {};
   if (source === "online") return { onlineOnly: true };
+  if (source === "petpooja") return { provider: "petpooja", excludeOnline: true };
   return { provider: source };
 }

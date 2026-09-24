@@ -67,14 +67,14 @@ export function AppShell() {
         {navGroups.map((group) => (
           <div className="nav-group" key={group.label}>
             <div className="nav-group-label">{group.label}</div>
-            {group.items.map((item) => (
+            {group.items.filter((item) => !item.hidden).map((item) => (
               <NavLink
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
                 onClick={() => setSidebarOpen(false)}
               >
-                <span className="nav-icon" aria-hidden>{item.icon}</span> {item.label}
+                <item.icon className="nav-icon" size={16} strokeWidth={1.9} aria-hidden /> {item.label}
               </NavLink>
             ))}
           </div>

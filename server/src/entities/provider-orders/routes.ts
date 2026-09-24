@@ -19,6 +19,13 @@ function bool(v: unknown): boolean {
   return v === "true";
 }
 
+/** Parses a finite number (e.g. a bill-amount search like "450" or "450.50"); anything else is ignored rather than rejected. */
+function num(v: unknown): number | undefined {
+  if (typeof v !== "string" || v.trim() === "") return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 function clampInt(v: string | undefined, fallback: number, min: number, max: number): number {
   const n = v ? parseInt(v, 10) : NaN;
   if (!Number.isFinite(n)) return fallback;
@@ -35,11 +42,13 @@ providerOrdersRouter.get("/", async (req, res) => {
     from: str(req.query.from),
     to: str(req.query.to),
     onlineOnly: bool(req.query.onlineOnly),
+    excludeOnline: bool(req.query.excludeOnline),
+    amount: num(req.query.amount),
   };
 
   // Backward compatible: callers that don't ask for pagination (Live Sales
-  // Feed, Sales Amount tab's recent-sales list) keep getting the original
-  // flat array response, still capped at the original 1000-row safety limit.
+  // Feed, Sales Amount tab's recent-sales list) keep getting a flat array
+  // response, capped at MAX_PROVIDER_ORDERS_PAGE_SIZE rows.
   const wantsPagination = req.query.page !== undefined || req.query.pageSize !== undefined;
   if (!wantsPagination) {
     res.json(await listProviderOrders(filter));
@@ -67,6 +76,7 @@ providerOrdersRouter.get("/sales-summary", async (req, res) => {
     provider: str(req.query.provider) as ProviderOrderSalesFilter["provider"],
     restaurantId: str(req.query.restaurantId),
     onlineOnly: bool(req.query.onlineOnly),
+    excludeOnline: bool(req.query.excludeOnline),
   };
   res.json(await getProviderOrderSalesSummary(filter));
 });
@@ -79,6 +89,7 @@ providerOrdersRouter.get("/item-sales", async (req, res) => {
     provider: str(req.query.provider) as ProviderOrderSalesFilter["provider"],
     restaurantId: str(req.query.restaurantId),
     onlineOnly: bool(req.query.onlineOnly),
+    excludeOnline: bool(req.query.excludeOnline),
   };
   res.json(await getProviderOrderItemSales(filter));
 });

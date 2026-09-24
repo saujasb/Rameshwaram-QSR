@@ -132,6 +132,15 @@ export async function upsertProviderOrder(input: NormalizedProviderOrder): Promi
   const rawPayloadJson = JSON.stringify(input.rawPayload);
   const isDuplicate = existing != null && existing.rawPayloadJson === rawPayloadJson;
   const id = existing?.id ?? randomUUID();
+  // Outbound GoSelfServe sync only ever applies to Petpooja orders being
+  // pushed TO GoSelfServe (see goselfserve.ts's header comment) -- an order
+  // that already originated AT GoSelfServe has no sync step to report on, so
+  // it's tagged "not_applicable" from insert rather than the misleading
+  // "pending" every provider used to get, regardless of the order's own
+  // status. The client also suppresses this badge by provider directly (see
+  // ProviderOrderDetailModal.tsx), so existing rows still holding the old
+  // "pending" value display correctly today without needing a backfill.
+  const initialGoSelfServeSyncStatus = input.provider === "goselfserve" ? "not_applicable" : "pending";
 
   await query(
     `INSERT INTO provider_orders (
@@ -144,7 +153,7 @@ export async function upsertProviderOrder(input: NormalizedProviderOrder): Promi
       "goselfserveSyncStatus", "createdAt", "updatedAt"
     ) VALUES (
       $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,
-      $26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,'pending',$37,$38
+      $26,$27,$28,$29,$30,$31,$32,$33,$34,$35,$36,$39,$37,$38
     )
     ON CONFLICT (provider, "providerOrderId") DO UPDATE SET
       "providerInvoiceId" = excluded."providerInvoiceId",
@@ -187,7 +196,7 @@ export async function upsertProviderOrder(input: NormalizedProviderOrder): Promi
       input.packagingCharge, input.serviceCharge, input.deliveryCharges, input.roundOff, input.totalAmount, input.comment,
       input.biller, input.assignee, input.tokenNo, input.items.length, JSON.stringify(input.items), JSON.stringify(input.taxes),
       JSON.stringify(input.discounts), JSON.stringify(input.partPayments), rawPayloadJson, input.providerCreatedAt, now,
-      now, now,
+      now, now, initialGoSelfServeSyncStatus,
     ]
   );
 
@@ -200,10 +209,12 @@ export async function getProviderOrder(id: string): Promise<ProviderOrder | unde
   return row ? rowToOrder(row) : undefined;
 }
 
-// Preserves the original hardcoded safety cap that used to sit directly in the
-// SELECT below: even a "show all" request from the client is bounded to this
-// many rows so a wide date range can't produce an unbounded response.
-export const MAX_PROVIDER_ORDERS_PAGE_SIZE = 1000;
+// The standard pagination ceiling used across the app's large lists: every
+// page is at most this many rows, including "Show: All" -- "All" means "no
+// artificial cap on the total result set" (paginate through the true total
+// via page/pageSize), never "load everything into the browser in one shot".
+// See routes.ts's "all" -> pageSize handling below.
+export const MAX_PROVIDER_ORDERS_PAGE_SIZE = 100;
 
 // providerCreatedAt is stored as text, and the two providers write different
 // formats (Petpooja: "YYYY-MM-DD HH:mm:ss", GoSelfServe: ISO "...T...Z").
@@ -233,6 +244,24 @@ function pushOnlineOnlyCondition(conditions: string[], params: unknown[], next: 
   conditions.push(`(provider = 'petpooja' AND ("orderFrom" = ANY(${orderFromParam}) OR lower("orderFromLabel") = ANY(${labelParam})))`);
 }
 
+/**
+ * Inverse of pushOnlineOnlyCondition -- "this row is NOT the combined
+ * Petpooja Online channel". Used so "Petpooja" as a source selection means
+ * POS/counter orders only everywhere it's chosen (Live Feed, Sales Amount,
+ * Item Sales, Category Wise Sales), never silently including Online orders
+ * that already have their own separate "Online" source. Kiosk/GoSelfServe
+ * rows are unaffected either way (the online condition only ever matches
+ * provider = 'petpooja' rows), so this only actually excludes rows when
+ * combined with filter.provider === 'petpooja'.
+ */
+function pushExcludeOnlineCondition(conditions: string[], params: unknown[], next: () => string): void {
+  const orderFromParam = next();
+  params.push(ONLINE_ORDER_FROM_VALUES);
+  const labelParam = next();
+  params.push(ONLINE_LABELS_LOWER);
+  conditions.push(`NOT (provider = 'petpooja' AND ("orderFrom" = ANY(${orderFromParam}) OR lower("orderFromLabel") = ANY(${labelParam})))`);
+}
+
 function buildProviderOrderWhere(filter: ProviderOrderFilter): { where: string; params: unknown[] } {
   const conditions: string[] = [];
   const params: unknown[] = [];
@@ -243,6 +272,9 @@ function buildProviderOrderWhere(filter: ProviderOrderFilter): { where: string; 
   }
   if (filter.onlineOnly) {
     pushOnlineOnlyCondition(conditions, params, next);
+  }
+  if (filter.excludeOnline) {
+    pushExcludeOnlineCondition(conditions, params, next);
   }
   if (filter.status) {
     conditions.push(`status = ${next()}`);
@@ -258,8 +290,14 @@ function buildProviderOrderWhere(filter: ProviderOrderFilter): { where: string; 
   }
   if (filter.search) {
     const like = `%${filter.search}%`;
-    conditions.push(`("providerOrderId" ILIKE ${next()} OR "customerName" ILIKE ${next()} OR "restaurantName" ILIKE ${next()})`);
-    params.push(like, like, like);
+    conditions.push(
+      `("providerOrderId" ILIKE ${next()} OR "providerInvoiceId" ILIKE ${next()} OR "customerName" ILIKE ${next()} OR "restaurantName" ILIKE ${next()})`
+    );
+    params.push(like, like, like, like);
+  }
+  if (filter.amount != null) {
+    conditions.push(`ABS("totalAmount" - ${next()}) < 0.01`);
+    params.push(filter.amount);
   }
   if (filter.from) {
     conditions.push(`${SAFE_PROVIDER_CREATED_AT} >= ${next()}`);
@@ -361,6 +399,9 @@ export async function getProviderOrderSalesSummary(filter: ProviderOrderSalesFil
   if (filter.onlineOnly) {
     pushOnlineOnlyCondition(conditions, params, next);
   }
+  if (filter.excludeOnline) {
+    pushExcludeOnlineCondition(conditions, params, next);
+  }
   if (filter.restaurantId) {
     conditions.push(`"restaurantId" = ${next()}`);
     params.push(filter.restaurantId);
@@ -409,6 +450,9 @@ export async function getProviderOrderItemSales(filter: ProviderOrderSalesFilter
   }
   if (filter.onlineOnly) {
     pushOnlineOnlyCondition(conditions, params, next);
+  }
+  if (filter.excludeOnline) {
+    pushExcludeOnlineCondition(conditions, params, next);
   }
   if (filter.restaurantId) {
     conditions.push(`"restaurantId" = ${next()}`);
