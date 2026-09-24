@@ -8,6 +8,12 @@ import type { RameshQuery } from "../../../../shared-types/ramesh.js";
 // missing key can never crash the process at startup -- only the specific
 // /ramesh/ask request that needs it fails, gracefully, via routes.ts.
 const DEFAULT_MODEL = "gemini-flash-latest";
+// Pinned, less-contended model tried once after the primary model keeps
+// returning Google's load-shedding errors -- "gemini-flash-latest" always
+// points at the newest Flash model, which is the one most often at capacity.
+const DEFAULT_FALLBACK_MODEL = "gemini-2.5-flash";
+// Waits between attempts on the primary model (so 3 attempts total).
+const RETRY_DELAYS_MS = [600, 1500];
 
 export function isGeminiConfigured(): boolean {
   return Boolean(process.env.GEMINI_API_KEY);
@@ -36,6 +42,57 @@ function redact(message: string, secret: string | undefined): string {
   return secret ? message.split(secret).join("[redacted]") : message;
 }
 
+function errorMessage(err: unknown): string {
+  return err instanceof Error ? err.message : String(err);
+}
+
+/**
+ * Google's temporary capacity errors: 503 UNAVAILABLE ("model is currently
+ * experiencing high demand") and 429 RESOURCE_EXHAUSTED. The SDK surfaces
+ * these as an Error whose message carries Google's JSON error body.
+ */
+export function isTransientGeminiError(message: string): boolean {
+  return /"code":\s*(503|429)\b|\bUNAVAILABLE\b|\bRESOURCE_EXHAUSTED\b/.test(message);
+}
+
+/**
+ * Runs `generate` against the primary model, retrying only on transient
+ * capacity errors (see RETRY_DELAYS_MS), then tries the fallback model once
+ * if the primary is still at capacity. Any other error (bad request, auth,
+ * unknown model, empty response) fails immediately without retrying. Every
+ * failed attempt is reported through `log`.
+ */
+export async function generateWithRetry(
+  generate: (model: string) => Promise<string>,
+  primaryModel: string,
+  fallbackModel: string | undefined,
+  log: (message: string) => void,
+  sleep: (ms: number) => Promise<void> = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
+): Promise<string> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      return await generate(primaryModel);
+    } catch (err) {
+      lastError = err;
+      const message = errorMessage(err);
+      log(`${primaryModel} attempt ${attempt + 1} failed: ${message}`);
+      if (!isTransientGeminiError(message)) throw err;
+      if (attempt < RETRY_DELAYS_MS.length) await sleep(RETRY_DELAYS_MS[attempt]);
+    }
+  }
+
+  if (fallbackModel && fallbackModel !== primaryModel) {
+    try {
+      return await generate(fallbackModel);
+    } catch (err) {
+      log(`${fallbackModel} (fallback) failed: ${errorMessage(err)}`);
+      throw err;
+    }
+  }
+  throw lastError;
+}
+
 /**
  * Sends the question to Gemini (with any deterministically-computed
  * groundingFacts prepended as verified data) and returns its reply text.
@@ -57,18 +114,24 @@ export async function askGemini(question: string, context?: RameshQuery["context
   try {
     const ai = new GoogleGenAI({ apiKey });
     const model = process.env.GEMINI_MODEL || DEFAULT_MODEL;
-    const response = await ai.models.generateContent({
+    const fallbackModel = process.env.GEMINI_FALLBACK_MODEL || DEFAULT_FALLBACK_MODEL;
+    return await generateWithRetry(
+      async (m) => {
+        const response = await ai.models.generateContent({
+          model: m,
+          contents: `${question}${contextLine}${factsBlock}`,
+          config: { systemInstruction: SYSTEM_INSTRUCTION },
+        });
+        const text = response.text?.trim();
+        if (!text) throw new Error("Gemini returned an empty response.");
+        return text;
+      },
       model,
-      contents: `${question}${contextLine}${factsBlock}`,
-      config: { systemInstruction: SYSTEM_INSTRUCTION },
-    });
-
-    const text = response.text?.trim();
-    if (!text) throw new Error("Gemini returned an empty response.");
-    return text;
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("[ramesh/gemini] request failed:", redact(message, apiKey));
+      fallbackModel,
+      (message) => console.error("[ramesh/gemini] request failed:", redact(message, apiKey))
+    );
+  } catch {
+    // Each failed attempt was already logged (redacted) by generateWithRetry.
     throw new Error("Gemini request failed.");
   }
 }
