@@ -6,3 +6,7 @@ dist/
 .vercel
 graphify-out/cost.json
 graphify-out/cache/
+
+# local-only credentials/notes
+*.local.txt
+.playwright-mcp/
