@@ -49,6 +49,7 @@ async function completeSignIn(
 ): Promise<void> {
   const resolved = await resolveSession(session.access_token);
   if (!resolved.ok) {
+    console.warn(`[auth] sign-in succeeded but session check failed: ${resolved.reason}`);
     await getSupabase().auth.admin.signOut(session.access_token, "local").catch(() => {});
     const inactive = resolved.reason === "inactive" || resolved.reason === "no_profile";
     res.status(inactive ? 403 : 401).json({
@@ -91,6 +92,7 @@ authRouter.post("/login", asyncRoute(async (req, res) => {
   );
 
   if (!account?.email) {
+    console.warn("[auth] login rejected: no such username");
     await recordLoginAttempt(username, ip, false);
     res.status(401).json({ error: GENERIC_LOGIN_ERROR });
     return;
@@ -98,6 +100,8 @@ authRouter.post("/login", asyncRoute(async (req, res) => {
 
   const { data, error } = await freshAuthClient().auth.signInWithPassword({ email: account.email, password });
   if (error || !data.session) {
+    // Reason code only -- never the username, email or password.
+    console.warn(`[auth] login rejected by Supabase Auth: ${error?.code ?? "no_session"} (${error?.status ?? "-"})`);
     await recordLoginAttempt(username, ip, false);
     const status = error?.status === 429 ? 429 : 401;
     res.status(status).json({ error: status === 429 ? "Too many sign-in attempts. Try again shortly." : GENERIC_LOGIN_ERROR });
