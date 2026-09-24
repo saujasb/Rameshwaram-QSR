@@ -1,4 +1,5 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { supabaseBaseUrl } from "../db/client.js";
 
 /**
  * A throwaway Supabase client for one sign-in / refresh / OTP call.
@@ -10,7 +11,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
  * use the shared service client in db/client.ts -- they hold no session.)
  */
 export function freshAuthClient(): SupabaseClient {
-  const url = process.env.SUPABASE_URL;
+  const url = supabaseBaseUrl();
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key) throw new Error("SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set (server-side only).");
   return createClient(url, key, {

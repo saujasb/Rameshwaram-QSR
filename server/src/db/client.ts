@@ -16,10 +16,26 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 // Same class of bug, same fix, as db/pg.ts's pool.
 let client: SupabaseClient | undefined;
 
+/**
+ * The project's base URL (https://<ref>.supabase.co). Tolerates the env var
+ * being set with a trailing slash or an API path such as /rest/v1 --
+ * supabase-js appends its own /auth/v1, /storage/v1... paths, so anything
+ * beyond the origin makes those calls 404.
+ */
+export function supabaseBaseUrl(): string | undefined {
+  const raw = process.env.SUPABASE_URL?.trim();
+  if (!raw) return undefined;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return raw.replace(/\/+$/, "");
+  }
+}
+
 export function getSupabase(): SupabaseClient {
   if (client) return client;
 
-  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const SUPABASE_URL = supabaseBaseUrl();
   const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error(

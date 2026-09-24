@@ -1,4 +1,4 @@
-import { getSupabase } from "../db/client.js";
+import { getSupabase, supabaseBaseUrl } from "../db/client.js";
 import { queryOne } from "../db/pg.js";
 import { isRole, permissionsForRole, type AuthUser, type Permission, type Role } from "../../../shared-types/auth.js";
 
@@ -42,7 +42,7 @@ export const sessionDeps = {
     if (error || !data?.claims) return null;
     const c = data.claims as Record<string, unknown>;
     // getClaims checks signature + exp. Also pin who issued it and for what.
-    const expectedIss = `${process.env.SUPABASE_URL?.replace(/\/+$/, "")}/auth/v1`;
+    const expectedIss = `${supabaseBaseUrl()}/auth/v1`;
     if (c.iss !== expectedIss) return null;
     if (c.role !== "authenticated") return null;
     const aud = c.aud;
