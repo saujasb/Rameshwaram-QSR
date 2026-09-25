@@ -1,11 +1,11 @@
 import { Router, type Request, type Response } from "express";
 import { getSupabase } from "../db/client.js";
 import { query, queryOne } from "../db/pg.js";
-import { EMAIL_PATTERN, MIN_PASSWORD_LENGTH, PHONE_PATTERN, type LoginMethods } from "../../../shared-types/auth.js";
+import { EMAIL_PATTERN, MIN_PASSWORD_LENGTH, PHONE_PATTERN, USERNAME_PATTERN, type LoginMethods } from "../../../shared-types/auth.js";
 import { clearSessionCookies, clientIp, readAccessToken, readCookie, REFRESH_COOKIE, setSessionCookies } from "./cookies.js";
 import { invalidateUserCache, resolveSession, toAuthUser } from "./session.js";
 import { isLoginThrottled, recordLoginAttempt } from "./loginThrottle.js";
-import { freshAuthClient } from "./supabaseAuth.js";
+import { freshAuthClient, isPlaceholderEmail, placeholderEmail } from "./supabaseAuth.js";
 import { asyncRoute } from "../shared/asyncRoute.js";
 
 export const authRouter: Router = Router();
@@ -170,6 +170,31 @@ authRouter.post("/change-password", asyncRoute(async (req, res) => {
     return;
   }
 
+  // Optional username choice, allowed ONLY for an Admin still on their
+  // temporary password (i.e. the first-login step). Everyone else keeps the
+  // username an admin assigned; usernames never change after first login.
+  const requestedUsername =
+    typeof req.body?.newUsername === "string" ? req.body.newUsername.trim().toLowerCase() : "";
+  const renaming = requestedUsername !== "" && requestedUsername !== auth.profile.username.toLowerCase();
+  if (renaming) {
+    if (!(auth.profile.must_change_password && auth.role === "admin")) {
+      res.status(403).json({ error: "Your username can't be changed." });
+      return;
+    }
+    if (!USERNAME_PATTERN.test(requestedUsername)) {
+      res.status(400).json({ error: "Username must be 3-32 characters: lowercase letters, numbers, dot, dash or underscore." });
+      return;
+    }
+    const taken = await queryOne<{ id: string }>(
+      `SELECT id FROM public.profiles WHERE lower(username) = $1 AND id <> $2`,
+      [requestedUsername, auth.userId]
+    );
+    if (taken) {
+      res.status(400).json({ error: "That username is already taken." });
+      return;
+    }
+  }
+
   const ip = clientIp(req);
   const key = auth.profile.username.toLowerCase();
   if (await isLoginThrottled(key, ip)) {
@@ -191,19 +216,49 @@ authRouter.post("/change-password", asyncRoute(async (req, res) => {
   }
   await getSupabase().auth.admin.signOut(verify.data.session.access_token, "local").catch(() => {});
 
-  const { error } = await getSupabase().auth.admin.updateUserById(auth.userId, { password: newPassword });
+  // The username is claimed first (the unique index is the final guard
+  // against a race) and handed back if the password update then fails.
+  const oldUsername = auth.profile.username;
+  if (renaming) {
+    try {
+      await query(`UPDATE public.profiles SET username = $2, updated_by = $1 WHERE id = $1`, [auth.userId, requestedUsername]);
+    } catch (err) {
+      if ((err as { code?: string }).code === "23505") {
+        res.status(400).json({ error: "That username is already taken." });
+        return;
+      }
+      throw err;
+    }
+  }
+  // A placeholder sign-in address is derived from the username; keep it in
+  // step so the old name's placeholder doesn't block a future user.
+  const signInEmail = renaming && isPlaceholderEmail(account.email) ? placeholderEmail(requestedUsername) : account.email;
+
+  const { error } = await getSupabase().auth.admin.updateUserById(auth.userId, {
+    password: newPassword,
+    ...(signInEmail !== account.email ? { email: signInEmail, email_confirm: true } : {}),
+  });
   if (error) {
+    if (renaming) {
+      await query(`UPDATE public.profiles SET username = $2 WHERE id = $1`, [auth.userId, oldUsername]).catch(() => {});
+    }
     res.status(400).json({ error: error.message.includes("weak") ? "That password is too weak. Try a longer one." : "Could not change the password." });
     return;
   }
   await query(`UPDATE public.profiles SET must_change_password = false, updated_by = $1 WHERE id = $1`, [auth.userId]);
   await query(`INSERT INTO public.user_audit_log (actor_id, target_id, action) VALUES ($1, $1, 'password_changed')`, [auth.userId]);
+  if (renaming) {
+    await query(`INSERT INTO public.user_audit_log (actor_id, target_id, action, changes) VALUES ($1, $1, 'username_changed', $2)`, [
+      auth.userId,
+      JSON.stringify({ username: { from: oldUsername, to: requestedUsername } }),
+    ]);
+  }
   invalidateUserCache(auth.userId);
 
   // Supabase ends the user's existing sessions when the password changes, so
   // hand back a fresh session under the new password (a new session after a
   // credential change is the right outcome anyway).
-  const fresh = await freshAuthClient().auth.signInWithPassword({ email: account.email, password: newPassword });
+  const fresh = await freshAuthClient().auth.signInWithPassword({ email: signInEmail, password: newPassword });
   if (fresh.error || !fresh.data.session) {
     clearSessionCookies(req, res);
     res.json({ ok: true, reauthenticate: true });
