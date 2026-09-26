@@ -10,7 +10,8 @@ interface AuthState {
   user: AuthUser | null;
   /** UI convenience only -- the server enforces every permission independently. */
   can: (permission: Permission) => boolean;
-  login: (username: string, password: string) => Promise<void>;
+  /** `identifier` is a username or a registered email address. */
+  login: (identifier: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   reload: () => Promise<void>;
   /** Set when the session ended on its own (expiry / deactivation), to explain the login screen. */
@@ -82,12 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [status, signedOut]
   );
 
-  const login = useCallback(async (username: string, password: string) => {
+  const login = useCallback(async (identifier: string, password: string) => {
     const res = await fetch(`${BASE}/auth/login`, {
       method: "POST",
       credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ identifier, password }),
     });
     const body = await readJson(res);
     if (!res.ok) throw new ApiError((body.error as string) ?? "Sign-in failed.", res.status);

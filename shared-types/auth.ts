@@ -119,6 +119,8 @@ export interface ManagedUser {
   role: Role;
   isActive: boolean;
   mustChangePassword: boolean;
+  /** False until the user has created a password via their emailed setup link. */
+  passwordSet: boolean;
   lastLoginAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -127,12 +129,23 @@ export interface ManagedUser {
 export interface CreateUserInput {
   username: string;
   fullName: string;
-  email?: string | null;
+  /** Required: the account-setup link is emailed here, and it's used for password recovery. */
+  email: string;
   phone?: string | null;
   role: Role;
-  /** Temporary password; the user is asked to change it on first login. */
-  password: string;
+  /**
+   * Fallback only, for when email can't be delivered: create the account with
+   * this admin-issued temporary password (shown to the admin, never emailed)
+   * instead of emailing a setup link. The user must replace it at first sign-in.
+   */
+  temporaryPassword?: string;
 }
+
+/** Which emailed link a Set Password screen is completing. */
+export type PasswordLinkType = "invite" | "recovery";
+
+/** Generic answer to "forgot password", identical whether or not the account exists. */
+export const PASSWORD_RESET_REQUESTED_MESSAGE = "If an account exists for that email, a password reset link has been sent.";
 
 export interface UpdateUserInput {
   fullName?: string;

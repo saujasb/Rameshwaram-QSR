@@ -6,11 +6,15 @@ import { clearSessionCookies, clientIp, readAccessToken, readCookie, REFRESH_COO
 import { invalidateUserCache, resolveSession, toAuthUser } from "./session.js";
 import { isLoginThrottled, recordLoginAttempt } from "./loginThrottle.js";
 import { freshAuthClient, isPlaceholderEmail, placeholderEmail } from "./supabaseAuth.js";
+import { passwordLinkRouter } from "./passwordLinks.js";
 import { asyncRoute } from "../shared/asyncRoute.js";
 
 export const authRouter: Router = Router();
 
-const GENERIC_LOGIN_ERROR = "Incorrect username or password.";
+// Forgot password + completing an emailed setup/reset link (public; see passwordLinks.ts).
+authRouter.use("/password", passwordLinkRouter);
+
+const GENERIC_LOGIN_ERROR = "Incorrect username/email or password.";
 const MAX_PASSWORD_CHARS = 200;
 
 function envFlag(name: string): boolean {
@@ -31,10 +35,12 @@ export function loginMethods(): LoginMethods {
   };
 }
 
-function normalizeUsername(v: unknown): string | null {
+/** The login identifier: a username, or a registered email address (usernames can't contain "@"). */
+export function normalizeLoginIdentifier(v: unknown): { kind: "username" | "email"; value: string } | null {
   if (typeof v !== "string") return null;
-  const u = v.trim().toLowerCase();
-  return u.length >= 1 && u.length <= 64 ? u : null;
+  const value = v.trim().toLowerCase();
+  if (value.includes("@")) return value.length <= 254 ? { kind: "email", value } : null;
+  return value.length >= 1 && value.length <= 64 ? { kind: "username", value } : null;
 }
 
 async function markLoggedIn(userId: string): Promise<void> {
@@ -71,29 +77,36 @@ authRouter.get("/methods", (_req, res) => {
 });
 
 authRouter.post("/login", asyncRoute(async (req, res) => {
-  const username = normalizeUsername(req.body?.username);
+  // `identifier` is the current field; `username` is what older clients send.
+  const identifier = normalizeLoginIdentifier(req.body?.identifier ?? req.body?.username);
   const password = typeof req.body?.password === "string" ? req.body.password : "";
-  if (!username || !password || password.length > MAX_PASSWORD_CHARS) {
-    res.status(400).json({ error: "Enter your username and password." });
+  if (!identifier || !password || password.length > MAX_PASSWORD_CHARS) {
+    res.status(400).json({ error: "Enter your username or email, and your password." });
     return;
   }
 
+  // Identifier -> the auth email Supabase signs in with. Looked up server-side
+  // so the browser never learns (or can probe) which usernames/emails exist.
+  // Email sign-in only matches a user's registered profile email.
+  const account = await queryOne<{ email: string | null; username: string }>(
+    identifier.kind === "email"
+      ? `SELECT u.email, p.username FROM public.profiles p JOIN auth.users u ON u.id = p.id WHERE lower(p.email) = $1 AND lower(u.email) = $1`
+      : `SELECT u.email, p.username FROM public.profiles p JOIN auth.users u ON u.id = p.id WHERE lower(p.username) = $1`,
+    [identifier.value]
+  );
+
+  // Throttle per account, so switching between username and email doesn't
+  // buy extra guesses; unknown identifiers are throttled as typed.
+  const throttleKey = account ? account.username.toLowerCase() : identifier.value;
   const ip = clientIp(req);
-  if (await isLoginThrottled(username, ip)) {
+  if (await isLoginThrottled(throttleKey, ip)) {
     res.status(429).json({ error: "Too many failed sign-in attempts. Wait 15 minutes and try again." });
     return;
   }
 
-  // Username -> the auth email Supabase signs in with. Looked up server-side
-  // so the browser never learns (or can probe) which usernames exist.
-  const account = await queryOne<{ email: string | null }>(
-    `SELECT u.email FROM public.profiles p JOIN auth.users u ON u.id = p.id WHERE lower(p.username) = $1`,
-    [username]
-  );
-
   if (!account?.email) {
-    console.warn("[auth] login rejected: no such username");
-    await recordLoginAttempt(username, ip, false);
+    console.warn(`[auth] login rejected: no such ${identifier.kind}`);
+    await recordLoginAttempt(throttleKey, ip, false);
     res.status(401).json({ error: GENERIC_LOGIN_ERROR });
     return;
   }
@@ -102,13 +115,13 @@ authRouter.post("/login", asyncRoute(async (req, res) => {
   if (error || !data.session) {
     // Reason code only -- never the username, email or password.
     console.warn(`[auth] login rejected by Supabase Auth: ${error?.code ?? "no_session"} (${error?.status ?? "-"})`);
-    await recordLoginAttempt(username, ip, false);
+    await recordLoginAttempt(throttleKey, ip, false);
     const status = error?.status === 429 ? 429 : 401;
     res.status(status).json({ error: status === 429 ? "Too many sign-in attempts. Try again shortly." : GENERIC_LOGIN_ERROR });
     return;
   }
 
-  await recordLoginAttempt(username, ip, true);
+  await recordLoginAttempt(throttleKey, ip, true);
   await completeSignIn(req, res, data.session);
 }));
 

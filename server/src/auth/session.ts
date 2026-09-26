@@ -26,9 +26,18 @@ export type SessionFailure = "missing" | "invalid" | "revoked" | "no_profile" | 
 
 export type SessionResult = { ok: true; auth: AuthContext } | { ok: false; reason: SessionFailure };
 
-interface VerifiedClaims {
+export interface VerifiedClaims {
   sub: string;
   sessionId: string | null;
+  /** Supabase `amr` entries: how this session was established (password, recovery, invite, ...). */
+  amr?: { method: string; timestamp: number }[];
+}
+
+/** Sessions opened by an emailed link. They may only be used to set a password, never for dashboard access. */
+export const LINK_SESSION_METHODS = ["recovery", "invite"] as const;
+
+export function isLinkOnlySession(amr: VerifiedClaims["amr"]): boolean {
+  return Boolean(amr && amr.length > 0 && amr.every((a) => (LINK_SESSION_METHODS as readonly string[]).includes(a.method)));
 }
 
 /**
@@ -48,7 +57,12 @@ export const sessionDeps = {
     const aud = c.aud;
     if (!(aud === "authenticated" || (Array.isArray(aud) && aud.includes("authenticated")))) return null;
     if (typeof c.sub !== "string" || !c.sub) return null;
-    return { sub: c.sub, sessionId: typeof c.session_id === "string" ? c.session_id : null };
+    const amr = Array.isArray(c.amr)
+      ? c.amr
+          .filter((a): a is { method: string; timestamp: number } => typeof a?.method === "string" && typeof a?.timestamp === "number")
+          .map((a) => ({ method: a.method, timestamp: a.timestamp }))
+      : undefined;
+    return { sub: c.sub, sessionId: typeof c.session_id === "string" ? c.session_id : null, amr };
   },
 
   /** Profile + whether the Supabase session behind the JWT still exists (it's deleted on logout/revocation). */
@@ -99,6 +113,9 @@ export async function resolveSession(token: string | undefined): Promise<Session
   if (!token) return { ok: false, reason: "missing" };
   const claims = await sessionDeps.verifyAccessToken(token).catch(() => null);
   if (!claims) return { ok: false, reason: "invalid" };
+  // A password-setup/reset link proves control of the mailbox, not the
+  // password; that session is only good for POST /api/auth/password/complete.
+  if (isLinkOnlySession(claims.amr)) return { ok: false, reason: "invalid" };
 
   const loaded = await cachedProfile(claims.sub, claims.sessionId);
   if (!loaded) return { ok: false, reason: "no_profile" };

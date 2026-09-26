@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import type { LoginMethods } from "@shared/auth";
+import { PASSWORD_RESET_REQUESTED_MESSAGE, type LoginMethods } from "@shared/auth";
 import { fetchLoginMethods, useAuth } from "../../lib/auth/AuthContext";
 import { BASE } from "../../lib/api/client";
 import "./auth.css";
@@ -18,9 +18,9 @@ export function AuthCard({ title, subtitle, children }: { title: string; subtitl
   );
 }
 
-function PasswordLogin() {
+function PasswordLogin({ onForgot }: { onForgot: () => void }) {
   const { login } = useAuth();
-  const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -30,7 +30,7 @@ function PasswordLogin() {
     setError(null);
     setBusy(true);
     try {
-      await login(username.trim(), password);
+      await login(identifier.trim(), password);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Sign-in failed.");
       setPassword("");
@@ -42,14 +42,14 @@ function PasswordLogin() {
   return (
     <form className="auth-form" onSubmit={submit} noValidate>
       <div className="field">
-        <label htmlFor="login-username">Username</label>
+        <label htmlFor="login-username">Username or email</label>
         <input
           id="login-username"
           autoComplete="username"
           autoCapitalize="none"
           spellCheck={false}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          value={identifier}
+          onChange={(e) => setIdentifier(e.target.value)}
           required
           autoFocus
         />
@@ -70,8 +70,73 @@ function PasswordLogin() {
           {error}
         </p>
       )}
-      <button className="btn primary auth-submit" type="submit" disabled={busy || !username.trim() || !password}>
+      <button className="btn primary auth-submit" type="submit" disabled={busy || !identifier.trim() || !password}>
         {busy ? "Signing in…" : "Log in"}
+      </button>
+      <button type="button" className="auth-link" onClick={onForgot}>
+        Forgot password?
+      </button>
+    </form>
+  );
+}
+
+/** Emails a password-reset link. The answer never says whether the address has an account. */
+function ForgotPassword({ onBack }: { onBack: () => void }) {
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  async function submit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    try {
+      const res = await fetch(`${BASE}/auth/password/forgot`, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body.error ?? "Something went wrong.");
+      setMessage(body.message ?? PASSWORD_RESET_REQUESTED_MESSAGE);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <form className="auth-form" onSubmit={submit} noValidate>
+      {message ? (
+        <p className="auth-notice" role="status">
+          {message} The link works once and expires after a while; check your spam folder if it doesn't arrive.
+        </p>
+      ) : (
+        <>
+          <div className="field">
+            <label htmlFor="forgot-email">Registered email</label>
+            <input
+              id="forgot-email"
+              type="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoFocus
+            />
+          </div>
+          {error && <p className="auth-error" role="alert">{error}</p>}
+          <button className="btn primary auth-submit" type="submit" disabled={busy || !email.trim()}>
+            {busy ? "Sending…" : "Send reset link"}
+          </button>
+        </>
+      )}
+      <button type="button" className="btn auth-secondary" onClick={onBack}>
+        Back to sign in
       </button>
     </form>
   );
@@ -152,10 +217,11 @@ function OtpLogin({ channel, phoneChannel }: { channel: "email" | "phone"; phone
   );
 }
 
-export function LoginPage() {
+export function LoginPage({ initialView = "signin" }: { initialView?: "signin" | "forgot" }) {
   const { notice } = useAuth();
   const [methods, setMethods] = useState<LoginMethods | null>(null);
   const [mode, setMode] = useState<"password" | "email" | "phone">("password");
+  const [view, setView] = useState(initialView);
 
   useEffect(() => {
     void fetchLoginMethods().then(setMethods);
@@ -163,8 +229,16 @@ export function LoginPage() {
 
   const otpModes = [methods?.emailOtp && "email", methods?.phoneOtp && "phone"].filter(Boolean) as ("email" | "phone")[];
 
+  if (view === "forgot") {
+    return (
+      <AuthCard title="Reset your password" subtitle="Enter the email address registered to your account and we'll email you a link to create a new password.">
+        <ForgotPassword onBack={() => setView("signin")} />
+      </AuthCard>
+    );
+  }
+
   return (
-    <AuthCard title="Sign in" subtitle="Use the username and password your admin gave you.">
+    <AuthCard title="Sign in" subtitle="Use your username or registered email, and your password.">
       {notice && <p className="auth-notice" role="status">{notice}</p>}
       {otpModes.length > 0 && (
         <div className="auth-tabs" role="tablist">
@@ -175,7 +249,7 @@ export function LoginPage() {
           ))}
         </div>
       )}
-      {mode === "password" ? <PasswordLogin /> : <OtpLogin channel={mode} phoneChannel={methods?.phoneOtpChannel ?? "whatsapp"} />}
+      {mode === "password" ? <PasswordLogin onForgot={() => setView("forgot")} /> : <OtpLogin channel={mode} phoneChannel={methods?.phoneOtpChannel ?? "whatsapp"} />}
     </AuthCard>
   );
 }

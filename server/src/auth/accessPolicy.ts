@@ -41,6 +41,8 @@ export const ACCESS_RULES: AccessRule[] = [
   { prefix: "/api/auth/logout", access: "public" },
   { prefix: "/api/auth/methods", access: "public" },
   { prefix: "/api/auth/otp", access: "public" },
+  // Forgot password + completing an emailed setup/reset link: they carry their own proof (the link's token).
+  { prefix: "/api/auth/password", access: "public" },
   { prefix: "/api/auth/me", access: "authenticated", allowDuringPasswordChange: true },
   { prefix: "/api/auth/change-password", access: "authenticated", allowDuringPasswordChange: true },
 

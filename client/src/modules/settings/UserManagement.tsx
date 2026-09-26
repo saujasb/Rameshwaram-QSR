@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import {
-  MIN_PASSWORD_LENGTH,
   ROLE_DESCRIPTIONS,
   ROLE_LABELS,
   ROLES,
@@ -9,7 +8,7 @@ import {
 } from "@shared/auth";
 import { Modal } from "../../components/Modal";
 import { useAuth } from "../../lib/auth/AuthContext";
-import { useCreateUser, useManagedUsers, useResetUserPassword, useUpdateUser } from "../../lib/api/users";
+import { useCreateUser, useManagedUsers, useResetUserPassword, useSendPasswordLink, useUpdateUser } from "../../lib/api/users";
 
 const MUTED = { color: "var(--muted)", fontSize: 12.5 } as const;
 
@@ -18,7 +17,7 @@ function formatWhen(iso: string | null): string {
   return new Date(iso).toLocaleString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-/** A readable random temporary password the admin can pass on; the user must change it at first sign-in. */
+/** Fallback only (e.g. email not working): a readable random temporary password; the user must change it at first sign-in. */
 function generateTempPassword(): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789";
   const bytes = new Uint32Array(14);
@@ -52,30 +51,55 @@ function UserForm({ user, onDone }: { user?: ManagedUser; onDone: () => void }) 
   const [email, setEmail] = useState(user?.email ?? "");
   const [phone, setPhone] = useState(user?.phone ?? "");
   const [role, setRole] = useState<Role>(user?.role ?? "staff");
-  const [password, setPassword] = useState(() => (user ? "" : generateTempPassword()));
-  const [created, setCreated] = useState<{ username: string; password: string } | null>(null);
+  const [created, setCreated] = useState<{ username: string; email: string; tempPassword: string | null } | null>(null);
+  // Fallback when email delivery isn't working: an admin-issued temporary password.
+  const [useTemp, setUseTemp] = useState(false);
+  const [tempPassword] = useState(generateTempPassword);
 
   const mutation = user ? update : create;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
     if (user) {
-      await update.mutateAsync({ id: user.id, fullName, email: email.trim() || null, phone: phone.trim() || null, ...(isSelf ? {} : { role }) });
+      await update.mutateAsync({ id: user.id, fullName, email: email.trim(), phone: phone.trim() || null, ...(isSelf ? {} : { role }) });
       onDone();
     } else {
-      const u = await create.mutateAsync({ username: username.trim().toLowerCase(), fullName, email: email.trim() || null, phone: phone.trim() || null, role, password });
-      setCreated({ username: u.username, password });
+      const u = await create.mutateAsync({
+        username: username.trim().toLowerCase(),
+        fullName,
+        email: email.trim(),
+        phone: phone.trim() || null,
+        role,
+        ...(useTemp ? { temporaryPassword: tempPassword } : {}),
+      });
+      setCreated({ username: u.username, email: u.email ?? email.trim(), tempPassword: useTemp ? tempPassword : null });
     }
   }
 
+  if (created?.tempPassword) {
+    return (
+      <div>
+        <p>
+          <b>{created.username}</b> can now sign in. Share this temporary password with them privately — it is not shown again and was not
+          emailed. They'll be asked to choose their own at first sign-in.
+        </p>
+        <pre style={{ fontSize: 16, padding: 12, background: "var(--line)", borderRadius: 8, userSelect: "all" }}>{created.tempPassword}</pre>
+        <div className="btn-row">
+          <button className="btn primary" onClick={onDone}>
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
   if (created) {
     return (
       <div>
         <p>
-          <b>{created.username}</b> can now sign in. Share this temporary password with them privately — it is not shown again,
-          and they'll be asked to choose their own at first sign-in.
+          <b>{created.username}</b> was added. An account-setup link was emailed to <b>{created.email}</b>. They open it, create their
+          own password, and can then sign in with their username or email.
         </p>
-        <pre style={{ fontSize: 16, padding: 12, background: "var(--line)", borderRadius: 8, userSelect: "all" }}>{created.password}</pre>
+        <p style={MUTED}>No password is emailed. If the email doesn't arrive, use “Password” on their row to send a new link.</p>
         <div className="btn-row">
           <button className="btn primary" onClick={onDone}>
             Done
@@ -106,8 +130,9 @@ function UserForm({ user, onDone }: { user?: ManagedUser; onDone: () => void }) 
           <input id="um-name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
         </div>
         <div className="field">
-          <label htmlFor="um-email">Email (optional)</label>
-          <input id="um-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
+          <label htmlFor="um-email">Email</label>
+          <input id="um-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" required />
+          <span style={MUTED}>{user ? "Used for sign-in and password recovery." : "Their account-setup link is sent here. Also used for sign-in and password recovery."}</span>
         </div>
         <div className="field">
           <label htmlFor="um-phone">Mobile / WhatsApp (optional)</label>
@@ -118,22 +143,21 @@ function UserForm({ user, onDone }: { user?: ManagedUser; onDone: () => void }) 
           <RoleSelect id="um-role" value={role} onChange={setRole} disabled={isSelf} />
           {isSelf && <span style={MUTED}>You can't change your own role.</span>}
         </div>
-        {!user && (
-          <div className="field">
-            <label htmlFor="um-password">Temporary password</label>
-            <input id="um-password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="off" spellCheck={false} />
-            <span style={MUTED}>At least {MIN_PASSWORD_LENGTH} characters. They'll set their own at first sign-in.</span>
-          </div>
-        )}
       </div>
+      {!user && (
+        <label style={{ ...MUTED, display: "flex", gap: 6, alignItems: "flex-start", marginTop: 10 }}>
+          <input type="checkbox" checked={useTemp} onChange={(e) => setUseTemp(e.target.checked)} />
+          <span>Email not working? Don't send a setup email — show me a temporary password to pass on instead (they must change it at first sign-in).</span>
+        </label>
+      )}
       {mutation.isError && (
         <p role="alert" style={{ color: "var(--critical)", fontSize: 13 }}>
           {(mutation.error as Error).message}
         </p>
       )}
       <div className="btn-row">
-        <button className="btn primary" type="submit" disabled={mutation.isPending || !fullName.trim() || (!user && (!username.trim() || password.length < MIN_PASSWORD_LENGTH))}>
-          {mutation.isPending ? "Saving…" : user ? "Save changes" : "Add user"}
+        <button className="btn primary" type="submit" disabled={mutation.isPending || !fullName.trim() || !email.trim() || (!user && !username.trim())}>
+          {mutation.isPending ? "Saving…" : user ? "Save changes" : useTemp ? "Add user" : "Add user & send setup email"}
         </button>
         <button className="btn" type="button" onClick={onDone}>
           Cancel
@@ -143,9 +167,28 @@ function UserForm({ user, onDone }: { user?: ManagedUser; onDone: () => void }) 
   );
 }
 
-function ResetPassword({ user, onDone }: { user: ManagedUser; onDone: () => void }) {
+function PasswordActions({ user, onDone }: { user: ManagedUser; onDone: () => void }) {
+  const sendLink = useSendPasswordLink();
   const reset = useResetUserPassword();
+  const [showTemp, setShowTemp] = useState(false);
   const [password] = useState(generateTempPassword);
+  const hasEmail = Boolean(user.email);
+
+  if (sendLink.isSuccess) {
+    return (
+      <div>
+        <p>
+          {sendLink.data.kind === "invite" ? "A new account-setup link" : "A password-reset link"} was emailed to <b>{user.email}</b>. Their
+          current password keeps working until they set a new one.
+        </p>
+        <div className="btn-row">
+          <button className="btn primary" onClick={onDone}>
+            Done
+          </button>
+        </div>
+      </div>
+    );
+  }
   if (reset.isSuccess) {
     return (
       <div>
@@ -164,18 +207,36 @@ function ResetPassword({ user, onDone }: { user: ManagedUser; onDone: () => void
   }
   return (
     <div>
-      <p>
-        Give <b>{user.fullName || user.username}</b> a new temporary password? They'll be signed out everywhere.
-      </p>
-      {reset.isError && <p role="alert" style={{ color: "var(--critical)", fontSize: 13 }}>{(reset.error as Error).message}</p>}
+      {hasEmail ? (
+        <p>
+          Email <b>{user.fullName || user.username}</b> a secure link to {user.passwordSet ? "create a new password" : "finish setting up their account"}?
+          It goes to <b>{user.email}</b>. No password is sent.
+        </p>
+      ) : (
+        <p role="alert" style={{ color: "var(--critical)" }}>
+          This user has no email address. Add one with “Edit” so they can receive setup and reset links.
+        </p>
+      )}
+      {sendLink.isError && <p role="alert" style={{ color: "var(--critical)", fontSize: 13 }}>{(sendLink.error as Error).message}</p>}
       <div className="btn-row">
-        <button className="btn primary" disabled={reset.isPending} onClick={() => reset.mutate({ id: user.id, password })}>
-          {reset.isPending ? "Resetting…" : "Reset password"}
+        <button className="btn primary" disabled={!hasEmail || sendLink.isPending} onClick={() => sendLink.mutate({ id: user.id })}>
+          {sendLink.isPending ? "Sending…" : user.passwordSet ? "Email reset link" : "Resend setup email"}
         </button>
         <button className="btn" onClick={onDone}>
           Cancel
         </button>
       </div>
+
+      <details style={{ marginTop: 14 }} open={showTemp} onToggle={(e) => setShowTemp((e.target as HTMLDetailsElement).open)}>
+        <summary style={MUTED}>Email not working? Set a temporary password instead</summary>
+        <p style={{ ...MUTED, marginTop: 8 }}>
+          You'll see a temporary password to pass on privately; they must replace it at next sign-in, and they're signed out everywhere now.
+        </p>
+        {reset.isError && <p role="alert" style={{ color: "var(--critical)", fontSize: 13 }}>{(reset.error as Error).message}</p>}
+        <button className="btn" disabled={reset.isPending} onClick={() => reset.mutate({ id: user.id, password })}>
+          {reset.isPending ? "Resetting…" : "Set temporary password"}
+        </button>
+      </details>
     </div>
   );
 }
@@ -186,6 +247,7 @@ export function UserManagement() {
   const update = useUpdateUser();
   const [editing, setEditing] = useState<ManagedUser | "new" | null>(null);
   const [resetting, setResetting] = useState<ManagedUser | null>(null);
+  const missingEmail = users?.filter((u) => u.isActive && !u.email) ?? [];
 
   return (
     <div className="card">
@@ -202,6 +264,12 @@ export function UserManagement() {
       {isLoading && <p style={MUTED}>Loading users…</p>}
       {isError && <p role="alert" style={{ color: "var(--critical)" }}>{(error as Error).message}</p>}
       {update.isError && <p role="alert" style={{ color: "var(--critical)", fontSize: 13 }}>{(update.error as Error).message}</p>}
+
+      {missingEmail.length > 0 && (
+        <p className="callout" role="alert" style={{ marginTop: 10 }}>
+          <b>Email needed.</b> {missingEmail.map((u) => u.username).join(", ")} {missingEmail.length === 1 ? "has" : "have"} no email address, so they can't recover a forgotten password. Use “Edit” to add one.
+        </p>
+      )}
 
       {users && (
         <div className="table-scroll">
@@ -228,12 +296,18 @@ export function UserManagement() {
                       {isSelf && <span style={{ ...MUTED, marginLeft: 6 }}>(you)</span>}
                     </td>
                     <td>{u.username}</td>
-                    <td>{u.email ?? "—"}</td>
+                    <td>{u.email ?? <span style={{ color: "var(--critical)" }}>Missing</span>}</td>
                     <td>{u.phone ?? "—"}</td>
                     <td>{ROLE_LABELS[u.role]}</td>
                     <td>
                       <span className={`pill ${u.isActive ? "good" : "notconn"}`} style={{ marginTop: 0 }}>
-                        {u.isActive ? (u.mustChangePassword ? "Active · temp password" : "Active") : "Deactivated"}
+                        {!u.isActive
+                          ? "Deactivated"
+                          : !u.passwordSet
+                            ? "Setup email sent"
+                            : u.mustChangePassword
+                              ? "Active · temp password"
+                              : "Active"}
                       </span>
                     </td>
                     <td>{formatWhen(u.lastLoginAt)}</td>
@@ -242,7 +316,7 @@ export function UserManagement() {
                         Edit
                       </button>{" "}
                       <button className="btn small" onClick={() => setResetting(u)}>
-                        Reset password
+                        Password
                       </button>{" "}
                       {!isSelf && (
                         <button
@@ -277,8 +351,8 @@ export function UserManagement() {
         </Modal>
       )}
       {resetting && (
-        <Modal title="Reset password" onClose={() => setResetting(null)}>
-          <ResetPassword user={resetting} onDone={() => setResetting(null)} />
+        <Modal title={resetting.passwordSet ? "Reset password" : "Account setup"} onClose={() => setResetting(null)}>
+          <PasswordActions user={resetting} onDone={() => setResetting(null)} />
         </Modal>
       )}
     </div>

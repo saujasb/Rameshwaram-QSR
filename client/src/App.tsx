@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { AppShell } from "./components/layout/AppShell";
 import { flatNavItems, type NavItem } from "./routes";
@@ -5,6 +6,12 @@ import { useAuth } from "./lib/auth/AuthContext";
 import { LoginPage } from "./modules/auth/LoginPage";
 import { ChangePasswordPage } from "./modules/auth/ChangePasswordPage";
 import { AccessDenied } from "./modules/auth/AccessDenied";
+import { SetPasswordPage } from "./modules/auth/SetPasswordPage";
+import { takePasswordLinkFromUrl } from "./lib/auth/passwordLink";
+
+// Captured once, before anything renders, so the link's one-time token is
+// taken out of the address bar immediately.
+const initialPasswordLink = takePasswordLinkFromUrl();
 
 function Guarded({ item }: { item: NavItem }) {
   const { can } = useAuth();
@@ -19,6 +26,22 @@ function Guarded({ item }: { item: NavItem }) {
 
 export default function App() {
   const { status, user } = useAuth();
+  const [passwordLink, setPasswordLink] = useState(initialPasswordLink);
+  const [loginView, setLoginView] = useState<"signin" | "forgot">("signin");
+
+  // An emailed setup/reset link works whether or not anyone is signed in here.
+  if (passwordLink) {
+    return (
+      <SetPasswordPage
+        link={passwordLink}
+        onDone={(next) => {
+          window.history.replaceState(null, "", "/");
+          setLoginView(next === "forgot" ? "forgot" : "signin");
+          setPasswordLink(null);
+        }}
+      />
+    );
+  }
 
   // The whole dashboard sits behind sign-in. (The API independently rejects
   // every data request without a valid session, so this is not the only
@@ -30,7 +53,7 @@ export default function App() {
       </div>
     );
   }
-  if (status === "signed-out" || !user) return <LoginPage />;
+  if (status === "signed-out" || !user) return <LoginPage initialView={loginView} />;
   if (user.mustChangePassword) return <ChangePasswordPage />;
 
   return (

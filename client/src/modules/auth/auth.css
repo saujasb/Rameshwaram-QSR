@@ -179,3 +179,16 @@
     display: none;
   }
 }
+
+.auth-link {
+  align-self: center;
+  border: 0;
+  background: transparent;
+  color: var(--brand);
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 6px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

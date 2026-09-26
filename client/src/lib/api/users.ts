@@ -31,3 +31,12 @@ export function useResetUserPassword() {
     onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
   });
 }
+
+/** Emails the user a one-time link to set their password (setup link if never accepted, otherwise a reset link). */
+export function useSendPasswordLink() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id }: { id: string }) => apiPost<{ ok: true; kind: "invite" | "recovery" }>(`/users/${id}/send-password-link`),
+    onSuccess: () => qc.invalidateQueries({ queryKey: KEY }),
+  });
+}
